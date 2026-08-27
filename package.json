@@ -1,0 +1,23 @@
+{
+  "name": "a-timeless-journey",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A Timeless Journey - jeu d'exploration 2D pixel art a travers le temps",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "gen:placeholders": "node tools/gen-placeholders.mjs",
+    "shot": "node tools/screenshot.mjs"
+  },
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0"
+  }
+}

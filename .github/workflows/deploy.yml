@@ -1,0 +1,69 @@
+# Compile le jeu et le publie sur GitHub Pages a chaque push sur main.
+#
+# Prealable, a faire une seule fois dans les reglages du depot :
+#   Settings > Pages > Build and deployment > Source : "GitHub Actions"
+# Sans ce reglage, le workflow echoue a l'etape de deploiement.
+
+name: Deploiement GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # permet aussi de relancer un deploiement a la main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un seul deploiement a la fois ; les pushes rapproches remplacent le precedent.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Compilation
+    runs-on: ubuntu-latest
+    env:
+      # Playwright ne sert qu'aux captures d'ecran en local : inutile de
+      # telecharger un navigateur de 150 Mo a chaque compilation.
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+    steps:
+      - name: Recuperation du depot
+        uses: actions/checkout@v4
+
+      - name: Installation de Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installation des dependances
+        run: npm ci
+
+      - name: Verification des types
+        run: npm run typecheck
+
+      - name: Compilation
+        run: npm run build
+
+      - name: Configuration de Pages
+        uses: actions/configure-pages@v5
+
+      - name: Envoi du site compile
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Deploiement
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publication sur GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

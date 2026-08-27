@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+.vite/
+
+# Decoupes intermediaires : regenerables depuis assets-source/raw/
+assets-source/sliced/*
+!assets-source/sliced/.gitkeep
+captures/
