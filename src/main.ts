@@ -27,12 +27,24 @@ const sceneDepart: SceneKey =
 /** `?debug=1` affiche les cadres de collision par dessus le decor. */
 const debugPhysique = parametres.get('debug') === '1';
 
+/**
+ * Retire le message d'echec affiche par defaut dans la page.
+ *
+ * Ce code ne s'execute que si le module a bien ete charge et que Phaser a pu
+ * demarrer : c'est precisement ce qui distingue une page qui fonctionne d'une
+ * page dont les fichiers sont introuvables.
+ */
+function masquerMessageEchec(): void {
+  document.getElementById('echec-chargement')?.remove();
+}
+
 const game = new Phaser.Game({
   ...createGameConfig(PARENT, debugPhysique),
   scene: [BootScene, PreloadScene, GameScene, DiagnosticScene],
 });
 
 game.registry.set('sceneDepart', sceneDepart);
+masquerMessageEchec();
 
 // Expose l'instance en developpement, pour pouvoir l'inspecter depuis la console.
 if (import.meta.env.DEV) {

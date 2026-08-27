@@ -64,9 +64,14 @@ developpement doit tourner en parallele.
 Chaque push sur `main` declenche automatiquement la compilation et la
 publication sur GitHub Pages, via `.github/workflows/deploy.yml`.
 
-> Ce depot est deja configure : `Settings` > `Pages` > `Build and deployment` >
-> `Source` est sur **GitHub Actions**. Un depot cree depuis zero demande ce
-> reglage une fois, sans quoi l'etape de deploiement echoue.
+> **Reglage indispensable**, dans les reglages du depot :
+> `Settings` > `Pages` > `Build and deployment` > `Source` : **GitHub Actions**.
+>
+> Regle sur `Deploy from a branch`, GitHub publie la racine du depot au lieu du
+> resultat de la compilation. La page s'ouvre alors sans style et sans jeu :
+> elle sert le `index.html` source, qui pointe vers du TypeScript non compile.
+> Ce reglage est le premier endroit a verifier si le jeu ne demarre pas en
+> ligne, d'autant que le workflow de compilation, lui, reste au vert.
 
 Le jeu est ensuite accessible sur
 `https://<utilisateur>.github.io/A-timeless-journey/`.
