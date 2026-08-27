@@ -40,7 +40,7 @@ export class PreloadScene extends Phaser.Scene {
 
   create(): void {
     registerAnimations(this.anims);
-    this.scene.start(SCENE.DIAGNOSTIC);
+    this.scene.start(this.registry.get('sceneDepart') ?? SCENE.JEU);
   }
 
   private creerBarreDeProgression(): void {

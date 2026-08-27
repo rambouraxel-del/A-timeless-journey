@@ -18,8 +18,6 @@ import { Bitmap, createRandom } from './png.mjs';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 const TILE = 16;
-const CHAR_W = 16;
-const CHAR_H = 24;
 
 /** Palette commune a tous les placeholders : garde l'ensemble visuellement coherent. */
 const PALETTE = {
@@ -42,12 +40,7 @@ const PALETTE = {
   metalMur: [86, 95, 122],
   accent: [107, 214, 196],
 
-  peau: [232, 195, 158],
-  peauOmbre: [201, 163, 127],
   cheveux: [74, 59, 42],
-  tunique: [107, 214, 196],
-  tuniqueOmbre: [78, 168, 152],
-  pantalon: [58, 64, 84],
 };
 
 // ---------------------------------------------------------------------------
@@ -139,105 +132,6 @@ function genererPlancheTuiles() {
 }
 
 // ---------------------------------------------------------------------------
-// Personnage
-// ---------------------------------------------------------------------------
-
-/** Directions, dans l'ordre des lignes de la planche. */
-const DIRECTIONS = ['bas', 'gauche', 'droite', 'haut'];
-
-/** Nombre d'images par direction : repos, pas gauche, pas droit. */
-const FRAMES_PAR_DIRECTION = 3;
-
-/**
- * Dessine une image du personnage.
- *
- * Le personnage fait 16x24 : plus haut qu'une tuile, pour qu'il se detache du
- * sol et que sa tete depasse legerement du decor qu'il longe.
- */
-function dessinerPersonnage(bmp, ox, oy, direction, frame) {
-  // Cycle de marche a trois images : repos, pas gauche, pas droit.
-  // Le buste se souleve d'un pixel sur les images de pas pendant que les pieds
-  // restent au sol : c'est ce leger rebond qui rend la marche lisible a 16 pixels.
-  const rebond = frame === 0 ? 0 : -1;
-  const jambeAvant = frame === 1 ? 'gauche' : frame === 2 ? 'droite' : null;
-
-  const hautCorps = oy + rebond;
-
-  // --- Tete ---
-  bmp.rect(ox + 4, hautCorps + 2, 8, 8, PALETTE.peau);
-  bmp.strokeRect(ox + 4, hautCorps + 2, 8, 8, PALETTE.contour);
-
-  // --- Cheveux ---
-  // De profil, la chevelure couvre l'arriere du crane : a l'oppose du regard.
-  if (direction === 'haut') {
-    bmp.rect(ox + 5, hautCorps + 3, 6, 5, PALETTE.cheveux); // vu de dos : nuque entiere
-  } else {
-    bmp.rect(ox + 5, hautCorps + 3, 6, 2, PALETTE.cheveux);
-    if (direction === 'gauche') bmp.rect(ox + 9, hautCorps + 3, 2, 4, PALETTE.cheveux);
-    if (direction === 'droite') bmp.rect(ox + 5, hautCorps + 3, 2, 4, PALETTE.cheveux);
-  }
-
-  // --- Yeux et nez ---
-  if (direction === 'bas') {
-    bmp.set(ox + 6, hautCorps + 6, PALETTE.contour);
-    bmp.set(ox + 9, hautCorps + 6, PALETTE.contour);
-  } else if (direction === 'gauche') {
-    bmp.set(ox + 6, hautCorps + 6, PALETTE.contour);
-    bmp.rect(ox + 4, hautCorps + 7, 1, 2, PALETTE.peauOmbre);
-  } else if (direction === 'droite') {
-    bmp.set(ox + 9, hautCorps + 6, PALETTE.contour);
-    bmp.rect(ox + 11, hautCorps + 7, 1, 2, PALETTE.peauOmbre);
-  }
-
-  // --- Buste ---
-  bmp.rect(ox + 4, hautCorps + 10, 8, 8, PALETTE.tunique);
-  bmp.rect(ox + 4, hautCorps + 16, 8, 2, PALETTE.tuniqueOmbre);
-  bmp.strokeRect(ox + 4, hautCorps + 10, 8, 8, PALETTE.contour);
-
-  // --- Bras ---
-  if (direction === 'gauche') {
-    bmp.rect(ox + 3, hautCorps + 11, 2, 5, PALETTE.tuniqueOmbre);
-  } else if (direction === 'droite') {
-    bmp.rect(ox + 11, hautCorps + 11, 2, 5, PALETTE.tuniqueOmbre);
-  } else {
-    bmp.rect(ox + 3, hautCorps + 11, 1, 5, PALETTE.tuniqueOmbre);
-    bmp.rect(ox + 12, hautCorps + 11, 1, 5, PALETTE.tuniqueOmbre);
-  }
-
-  // --- Jambes et pieds ---
-  // La jambe qui avance s'ecarte d'un pixel vers l'exterieur, l'autre reste sous
-  // le corps : l'ecartement se voit mieux qu'un simple changement de longueur.
-  dessinerJambe(bmp, ox + (jambeAvant === 'gauche' ? 4 : 5), hautCorps + 18, oy);
-  dessinerJambe(bmp, ox + (jambeAvant === 'droite' ? 10 : 9), hautCorps + 18, oy);
-}
-
-/**
- * Dessine une jambe depuis le bas du buste jusqu'au sol.
- *
- * @param hautJambe Ordonnee du haut de la jambe, qui suit le rebond du buste.
- * @param solY      Ordonnee de reference de l'image, qui elle ne rebondit pas :
- *                  le pied reste ainsi pose au sol quel que soit le rebond.
- */
-function dessinerJambe(bmp, x, hautJambe, solY) {
-  const piedY = solY + 22;
-  bmp.rect(x, hautJambe, 2, piedY - hautJambe, PALETTE.pantalon);
-  bmp.rect(x - 1, piedY, 3, 1, PALETTE.cheveux);
-}
-
-function genererPlanchePersonnage() {
-  const bmp = new Bitmap(CHAR_W * FRAMES_PAR_DIRECTION, CHAR_H * DIRECTIONS.length);
-
-  DIRECTIONS.forEach((direction, ligne) => {
-    for (let frame = 0; frame < FRAMES_PAR_DIRECTION; frame += 1) {
-      dessinerPersonnage(bmp, frame * CHAR_W, ligne * CHAR_H, direction, frame);
-    }
-  });
-
-  return bmp;
-}
-
-
-// ---------------------------------------------------------------------------
 // Icone de l'application
 // ---------------------------------------------------------------------------
 
@@ -303,7 +197,6 @@ function ecrire(cheminRelatif, bitmap) {
 
 console.log('Generation des assets temporaires :');
 ecrire('public/assets/tilesets/placeholder_terrain.png', genererPlancheTuiles());
-ecrire('public/assets/sprites/placeholder_heros.png', genererPlanchePersonnage());
 ecrire('public/icone.png', genererIcone());
 console.log('Termine.');
 

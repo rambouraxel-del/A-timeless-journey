@@ -30,6 +30,7 @@ navigateur du telephone, sur le meme wifi.
 | `npm run typecheck`        | Verification des types sans compiler                     |
 | `npm run gen:placeholders` | Regenere les graphismes temporaires                      |
 | `npm run shot`             | Capture d'ecran du jeu dans un navigateur (voir plus bas)|
+| `npm run test:controles`   | Teste le joystick et les collisions dans un navigateur   |
 
 ### Captures d'ecran automatiques
 
@@ -41,6 +42,22 @@ serveur de developpement doit tourner en parallele.
 npm run shot                                   # 393x852 par defaut
 npm run shot -- 768 1024 captures/tablette.png # dimensions et fichier au choix
 ```
+
+### Test des commandes tactiles
+
+Un joystick ne se verifie pas sur une capture figee. `npm run test:controles`
+pilote la surface tactile du navigateur comme le ferait un pouce, puis lit la
+position du personnage dans le jeu pour verifier qu'il part bien dans la
+direction demandee et qu'il s'arrete contre les obstacles. Le serveur de
+developpement doit tourner en parallele.
+
+### Adresses utiles
+
+| Adresse             | Effet                                                   |
+| ------------------- | ------------------------------------------------------- |
+| `/`                 | Le jeu                                                  |
+| `/?debug=1`         | Affiche les cadres de collision par dessus le decor      |
+| `/?scene=diagnostic`| Ecran de controle de la mise en page portrait            |
 
 ## Publication
 
@@ -60,6 +77,7 @@ Le jeu est ensuite accessible sur
 src/
   config/      Resolution, zones d'interface, manifeste des assets, config Phaser
   scenes/      Scenes Phaser (demarrage, chargement, jeu)
+  entities/    Objets du monde animes par le jeu (le heros...)
   systems/     Systemes transverses (animations, inventaire, sauvegarde...)
   ui/          Composants d'interface (joystick, barre d'etat...)
   data/        Donnees de contenu (objets, cartes, dialogues)
@@ -73,7 +91,7 @@ assets-source/
   raw/         Planches d'origine, jamais modifiees
   sliced/      Decoupes intermediaires (regenerables, hors depot)
 
-tools/         Scripts de developpement (generation d'assets, captures)
+tools/         Scripts de developpement (generation d'assets, decoupe, tests)
 docs/          Conventions et notes de conception
 ```
 
@@ -90,6 +108,12 @@ docs/          Conventions et notes de conception
   joueur se devoile au fil des visites.
 - **Le vaisseau est un monde comme les autres**, simplement persistant et hors
   du temps.
+- **Joystick flottant.** Il apparait la ou le pouce se pose dans la moitie
+  gauche de l'ecran, au lieu d'attendre le doigt a un emplacement fixe.
+
+Le decoupage des planches de personnage utilise Python et Pillow, installes a
+part : voir [`docs/conventions-assets.md`](docs/conventions-assets.md). Le jeu
+lui-meme et la generation des graphismes temporaires ne demandent que Node.
 
 Les conventions de nommage et de rangement des graphismes sont decrites dans
 [`docs/conventions-assets.md`](docs/conventions-assets.md).

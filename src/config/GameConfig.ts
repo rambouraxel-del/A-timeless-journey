@@ -9,7 +9,14 @@ import { GAME_WIDTH, computeGameHeight } from './Resolution';
 /** Couleur de fond, visible dans les bandes si l'ecran ne correspond pas au format. */
 export const COULEUR_FOND = '#0b0d17';
 
-export function createGameConfig(parent: string): Phaser.Types.Core.GameConfig {
+/**
+ * @param parent        Identifiant de l'element HTML qui accueille le canvas.
+ * @param debugPhysique Affiche les cadres de collision par dessus le decor.
+ */
+export function createGameConfig(
+  parent: string,
+  debugPhysique = false,
+): Phaser.Types.Core.GameConfig {
   const gameHeight = computeGameHeight(window.innerWidth, window.innerHeight);
 
   return {
@@ -34,7 +41,7 @@ export function createGameConfig(parent: string): Phaser.Types.Core.GameConfig {
       arcade: {
         // Vue de dessus : aucune gravite.
         gravity: { x: 0, y: 0 },
-        debug: false,
+        debug: debugPhysique,
       },
     },
 

@@ -81,8 +81,24 @@ export const TILESETS = {
 export const SPRITESHEETS = {
   heros: {
     key: 'sprite_heros',
-    path: 'sprites/placeholder_heros.png',
-    frameWidth: 16,
-    frameHeight: 24,
+    path: 'sprites/heros.png',
+    frameWidth: 32,
+    frameHeight: 48,
   },
 } as const satisfies Record<string, SpritesheetAsset>;
+
+/**
+ * Cadre de collision du heros, en pixels, mesure depuis le coin superieur
+ * gauche de son image.
+ *
+ * La collision ne porte que sur les pieds, pas sur toute l'image : le
+ * personnage fait deux tuiles de large et trois de haut, mais son emprise au
+ * sol tient dans une seule tuile. Sans cela, il ne pourrait pas emprunter un
+ * passage d'une tuile de large, alors que le decor en est fait.
+ */
+export const COLLISION_HEROS = {
+  largeur: 14,
+  hauteur: 10,
+  decalageX: (32 - 14) / 2,
+  decalageY: 48 - 10,
+} as const;

@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "gen:placeholders": "node tools/gen-placeholders.mjs",
-    "shot": "node tools/screenshot.mjs"
+    "shot": "node tools/screenshot.mjs",
+    "test:controles": "node tools/test-controles.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0"

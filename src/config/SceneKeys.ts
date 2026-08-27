@@ -8,6 +8,7 @@
 export const SCENE = {
   BOOT: 'boot',
   PRELOAD: 'preload',
+  JEU: 'jeu',
   DIAGNOSTIC: 'diagnostic',
 } as const;
 
