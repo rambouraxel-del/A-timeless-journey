@@ -47,9 +47,9 @@ npm run shot -- 768 1024 captures/tablette.png # dimensions et fichier au choix
 Chaque push sur `main` declenche automatiquement la compilation et la
 publication sur GitHub Pages, via `.github/workflows/deploy.yml`.
 
-> **A faire une seule fois** dans les reglages du depot :
-> `Settings` > `Pages` > `Build and deployment` > `Source` : **GitHub Actions**.
-> Sans ce reglage, le deploiement echoue.
+> Ce depot est deja configure : `Settings` > `Pages` > `Build and deployment` >
+> `Source` est sur **GitHub Actions**. Un depot cree depuis zero demande ce
+> reglage une fois, sans quoi l'etape de deploiement echoue.
 
 Le jeu est ensuite accessible sur
 `https://<utilisateur>.github.io/A-timeless-journey/`.
