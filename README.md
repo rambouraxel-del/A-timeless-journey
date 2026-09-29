@@ -18,7 +18,7 @@ Sur ordinateur : flèches ou ZQSD pour bouger, Maj pour courir, Espace ou E pour
 
 - Le jeu est dessiné à la **résolution réelle de l'écran** (un canvas de 1170 × 2532 px sur un iPhone 390 × 844 pt) : aucun agrandissement flou.
 - Les positions restent en **pixels logiques** (~360 de large). `RENDER_SCALE` (1 à 4, entier) = pixels d'écran par pixel logique ; le décor et le héros sont agrandis d'un facteur entier, sans lissage.
-- Le format suit le téléphone (de 16:9 à 860/360). **Environ 66 % de la hauteur** pour la scène, le reste pour le panneau de contrôle.
+- Le format suit le téléphone (de 16:9 à 860/360). **Environ 69 % de la hauteur** pour la scène, le reste pour le panneau de contrôle.
 - **HUD** (haut) : emblème temporel, cœurs de vie, jauge d'énergie (= endurance), bouton menu.
 - **Panneau** (bas) : joystick, INTERAGIR (objet à portée le plus proche), COURIR (à maintenir), boîte de dialogue au-dessus des commandes. Les commandes grandissent (jusqu'à ×1,3) sur les écrans allongés.
 
@@ -62,7 +62,7 @@ Une salle = un fichier dans `src/data/rooms/` + une scène dans `src/scenes/room
 | `foreground` | 1,3 | premier plan, passe devant le joueur |
 
 Largeur d'une image de couche = `360 + (largeur de la salle − 360) × défilement`.
-Pour une salle de 2160 px sur un écran de 390 px logiques : far = 780 px, near = 1440 px, main = 2160 px, foreground = 2700 px. La hauteur suit `GAME_VIEW.height` (≈ 425 px en 16:9, ≈ 557 px sur un iPhone).
+Pour une salle de 2160 px sur un écran de 390 px logiques : far = 780 px, near = 1440 px, main = 2160 px, foreground = 2700 px. La hauteur suit `GAME_VIEW.height` (≈ 425 px en 16:9, ≈ 582 px sur un iPhone).
 
 ## Assets
 

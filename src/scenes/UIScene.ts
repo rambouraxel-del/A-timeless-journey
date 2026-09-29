@@ -30,19 +30,20 @@ export class UIScene extends Phaser.Scene {
     useLogicalCamera(this, RENDER_SCALE);
     const W = LOGICAL_WIDTH;
     const top = UI_ZONE.y;
-    const s = Phaser.Math.Clamp(UI_ZONE.height / 213, 1, 1.3);
+    const s = Phaser.Math.Clamp(UI_ZONE.height / 200, 1, 1.3);
+    const si = s * 0.95; // INTERAGIR legerement plus petit, pour equilibrer avec le joystick
 
     // Positions des commandes (centres), calculees depuis le haut du panneau.
     const joystick = { x: 14 + 64 * s, y: top + 24 + 64 * s };
-    const interact = { x: W - 14 - 48 * s, y: top + 22 + 48 * s };
-    const run = { x: W - 12 - 33 * s, y: interact.y + 81 * s - 10 };
+    const interact = { x: W - 14 - 48 * si, y: top + 22 + 48 * si };
+    const run = { x: W - 12 - 33 * s, y: interact.y + 48 * si + 33 * s - 10 };
     const controlsTop = joystick.y - 64 * s;
 
-    this.createPanel(joystick, interact, s);
+    this.createPanel(joystick, interact, s, si);
 
     const stickArea = new Phaser.Geom.Rectangle(0, top, W * 0.55, UI_ZONE.height);
     this.joystick = new VirtualJoystick(this, joystick.x, joystick.y, s, stickArea);
-    new ImageButton(this, interact.x, interact.y, 'btn_interact', 'btn_interact_pressed', s, { onDown: () => this.interact() });
+    new ImageButton(this, interact.x, interact.y, 'btn_interact', 'btn_interact_pressed', si, { onDown: () => this.interact() });
     new ImageButton(this, run.x, run.y, 'btn_run', 'btn_run_pressed', s, {
       onDown: () => (this.runHeld = true),
       onUp: () => (this.runHeld = false),
@@ -87,7 +88,7 @@ export class UIScene extends Phaser.Scene {
     this.hud.update(controls.health, controls.stamina);
   }
 
-  private createPanel(joystick: { x: number; y: number }, interact: { x: number; y: number }, s: number): void {
+  private createPanel(joystick: { x: number; y: number }, interact: { x: number; y: number }, s: number, si: number): void {
     const W = LOGICAL_WIDTH;
     const top = UI_ZONE.y;
     this.add.rectangle(0, top, W, UI_ZONE.height, UiColors.panel).setOrigin(0);
@@ -95,8 +96,8 @@ export class UIScene extends Phaser.Scene {
     // Montagnes en bas, motif astral entre le joystick et le bouton INTERAGIR.
     uiImage(this, 'orn_mountains', W / 2, LOGICAL_HEIGHT, W / 440).setOrigin(0.5, 1);
     const gapLeft = joystick.x + 64 * s;
-    const gapRight = interact.x - 48 * s;
-    uiImage(this, 'orn_astral', (gapLeft + gapRight) / 2, joystick.y + 2, s).setAlpha(0.95);
+    const gapRight = interact.x - 48 * si;
+    uiImage(this, 'orn_astral', (gapLeft + gapRight) / 2, joystick.y + 2, s).setAlpha(0.5);
 
     uiImage(this, 'orn_separator', W / 2, top + 1);
     uiImage(this, 'orn_corner', 3, top + 3).setOrigin(0);

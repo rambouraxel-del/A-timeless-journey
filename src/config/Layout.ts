@@ -22,8 +22,8 @@ export const CANVAS_HEIGHT = LOGICAL_HEIGHT * RENDER_SCALE;
 // Jeu de textures d'interface charge (dossier public/assets/ui/x<densite>/).
 export const UI_DENSITY = Math.min(4, Math.max(2, RENDER_SCALE));
 
-// Environ 2/3 de l'ecran pour la scene de jeu, 1/3 pour le panneau de controle.
-export const GAME_VIEW = { x: 0, y: 0, width: LOGICAL_WIDTH, height: Math.round(LOGICAL_HEIGHT * 0.66) };
+// Environ 69 % de l'ecran pour la scene de jeu, 31 % pour le panneau de controle.
+export const GAME_VIEW = { x: 0, y: 0, width: LOGICAL_WIDTH, height: Math.round(LOGICAL_HEIGHT * 0.69) };
 export const UI_ZONE = { x: 0, y: GAME_VIEW.height, width: LOGICAL_WIDTH, height: LOGICAL_HEIGHT - GAME_VIEW.height };
 
 // Une salle standard = 6 ecrans de 360 px de long.
