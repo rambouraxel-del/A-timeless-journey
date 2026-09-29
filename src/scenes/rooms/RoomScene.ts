@@ -52,10 +52,6 @@ export abstract class RoomScene extends Phaser.Scene {
     // Suivi horizontal du joueur, amorti, sans sortir de la salle.
     const cam = this.cameras.main;
     cam.scrollX += (this.followTarget() - cam.scrollX) * Math.min(1, dt * 8);
-
-    // Pendant un dialogue, la scene remonte juste assez pour que la boite ne cache pas les pieds.
-    const shift = controls.locked ? Phaser.Math.Clamp(this.player.position.y + 8 - controls.dialogueTop, 0, 120) : 0;
-    cam.scrollY += (shift - cam.scrollY) * Math.min(1, dt * 10);
   }
 
   private followTarget(): number {

@@ -20,7 +20,8 @@ Sur ordinateur : flèches ou ZQSD pour bouger, Maj pour courir, Espace ou E pour
 - Les positions restent en **pixels logiques** (~360 de large). `RENDER_SCALE` (1 à 4, entier) = pixels d'écran par pixel logique ; le décor et le héros sont agrandis d'un facteur entier, sans lissage.
 - Le format suit le téléphone (de 16:9 à 860/360). **Environ 69 % de la hauteur** pour la scène, le reste pour le panneau de contrôle.
 - **HUD** (haut) : emblème temporel, cœurs de vie, jauge d'énergie (= endurance), bouton menu.
-- **Panneau** (bas) : joystick, INTERAGIR (objet à portée le plus proche), COURIR (à maintenir), boîte de dialogue au-dessus des commandes. Les commandes grandissent (jusqu'à ×1,3) sur les écrans allongés.
+- **Panneau** (bas) : joystick, INTERAGIR (objet à portée le plus proche), COURIR (à maintenir). Les commandes grandissent (jusqu'à ×1,3) sur les écrans allongés.
+- **Dialogues** : ils remplacent les commandes dans le panneau bas, avec un bouton Continuer / Fermer (ou un tap sur la boîte, E, Espace). Déplacements bloqués pendant l'affichage, caméra immobile. Cartouche du nom ajusté au texte (sur plusieurs lignes au-delà de 60 % de la largeur), texte paginé selon la place, encadré du portrait masqué si aucun portrait n'est fourni.
 
 ## Architecture
 
@@ -52,7 +53,7 @@ Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack
 - Profondeurs : fond 10, structure 30, équipements 40, héros 50, repères 55, rebord 60, angles proches 70 (léger décalage de parallaxe, recalé aux deux extrémités de la salle).
 - Déplacement : un seul segment de sol. Interactions : 2 portes, réacteur, console, écran mural, 2 armoires, banquette (réponse générique pour l'instant, aucune destination ni scénario).
 - Ambiance (`vaisseauEffects.ts`) : halo cyan pulsant et particules autour du réacteur, voyants et lumières qui pulsent ou clignotent. Les images restent statiques.
-- Le héros est affiché ×1,5 dans cette salle (`heroScale` dans `vaisseau.ts`) pour rester proportionné aux équipements.
+- Le héros est affiché ×1,3 dans cette salle (`heroScale` dans `vaisseau.ts`) pour rester proportionné aux équipements.
 
 ## Construire une autre salle
 

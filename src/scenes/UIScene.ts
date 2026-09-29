@@ -4,7 +4,7 @@ import { SceneKeys } from '@/config/SceneKeys';
 import { controls } from '@/systems/Controls';
 import type { DialogueLine } from '@/systems/Dialogue';
 import { EventBus, GameEvents } from '@/systems/EventBus';
-import { DialogueBox, dialogueHeight } from '@/ui/DialogueBox';
+import { DialogueBox } from '@/ui/DialogueBox';
 import { Hud } from '@/ui/Hud';
 import { ImageButton } from '@/ui/ImageButton';
 import { uiImage, useLogicalCamera } from '@/ui/UiImage';
@@ -17,6 +17,8 @@ import { VirtualJoystick } from '@/ui/VirtualJoystick';
 export class UIScene extends Phaser.Scene {
   private joystick!: VirtualJoystick;
   private dialogue!: DialogueBox;
+  // Commandes masquees pendant un dialogue.
+  private controlsGroup: Phaser.GameObjects.GameObject[] = [];
   private hud!: Hud;
   private hint!: Phaser.GameObjects.Text;
   private runHeld = false;
@@ -37,26 +39,24 @@ export class UIScene extends Phaser.Scene {
     const joystick = { x: 14 + 64 * s, y: top + 24 + 64 * s };
     const interact = { x: W - 14 - 48 * si, y: top + 22 + 48 * si };
     const run = { x: W - 12 - 33 * s, y: interact.y + 48 * si + 33 * s - 10 };
-    const controlsTop = joystick.y - 64 * s;
 
     this.createPanel(joystick, interact, s, si);
 
     const stickArea = new Phaser.Geom.Rectangle(0, top, W * 0.55, UI_ZONE.height);
     this.joystick = new VirtualJoystick(this, joystick.x, joystick.y, s, stickArea);
-    new ImageButton(this, interact.x, interact.y, 'btn_interact', 'btn_interact_pressed', si, { onDown: () => this.interact() });
-    new ImageButton(this, run.x, run.y, 'btn_run', 'btn_run_pressed', s, {
+    const interactButton = new ImageButton(this, interact.x, interact.y, 'btn_interact', 'btn_interact_pressed', si, { onDown: () => this.interact() });
+    const runButton = new ImageButton(this, run.x, run.y, 'btn_run', 'btn_run_pressed', s, {
       onDown: () => (this.runHeld = true),
       onUp: () => (this.runHeld = false),
     });
+    this.controlsGroup.push(interactButton.image, runButton.image);
 
     this.hud = new Hud(this, 4, 4, controls.maxHealth);
     new ImageButton(this, W - 23, 23, 'btn_menu', null, 1, { onDown: () => this.showHint('Menu : à venir.') });
 
-    // La boite de dialogue se pose juste au-dessus des commandes.
-    const dialogueWidth = Math.min(W - 16, 420);
-    const dialogueY = controlsTop - 6 - dialogueHeight(dialogueWidth);
-    controls.dialogueTop = dialogueY;
-    this.dialogue = new DialogueBox(this, (W - dialogueWidth) / 2, dialogueY, dialogueWidth, () => (controls.locked = false));
+    // Les dialogues s'affichent dans le panneau bas, a la place des commandes.
+    const dialogueArea = new Phaser.Geom.Rectangle(8, top + 12, W - 16, LOGICAL_HEIGHT - 10 - (top + 12));
+    this.dialogue = new DialogueBox(this, dialogueArea, () => this.setDialogueMode(false));
 
     this.hint = this.add
       .text(W / 2, GAME_VIEW.height - 8, '', { ...textStyle(14, UiColors.gold), backgroundColor: '#10121cdd', padding: { x: 6, y: 2 } })
@@ -67,8 +67,7 @@ export class UIScene extends Phaser.Scene {
     this.createKeyboard();
 
     const onDialogue = (lines: DialogueLine[]) => {
-      controls.locked = true;
-      this.runHeld = false;
+      this.setDialogueMode(true);
       this.dialogue.open(lines);
     };
     EventBus.on(GameEvents.DialogueOpen, onDialogue);
@@ -99,11 +98,19 @@ export class UIScene extends Phaser.Scene {
     uiImage(this, 'orn_mountains', W / 2, LOGICAL_HEIGHT, W / 440).setOrigin(0.5, 1);
     const gapLeft = joystick.x + 64 * s;
     const gapRight = interact.x - 48 * si;
-    uiImage(this, 'orn_astral', (gapLeft + gapRight) / 2, joystick.y + 2, s).setAlpha(0.5);
+    this.controlsGroup.push(uiImage(this, 'orn_astral', (gapLeft + gapRight) / 2, joystick.y + 2, s).setAlpha(0.5));
 
     uiImage(this, 'orn_separator', W / 2, top + 1);
     uiImage(this, 'orn_corner', 3, top + 3).setOrigin(0);
     uiImage(this, 'orn_corner', W - 3, top + 3).setOrigin(1, 0).setFlipX(true);
+  }
+
+  // Pendant un dialogue : deplacements bloques, commandes remplacees par la boite de dialogue.
+  private setDialogueMode(open: boolean): void {
+    controls.locked = open;
+    this.runHeld = false;
+    this.joystick.setVisible(!open);
+    for (const o of this.controlsGroup) (o as Phaser.GameObjects.Image).setVisible(!open);
   }
 
   private createKeyboard(): void {

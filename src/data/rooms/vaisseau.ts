@@ -72,7 +72,6 @@ export const vaisseau: RoomDefinition = {
   // Un seul segment de sol (marge de 64 px de texture aux extremites pour que le heros ne soit pas rogne) : ni escalier ni echelle.
   paths: [{ kind: 'floor', from: { x: 64 * sx, y: groundY }, to: { x: 2816 * sx, y: groundY } }],
   interactables: INTERACTABLES.map(interactableFor),
-  // Les equipements sont peints a grande echelle (porte = 195 px pour un heros de 70) : le heros
-  // est agrandi d'un facteur entier x1,5 dans cette salle pour rester proportionne.
-  heroScale: 1.5,
+  // Les equipements sont peints a grande echelle : le heros est agrandi x1,3 dans cette salle.
+  heroScale: 1.3,
 };

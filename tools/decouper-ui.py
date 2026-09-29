@@ -15,7 +15,7 @@ Usage : pip install pillow && python tools/decouper-ui.py
 """
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageOps
 
 RACINE = Path(__file__).resolve().parent.parent
 SRC = RACINE / "assets-source/ui"
@@ -100,7 +100,18 @@ def main():
     sauver("btn_run_pressed", BOUTONS.crop((1150, 732, 1433, 1019)), 66, 1.3)
 
     # --- Dialogue (affiche jusqu'a 420 px de large : 340 x 1,25) ----------------
-    sauver("dialogue_box", HUD.crop((24, 488, 1425, 824)), 340, 1.25)
+    # Cadre redimensionnable (neuf parties) : bordure exterieure gauche + debut et fin du cadre de
+    # texte, sans le portrait ni le motif ; le motif celeste est remis en image separee.
+    boite = HUD.copy()
+    etirer_colonne(boite, 520, 6, 1190, 1364, 548, 779)  # efface motif et fleche (fond uni)
+    bord_droit = boite.crop((1405, 488, 1425, 824))
+    cadre = Image.new("RGBA", (20 + (460 - 374) + (1425 - 1190), 336))
+    cadre.paste(ImageOps.mirror(bord_droit), (0, 0))
+    cadre.paste(boite.crop((374, 488, 460, 824)), (20, 0))
+    cadre.paste(boite.crop((1190, 488, 1425, 824)), (20 + 86, 0))
+    sauver("dialogue_frame", cadre, round(cadre.width * 0.243, 2))
+    sauver("dialogue_motif", HUD.crop((1075, 545, 1368, 782)), round(293 * 0.243, 2))
+    sauver("dialogue_portrait", HUD.crop((188, 828, 452, 1068)), 64, 1.5)
     sauver("dialogue_nameplate", HUD.crop((503, 908, 828, 1009)), 64, 1.25)
     sauver("marker_interact", HUD.crop((1217, 348, 1347, 480)), 16, 1.25)
 
