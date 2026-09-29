@@ -9,7 +9,7 @@ import type { InteractableDef, RoomDefinition } from '@/world/RoomDefinition';
 import { WalkGraph } from '@/world/WalkGraph';
 
 // Endurance (0 a 1) : perte en courant, gain en marchant, gain a l'arret. Par seconde.
-const STAMINA_DRAIN_RUN = 0.02;
+const STAMINA_DRAIN_RUN = 0.05;
 const STAMINA_REGEN_WALK = 0.05;
 const STAMINA_REGEN_IDLE = 0.1;
 
