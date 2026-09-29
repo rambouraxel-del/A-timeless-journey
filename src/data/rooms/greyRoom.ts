@@ -26,9 +26,9 @@ export const greyRoom: RoomDefinition = {
   ],
   interactables: [
     { id: 'chest', kind: 'chest', label: 'Coffre', x: 260, y: GROUND, width: 30, height: 22 },
-    { id: 'computer', kind: 'computer', label: 'Ordinateur', x: 720, y: MEZZANINE, width: 28, height: 30 },
+    { id: 'computer', kind: 'computer', label: 'Ordinateur', x: 720, y: MEZZANINE, width: 34, height: 40 },
     { id: 'object', kind: 'object', label: 'Objet', x: 1100, y: TOP, width: 14, height: 14 },
-    { id: 'npc', kind: 'character', label: 'Personnage', x: 1480, y: MEZZANINE, width: 20, height: 46 },
-    { id: 'door', kind: 'door', label: 'Porte', x: 2080, y: GROUND, width: 38, height: 70 },
+    { id: 'npc', kind: 'character', label: 'Personnage', x: 1480, y: MEZZANINE, width: 24, height: 70 },
+    { id: 'door', kind: 'door', label: 'Porte', x: 2080, y: GROUND, width: 46, height: 100 },
   ],
 };

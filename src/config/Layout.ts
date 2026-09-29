@@ -19,6 +19,10 @@ export const LOGICAL_HEIGHT = Math.floor(deviceHeight / RENDER_SCALE);
 export const CANVAS_WIDTH = LOGICAL_WIDTH * RENDER_SCALE;
 export const CANVAS_HEIGHT = LOGICAL_HEIGHT * RENDER_SCALE;
 
+// Le heros mesure ~105 px dans sa planche. On l'affiche avec un nombre entier de pixels
+// d'ecran par pixel de planche (pixel-art net) : ~70 points sur un telephone a 3 pixels/point.
+export const HERO_PIXEL_SCALE = Math.max(1, Math.round((RENDER_SCALE * 2) / 3));
+
 // Jeu de textures d'interface charge (dossier public/assets/ui/x<densite>/).
 export const UI_DENSITY = Math.min(4, Math.max(2, RENDER_SCALE));
 

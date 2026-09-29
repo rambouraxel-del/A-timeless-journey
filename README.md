@@ -26,11 +26,12 @@ Sur ordinateur : flèches ou ZQSD pour bouger, Maj pour courir, Espace ou E pour
 
 ```
 public/assets/            Graphismes (fournis par toi ou libres de droits, jamais générés)
-  characters/hero_temp/   Héros TEMPORAIRE (LPC) + CREDITS.md
+  characters/hero/        Héros (planche assemblée depuis assets-source/characters/hero/)
   rooms/                  Décors des salles, une image par couche
   ui/x2 x3 x4/            Interface haute définition (un dossier par densité d'écran)
   fonts/                  Police VT323 (licence OFL)
 assets-source/ui/         Maquette et planches d'UI d'origine
+assets-source/characters/ Animations d'origine du héros (GIF/PNG)
 src/
   config/                 Dimensions (Layout), liste des assets (Assets), scènes (SceneKeys)
   data/rooms/             Définition des salles : chemins, objets, point d'arrivée
@@ -40,7 +41,7 @@ src/
   systems/                Commandes, interactions, bus d'événements, type de dialogue
   scenes/                 Chargement, interface (UIScene), salles (rooms/)
   ui/                     Joystick, boutons, boîte de dialogue
-tools/                    Assemblage du héros temporaire, découpe de l'UI (decouper-ui.py)
+tools/                    Assemblage du héros (assembler-heros.py), découpe de l'UI (decouper-ui.py)
 ```
 
 ## Construire une salle
@@ -66,7 +67,7 @@ Pour une salle de 2160 px sur un écran de 390 px logiques : far = 780 px, near 
 
 ## Assets
 
-Aucun asset n'est généré. Le héros actuel est **temporaire** : assemblé depuis le projet libre LPC (Liberated Pixel Cup), attribution obligatoire, voir `public/assets/characters/hero_temp/CREDITS.md`.
+Aucun asset n'est généré. Le héros vient des animations fournies (marche gauche/droite, repos) : `python tools/assembler-heros.py` les assemble en une planche. Il n'existe pas encore d'animation d'escalade : sur une échelle il garde son animation de marche.
 
 L'interface vient des planches fournies (`assets-source/ui/`) : `python tools/decouper-ui.py` les découpe en 3 densités dans `public/assets/ui/x2|x3|x4/` (le jeu charge celle de l'appareil) et écrit `src/config/UiSizes.generated.ts`. Pour modifier un élément, modifie la planche puis relance le script.
 

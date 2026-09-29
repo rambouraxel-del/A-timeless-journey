@@ -2,22 +2,21 @@
 export const Assets = {
   hero: {
     key: 'hero',
-    url: 'assets/characters/hero_temp/hero_lpc.png',
-    frameWidth: 64,
-    frameHeight: 64,
-    // Position des pieds dans une image de 64 px (le sprite est ancre sur ses pieds).
-    feetY: 62,
+    url: 'assets/characters/hero/hero.png',
+    frameWidth: 152,
+    frameHeight: 152,
+    // Position des pieds dans une case de 152 px (le sprite est ancre sur ses pieds).
+    feetY: 129,
   },
 } as const;
 
-// Lignes de la planche du heros (voir tools/assembler-heros-lpc.py).
-const COLS = 9;
+// Lignes de la planche du heros (voir tools/assembler-heros.py) : 8 colonnes.
+const COLS = 8;
 export const HeroFrames = {
-  walkLeft: { start: 0 * COLS + 1, end: 0 * COLS + 8 },
-  walkRight: { start: 1 * COLS + 1, end: 1 * COLS + 8 },
-  idleLeft: { start: 2 * COLS, end: 2 * COLS + 1 },
-  idleRight: { start: 3 * COLS, end: 3 * COLS + 1 },
-  climb: { start: 4 * COLS, end: 4 * COLS + 5 },
+  walkLeft: { start: 0 * COLS, end: 0 * COLS + 7 },
+  walkRight: { start: 1 * COLS, end: 1 * COLS + 7 },
+  idleLeft: { start: 2 * COLS, end: 2 * COLS },
+  idleRight: { start: 3 * COLS, end: 3 * COLS },
 } as const;
 
 // Elements d'interface (tailles dans UiSizes.generated.ts), decoupes par tools/decouper-ui.py

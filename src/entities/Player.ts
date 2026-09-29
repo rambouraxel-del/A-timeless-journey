@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { Assets, HeroFrames } from '@/config/Assets';
+import { HERO_PIXEL_SCALE, RENDER_SCALE } from '@/config/Layout';
 import { DEPTH } from '@/world/Layers';
 import type { Vec2 } from '@/world/RoomDefinition';
 import type { WalkGraph } from '@/world/WalkGraph';
@@ -36,6 +37,7 @@ export class Player {
     this.sprite = scene.add
       .sprite(0, 0, Assets.hero.key)
       .setOrigin(0.5, Assets.hero.feetY / Assets.hero.frameHeight)
+      .setScale(HERO_PIXEL_SCALE / RENDER_SCALE)
       .setDepth(DEPTH.player);
     this.syncSprite();
     this.sprite.play('hero-idle-right');
@@ -127,13 +129,8 @@ export class Player {
   }
 
   private animate(moved: boolean, moveX: number): void {
-    const onLadder = this.graph.edges[this.edge].kind === 'ladder';
-    if (onLadder) {
-      if (this.sprite.anims.currentAnim?.key !== 'hero-climb') this.sprite.play('hero-climb');
-      if (moved) this.sprite.anims.resume();
-      else this.sprite.anims.pause();
-      return;
-    }
+    // Pas d'animation d'escalade fournie : sur une echelle, le heros garde son animation de
+    // marche tant qu'il monte ou descend, et reprend la pose de repos a l'arret.
     if (Math.abs(moveX) > 0.01) this.facing = moveX < 0 ? 'left' : 'right';
     this.sprite.play(`hero-${moved ? 'walk' : 'idle'}-${this.facing}`, true);
   }
@@ -147,9 +144,8 @@ function createHeroAnimations(scene: Phaser.Scene): void {
   if (scene.anims.exists('hero-idle-right')) return;
   const key = Assets.hero.key;
   const frames = (range: { start: number; end: number }) => scene.anims.generateFrameNumbers(key, range);
-  scene.anims.create({ key: 'hero-walk-left', frames: frames(HeroFrames.walkLeft), frameRate: 12, repeat: -1 });
-  scene.anims.create({ key: 'hero-walk-right', frames: frames(HeroFrames.walkRight), frameRate: 12, repeat: -1 });
-  scene.anims.create({ key: 'hero-idle-left', frames: frames(HeroFrames.idleLeft), frameRate: 2, repeat: -1 });
-  scene.anims.create({ key: 'hero-idle-right', frames: frames(HeroFrames.idleRight), frameRate: 2, repeat: -1 });
-  scene.anims.create({ key: 'hero-climb', frames: frames(HeroFrames.climb), frameRate: 9, repeat: -1 });
+  scene.anims.create({ key: 'hero-walk-left', frames: frames(HeroFrames.walkLeft), frameRate: 10, repeat: -1 });
+  scene.anims.create({ key: 'hero-walk-right', frames: frames(HeroFrames.walkRight), frameRate: 10, repeat: -1 });
+  scene.anims.create({ key: 'hero-idle-left', frames: frames(HeroFrames.idleLeft), frameRate: 1, repeat: -1 });
+  scene.anims.create({ key: 'hero-idle-right', frames: frames(HeroFrames.idleRight), frameRate: 1, repeat: -1 });
 }
