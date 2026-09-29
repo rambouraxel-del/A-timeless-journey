@@ -25,10 +25,6 @@ jobs:
   build:
     name: Compilation
     runs-on: ubuntu-latest
-    env:
-      # Playwright ne sert qu'aux captures d'ecran en local : inutile de
-      # telecharger un navigateur de 150 Mo a chaque compilation.
-      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
     steps:
       - name: Recuperation du depot
         uses: actions/checkout@v4

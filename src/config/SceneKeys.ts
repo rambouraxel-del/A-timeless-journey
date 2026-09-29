@@ -1,15 +1,5 @@
-/**
- * Identifiants des scenes Phaser.
- *
- * Regrouper ces chaines evite les fautes de frappe silencieuses : demarrer une
- * scene inexistante ne provoque aucune erreur dans Phaser, l'ecran reste
- * simplement noir.
- */
-export const SCENE = {
-  BOOT: 'boot',
-  PRELOAD: 'preload',
-  JEU: 'jeu',
-  DIAGNOSTIC: 'diagnostic',
+export const SceneKeys = {
+  Preload: 'Preload',
+  UI: 'UI',
+  GreyRoom: 'GreyRoom',
 } as const;
-
-export type SceneKey = (typeof SCENE)[keyof typeof SCENE];

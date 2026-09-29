@@ -1,124 +1,65 @@
 # A Timeless Journey
 
-Jeu d'exploration 2D pixel art a travers le temps, concu pour telephone en mode
-portrait. Le joueur possede un vaisseau temporel qui lui sert de base : il en
-sort pour explorer une epoque, resout des mysteres, ramene des objets, et
-debloque peu a peu de nouvelles pieces dans son vaisseau.
+Jeu narratif 2D en pixel art, vue latérale, pour téléphone (portrait).
+Le joueur traverse des mondes, résout des énigmes et parle aux personnages. Pas de saut : on marche, on monte des escaliers et des échelles, on touche les objets pour interagir.
 
-**Version actuelle : v0.1 (en construction)**
-
----
-
-## Demarrer
+## Lancer le jeu
 
 ```bash
-npm install          # une seule fois
-npm run dev          # http://localhost:5173
+npm install
+npm run dev        # http://localhost:5173 (aussi accessible depuis un téléphone sur le même Wi-Fi)
+npm run build      # vérifie les types et compile dans dist/
 ```
 
-Le serveur de developpement ecoute aussi sur le reseau local : l'adresse
-`Network:` affichee au demarrage permet d'ouvrir le jeu directement dans le
-navigateur du telephone, sur le meme wifi.
+Chaque push sur `main` publie le jeu sur GitHub Pages (`.github/workflows/deploy.yml`).
+Sur ordinateur : flèches ou ZQSD pour tester.
 
-## Commandes
+## Écran
 
-| Commande                   | Role                                                    |
-| -------------------------- | ------------------------------------------------------- |
-| `npm run dev`              | Serveur de developpement, rechargement a chaud           |
-| `npm run build`            | Compilation pour la production dans `dist/`              |
-| `npm run preview`          | Sert la version compilee, comme sur GitHub Pages         |
-| `npm run typecheck`        | Verification des types sans compiler                     |
-| `npm run gen:placeholders` | Regenere les graphismes temporaires                      |
-| `npm run shot`             | Capture d'ecran du jeu dans un navigateur (voir plus bas)|
-| `npm run test:controles`   | Teste le joystick et les collisions dans un navigateur   |
+- Résolution logique **360 × 640** (portrait), mise à l'échelle de l'écran.
+- **2/3 haut** : la scène (360 × 427). **1/3 bas** : joystick, boutons, boîtes de dialogue.
+- Une salle standard = **6 écrans de long** (2160 px).
 
-### Captures d'ecran automatiques
-
-`npm run shot` ouvre le jeu dans un navigateur aux dimensions d'un telephone,
-enregistre une capture dans `captures/` et signale les erreurs de console. Le
-serveur de developpement doit tourner en parallele.
-
-```bash
-npm run shot                                   # 393x852 par defaut
-npm run shot -- 768 1024 captures/tablette.png # dimensions et fichier au choix
-```
-
-### Test des commandes tactiles
-
-Un joystick ne se verifie pas sur une capture figee. `npm run test:controles`
-pilote la surface tactile du navigateur comme le ferait un pouce, puis lit la
-position du personnage dans le jeu pour verifier qu'il part bien dans la
-direction demandee et qu'il s'arrete contre les obstacles. Le serveur de
-developpement doit tourner en parallele.
-
-### Adresses utiles
-
-| Adresse             | Effet                                                   |
-| ------------------- | ------------------------------------------------------- |
-| `/`                 | Le jeu                                                  |
-| `/?debug=1`         | Affiche les cadres de collision par dessus le decor      |
-| `/?scene=diagnostic`| Ecran de controle de la mise en page portrait            |
-
-## Publication
-
-Chaque push sur `main` declenche automatiquement la compilation et la
-publication sur GitHub Pages, via `.github/workflows/deploy.yml`.
-
-> **Reglage indispensable**, dans les reglages du depot :
-> `Settings` > `Pages` > `Build and deployment` > `Source` : **GitHub Actions**.
->
-> Regle sur `Deploy from a branch`, GitHub publie la racine du depot au lieu du
-> resultat de la compilation. La page s'ouvre alors sans style et sans jeu :
-> elle sert le `index.html` source, qui pointe vers du TypeScript non compile.
-> Ce reglage est le premier endroit a verifier si le jeu ne demarre pas en
-> ligne, d'autant que le workflow de compilation, lui, reste au vert.
-
-Le jeu est ensuite accessible sur
-`https://<utilisateur>.github.io/A-timeless-journey/`.
-
-## Organisation du depot
+## Architecture
 
 ```
+public/assets/            Graphismes (fournis par toi ou libres de droits, jamais générés)
+  characters/hero_temp/   Héros TEMPORAIRE (LPC) + CREDITS.md
+  rooms/                  Décors des salles, une image par couche
+  ui/                     Interface
 src/
-  config/      Resolution, zones d'interface, manifeste des assets, config Phaser
-  scenes/      Scenes Phaser (demarrage, chargement, jeu)
-  entities/    Objets du monde animes par le jeu (le heros...)
-  systems/     Systemes transverses (animations, inventaire, sauvegarde...)
-  ui/          Composants d'interface (joystick, barre d'etat...)
-  data/        Donnees de contenu (objets, cartes, dialogues)
-  styles/      Feuille de style de la page qui heberge le jeu
-
-public/
-  assets/      Graphismes prets a l'emploi, servis tels quels au navigateur
-  icone.png    Icone d'onglet et d'ecran d'accueil
-
-assets-source/
-  raw/         Planches d'origine, jamais modifiees
-  sliced/      Decoupes intermediaires (regenerables, hors depot)
-
-tools/         Scripts de developpement (generation d'assets, decoupe, tests)
-docs/          Conventions et notes de conception
+  config/                 Dimensions (Layout), liste des assets (Assets), scènes (SceneKeys)
+  data/rooms/             Définition des salles : chemins, objets, point d'arrivée
+  data/dialogues/         (vide) futurs dialogues
+  world/                  Couches de profondeur, graphe de déplacement
+  entities/               Joueur
+  systems/                Commandes, interactions, bus d'événements, type de dialogue
+  scenes/                 Chargement, interface (UIScene), salles (rooms/)
+  ui/                     Joystick, boutons, boîte de dialogue
+tools/                    Script d'assemblage du héros temporaire
 ```
 
-## Choix techniques
+## Construire une salle
 
-- **Phaser 3 + TypeScript + Vite.** Le jeu est une page web, empaquetee plus
-  tard en application mobile avec Capacitor. Il se teste donc dans n'importe
-  quel navigateur, sur ordinateur comme sur telephone.
-- **Resolution virtuelle a largeur fixe.** 20 tuiles de 16 pixels de large sur
-  tous les appareils, hauteur calculee depuis le format reel de l'ecran. Voir
-  `src/config/Resolution.ts`.
-- **Pas de monde ouvert.** Chaque epoque est une grille de petites cartes
-  reliees par leurs bords, a la maniere de Dofus ou Albion Online. La carte du
-  joueur se devoile au fil des visites.
-- **Le vaisseau est un monde comme les autres**, simplement persistant et hors
-  du temps.
-- **Joystick flottant.** Il apparait la ou le pouce se pose dans la moitie
-  gauche de l'ecran, au lieu d'attendre le doigt a un emplacement fixe.
+Une salle = un fichier dans `src/data/rooms/` + une scène dans `src/scenes/rooms/` (voir `greyRoom.ts` et `GreyRoomScene.ts`).
 
-Le decoupage des planches de personnage utilise Python et Pillow, installes a
-part : voir [`docs/conventions-assets.md`](docs/conventions-assets.md). Le jeu
-lui-meme et la generation des graphismes temporaires ne demandent que Node.
+- **Chemins** : `floor` (sol), `stairs` (escalier), `ladder` (échelle). Quand un escalier ou une échelle touche un sol, un embranchement est créé automatiquement ; le joueur prend la direction qui correspond le mieux au joystick.
+- **Objets interactifs** : `chest`, `door`, `computer`, `character`, `object`. Un point d'exclamation apparaît quand le joueur est assez près ; un tap déclenche l'interaction (pour l'instant : « Interaction à définir »).
 
-Les conventions de nommage et de rangement des graphismes sont decrites dans
-[`docs/conventions-assets.md`](docs/conventions-assets.md).
+## Couches de profondeur
+
+| Couche | Défilement | Rôle |
+|---|---|---|
+| `sky` | fixe | ciel / fond uni |
+| `far` | 0,25 | décor lointain |
+| `near` | 0,6 | décor intermédiaire |
+| `main` | 1 | sols, murs, escaliers (même plan que le joueur) |
+| *(objets, joueur)* | 1 | |
+| `foreground` | 1,3 | premier plan, passe devant le joueur |
+
+Largeur d'une image de couche = `360 + (largeur de la salle − 360) × défilement`.
+Pour une salle de 2160 px : far = 810 px, near = 1440 px, main = 2160 px, foreground = 2700 px. Hauteur : 427 px.
+
+## Assets
+
+Aucun asset n'est généré. Le héros actuel est **temporaire** : assemblé depuis le projet libre LPC (Liberated Pixel Cup), attribution obligatoire, voir `public/assets/characters/hero_temp/CREDITS.md`.
