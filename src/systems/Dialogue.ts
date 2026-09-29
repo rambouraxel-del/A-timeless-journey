@@ -2,4 +2,6 @@
 export interface DialogueLine {
   speaker?: string;
   text: string;
+  // Cle de texture du portrait affiche a gauche (optionnel).
+  portrait?: string;
 }

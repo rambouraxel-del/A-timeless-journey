@@ -12,12 +12,14 @@ npm run build      # vérifie les types et compile dans dist/
 ```
 
 Chaque push sur `main` publie le jeu sur GitHub Pages (`.github/workflows/deploy.yml`).
-Sur ordinateur : flèches ou ZQSD pour tester.
+Sur ordinateur : flèches ou ZQSD pour bouger, Maj pour courir, Espace ou E pour interagir.
 
 ## Écran
 
 - Résolution logique **360 × 640** (portrait), mise à l'échelle de l'écran.
-- **2/3 haut** : la scène (360 × 427). **1/3 bas** : joystick, boutons, boîtes de dialogue.
+- La scène fait toujours 360 × 427. Le reste de l'écran (213 px en 16:9, plus sur les téléphones allongés) est le panneau de contrôle.
+- **HUD** (haut) : emblème temporel, cœurs de vie, jauge d'énergie (= endurance), bouton menu.
+- **Panneau** (bas) : joystick, INTERAGIR (objet à portée le plus proche), COURIR (à maintenir), boîte de dialogue au-dessus des contrôles.
 - Une salle standard = **6 écrans de long** (2160 px).
 
 ## Architecture
@@ -26,7 +28,9 @@ Sur ordinateur : flèches ou ZQSD pour tester.
 public/assets/            Graphismes (fournis par toi ou libres de droits, jamais générés)
   characters/hero_temp/   Héros TEMPORAIRE (LPC) + CREDITS.md
   rooms/                  Décors des salles, une image par couche
-  ui/                     Interface
+  ui/                     Interface, découpée depuis assets-source/ui/
+  fonts/                  Police VT323 (licence OFL)
+assets-source/ui/         Maquette et planches d'UI d'origine
 src/
   config/                 Dimensions (Layout), liste des assets (Assets), scènes (SceneKeys)
   data/rooms/             Définition des salles : chemins, objets, point d'arrivée
@@ -36,7 +40,7 @@ src/
   systems/                Commandes, interactions, bus d'événements, type de dialogue
   scenes/                 Chargement, interface (UIScene), salles (rooms/)
   ui/                     Joystick, boutons, boîte de dialogue
-tools/                    Script d'assemblage du héros temporaire
+tools/                    Assemblage du héros temporaire, découpe de l'UI (decouper-ui.py)
 ```
 
 ## Construire une salle
@@ -63,3 +67,7 @@ Pour une salle de 2160 px : far = 810 px, near = 1440 px, main = 2160 px, foregr
 ## Assets
 
 Aucun asset n'est généré. Le héros actuel est **temporaire** : assemblé depuis le projet libre LPC (Liberated Pixel Cup), attribution obligatoire, voir `public/assets/characters/hero_temp/CREDITS.md`.
+
+L'interface vient des planches fournies (`assets-source/ui/`) : `python tools/decouper-ui.py` les découpe et les réduit à leur taille d'affichage dans `public/assets/ui/`. Pour modifier un élément, modifie la planche puis relance le script.
+
+Police : [VT323](https://fonts.google.com/specimen/VT323), licence SIL Open Font License (`public/assets/fonts/VT323-OFL.txt`).

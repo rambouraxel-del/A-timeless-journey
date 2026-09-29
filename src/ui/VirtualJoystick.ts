@@ -4,22 +4,21 @@ import type { Vec2 } from '@/world/RoomDefinition';
 // Joystick fixe : on pose le doigt n'importe ou dans sa zone, le vecteur part du centre du socle.
 export class VirtualJoystick {
   readonly value: Vec2 = { x: 0, y: 0 };
-  private readonly base: Phaser.GameObjects.Arc;
-  private readonly thumb: Phaser.GameObjects.Arc;
+  private readonly thumb: Phaser.GameObjects.Image;
   private pointerId: number | null = null;
 
   constructor(
     scene: Phaser.Scene,
     private readonly x: number,
     private readonly y: number,
-    private readonly radius: number,
+    private readonly travel: number,
     area: Phaser.Geom.Rectangle,
   ) {
-    this.base = scene.add.circle(x, y, radius, 0xffffff, 0.08).setStrokeStyle(2, 0xffffff, 0.35);
-    this.thumb = scene.add.circle(x, y, radius * 0.42, 0xffffff, 0.35);
+    scene.add.image(x, y, 'joystick_base');
+    this.thumb = scene.add.image(x, y, 'joystick_thumb');
 
     scene.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
-      if (this.pointerId === null && this.base.visible && area.contains(p.x, p.y)) {
+      if (this.pointerId === null && area.contains(p.x, p.y)) {
         this.pointerId = p.id;
         this.follow(p);
       }
@@ -34,20 +33,14 @@ export class VirtualJoystick {
     scene.input.on('pointerupoutside', release);
   }
 
-  setVisible(visible: boolean): void {
-    this.base.setVisible(visible);
-    this.thumb.setVisible(visible);
-    if (!visible) this.reset();
-  }
-
   private follow(p: Phaser.Input.Pointer): void {
     const dx = p.x - this.x;
     const dy = p.y - this.y;
     const len = Math.hypot(dx, dy);
-    const k = len > this.radius ? this.radius / len : 1;
+    const k = len > this.travel ? this.travel / len : 1;
     this.thumb.setPosition(this.x + dx * k, this.y + dy * k);
-    this.value.x = (dx * k) / this.radius;
-    this.value.y = (dy * k) / this.radius;
+    this.value.x = (dx * k) / this.travel;
+    this.value.y = (dy * k) / this.travel;
   }
 
   private reset(): void {

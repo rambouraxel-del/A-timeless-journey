@@ -38,7 +38,10 @@ export abstract class RoomScene extends Phaser.Scene {
     cam.startFollow(this.player.sprite, true, 0.15, 0.15);
 
     EventBus.on(GameEvents.Interact, this.onInteract, this);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.Interact, this.onInteract, this));
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      EventBus.off(GameEvents.Interact, this.onInteract, this);
+      this.interactions.destroy();
+    });
   }
 
   update(_time: number, delta: number): void {

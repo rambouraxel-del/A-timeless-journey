@@ -1,71 +1,66 @@
 import Phaser from 'phaser';
+import { GAME_VIEW, SCREEN_HEIGHT, SCREEN_WIDTH } from '@/config/Layout';
 import { SceneKeys } from '@/config/SceneKeys';
-import { UI_ZONE } from '@/config/Layout';
 import { controls } from '@/systems/Controls';
 import type { DialogueLine } from '@/systems/Dialogue';
 import { EventBus, GameEvents } from '@/systems/EventBus';
 import { DialogueBox } from '@/ui/DialogueBox';
-import { createTextButton } from '@/ui/TextButton';
+import { Hud } from '@/ui/Hud';
+import { ImageButton } from '@/ui/ImageButton';
+import { textStyle, UiColors } from '@/ui/UiStyle';
 import { VirtualJoystick } from '@/ui/VirtualJoystick';
 
-const STAMINA_BAR_WIDTH = 100;
+// Les controles sont ancres au bas de l'ecran ; sur un ecran 16:9 (640 px), la boite de
+// dialogue deborde un peu sur le bas de la scene, comme sur la maquette.
+const H = SCREEN_HEIGHT;
+const LAYOUT = {
+  joystick: { x: 84, y: H - 118, travel: 34 },
+  interact: { x: 286, y: H - 134 },
+  run: { x: 318, y: H - 62 },
+  astral: { x: 178, y: H - 124 },
+  controlsTop: H - 186,
+};
 
-// Tiers bas de l'ecran : joystick, boutons, dialogues. Tourne en parallele de la salle active.
+// Interface : HUD en haut, panneau decoratif en bas avec joystick, INTERAGIR, COURIR, dialogues.
 export class UIScene extends Phaser.Scene {
   private joystick!: VirtualJoystick;
-  private buttons: Phaser.GameObjects.Container[] = [];
   private dialogue!: DialogueBox;
-  private runHeld = false;
-  private runKeys: Phaser.Input.Keyboard.Key[] = [];
-  private staminaFill!: Phaser.GameObjects.Rectangle;
+  private hud!: Hud;
   private hint!: Phaser.GameObjects.Text;
-  private keys!: Record<'left' | 'right' | 'up' | 'down', Phaser.Input.Keyboard.Key[]>;
+  private runHeld = false;
+  private keys!: Record<'left' | 'right' | 'up' | 'down' | 'run' | 'interact', Phaser.Input.Keyboard.Key[]>;
 
   constructor() {
     super(SceneKeys.UI);
   }
 
   create(): void {
-    const zone = new Phaser.Geom.Rectangle(UI_ZONE.x, UI_ZONE.y, UI_ZONE.width, UI_ZONE.height);
-    this.add.rectangle(zone.x, zone.y, zone.width, zone.height, 0x15151a).setOrigin(0);
-    this.add.rectangle(zone.x, zone.y, zone.width, 2, 0x3a3a44).setOrigin(0);
+    this.createPanel();
 
-    const stickArea = new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width * 0.6, zone.height);
-    // Joystick et boutons grandissent avec la zone (base : 213 px de haut, plafonne a x1,3).
-    const k = Math.min(1.3, zone.height / 213);
-    this.joystick = new VirtualJoystick(this, zone.x + 85 * k, zone.centerY, 52 * k, stickArea);
+    const stickArea = new Phaser.Geom.Rectangle(0, LAYOUT.controlsTop, 200, H - LAYOUT.controlsTop);
+    this.joystick = new VirtualJoystick(this, LAYOUT.joystick.x, LAYOUT.joystick.y, LAYOUT.joystick.travel, stickArea);
+    new ImageButton(this, LAYOUT.interact.x, LAYOUT.interact.y, 'btn_interact', 'btn_interact_pressed', { onDown: () => this.interact() });
+    new ImageButton(this, LAYOUT.run.x, LAYOUT.run.y, 'btn_run', 'btn_run_pressed', {
+      onDown: () => (this.runHeld = true),
+      onUp: () => (this.runHeld = false),
+    });
 
-    const buttonW = 76 * k;
-    const gap = 48 * k;
-    const bx = zone.right - buttonW / 2 - 14;
-    this.buttons = [
-      createTextButton(this, bx, zone.centerY - gap, 'MENU', () => this.showHint('Menu : à venir.'), undefined, k),
-      createTextButton(this, bx, zone.centerY, 'SAC', () => this.showHint('Inventaire : à venir.'), undefined, k),
-      // À maintenir enfoncé.
-      createTextButton(this, bx, zone.centerY + gap, 'COURIR', () => (this.runHeld = true), () => (this.runHeld = false), k),
-    ];
+    this.hud = new Hud(this, 4, 4, controls.maxHealth);
+    new ImageButton(this, SCREEN_WIDTH - 23, 23, 'btn_menu', null, { onDown: () => this.showHint('Menu : à venir.') });
+
+    this.dialogue = new DialogueBox(this, 10, LAYOUT.controlsTop - 86, () => (controls.locked = false));
 
     this.hint = this.add
-      .text(zone.centerX, zone.y - 10, '', { fontFamily: 'monospace', fontSize: '11px', color: '#ffe066', backgroundColor: '#000000aa', padding: { x: 6, y: 3 } })
+      .text(SCREEN_WIDTH / 2, GAME_VIEW.height - 8, '', { ...textStyle(14, UiColors.gold), backgroundColor: '#10121cdd', padding: { x: 6, y: 2 } })
       .setOrigin(0.5, 1)
+      .setDepth(200)
       .setAlpha(0);
 
-    this.dialogue = new DialogueBox(this, zone, () => this.setDialogueMode(false));
-
-    const kb = this.input.keyboard!;
-    this.runKeys = [kb.addKey('SHIFT')];
-    this.createStaminaBar();
-
-    // Fleches ou ZQSD, pour tester sur ordinateur.
-    this.keys = {
-      left: [kb.addKey('LEFT'), kb.addKey('Q')],
-      right: [kb.addKey('RIGHT'), kb.addKey('D')],
-      up: [kb.addKey('UP'), kb.addKey('Z')],
-      down: [kb.addKey('DOWN'), kb.addKey('S')],
-    };
+    this.createKeyboard();
 
     const onDialogue = (lines: DialogueLine[]) => {
-      this.setDialogueMode(true);
+      controls.locked = true;
+      this.runHeld = false;
       this.dialogue.open(lines);
     };
     EventBus.on(GameEvents.DialogueOpen, onDialogue);
@@ -80,26 +75,41 @@ export class UIScene extends Phaser.Scene {
     const down = (keys: Phaser.Input.Keyboard.Key[]) => (keys.some((k) => k.isDown) ? 1 : 0);
     const kx = down(this.keys.right) - down(this.keys.left);
     const ky = down(this.keys.down) - down(this.keys.up);
-    controls.run = this.runHeld || this.runKeys.some((k) => k.isDown);
-    this.staminaFill.width = STAMINA_BAR_WIDTH * controls.stamina;
-    controls.move.x = kx !== 0 || ky !== 0 ? kx : this.joystick.value.x;
-    controls.move.y = kx !== 0 || ky !== 0 ? ky : this.joystick.value.y;
+    const keyboard = kx !== 0 || ky !== 0;
+    controls.move.x = keyboard ? kx : this.joystick.value.x;
+    controls.move.y = keyboard ? ky : this.joystick.value.y;
+    controls.run = this.runHeld || down(this.keys.run) === 1;
+    this.hud.update(controls.health, controls.stamina);
   }
 
-  private createStaminaBar(): void {
-    const x = 10;
-    const y = 10;
-    const w = STAMINA_BAR_WIDTH;
-    this.add.rectangle(x - 2, y - 2, w + 4, 12, 0x000000, 0.6).setOrigin(0).setStrokeStyle(1, 0xc8c8d2);
-    this.staminaFill = this.add.rectangle(x, y, w, 8, 0x6fd26f).setOrigin(0);
+  private createPanel(): void {
+    const top = GAME_VIEW.height;
+    this.add.rectangle(0, top, SCREEN_WIDTH, H - top, UiColors.panel).setOrigin(0);
+    this.add.image(SCREEN_WIDTH / 2, top, 'orn_separator');
+    this.add.image(3, top + 3, 'orn_corner').setOrigin(0);
+    this.add.image(SCREEN_WIDTH - 3, top + 3, 'orn_corner').setOrigin(1, 0).setFlipX(true);
+    this.add.image(SCREEN_WIDTH / 2, H, 'orn_mountains').setOrigin(0.5, 1);
+    this.add.image(LAYOUT.astral.x, LAYOUT.astral.y, 'orn_astral').setAlpha(0.9);
   }
 
-  private setDialogueMode(open: boolean): void {
-    if (open) this.runHeld = false;
-    controls.locked = open;
-    this.joystick.setVisible(!open);
-    for (const b of this.buttons) b.setVisible(!open);
-    if (!open) EventBus.emit(GameEvents.DialogueClosed);
+  private createKeyboard(): void {
+    // Fleches ou ZQSD pour bouger, Maj pour courir, Espace/E pour interagir (tests sur ordinateur).
+    const kb = this.input.keyboard!;
+    const k = (...codes: string[]) => codes.map((c) => kb.addKey(c));
+    this.keys = {
+      left: k('LEFT', 'Q'),
+      right: k('RIGHT', 'D'),
+      up: k('UP', 'Z'),
+      down: k('DOWN', 'S'),
+      run: k('SHIFT'),
+      interact: k('SPACE', 'E'),
+    };
+    for (const key of this.keys.interact) key.on('down', () => this.interact());
+  }
+
+  private interact(): void {
+    if (this.dialogue.isOpen) this.dialogue.advance();
+    else EventBus.emit(GameEvents.InteractRequest);
   }
 
   private showHint(text: string): void {

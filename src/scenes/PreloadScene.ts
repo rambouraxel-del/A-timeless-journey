@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Assets } from '@/config/Assets';
+import { Assets, UiFont, UiTextures } from '@/config/Assets';
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@/config/Layout';
 import { SceneKeys } from '@/config/SceneKeys';
 
@@ -15,6 +15,8 @@ export class PreloadScene extends Phaser.Scene {
 
     const { hero } = Assets;
     this.load.spritesheet(hero.key, hero.url, { frameWidth: hero.frameWidth, frameHeight: hero.frameHeight });
+    for (const key of UiTextures) this.load.image(key, `assets/ui/${key}.png`);
+    this.load.font(UiFont.family, UiFont.url);
   }
 
   create(): void {
