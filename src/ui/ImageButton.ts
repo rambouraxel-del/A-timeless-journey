@@ -1,20 +1,25 @@
 import Phaser from 'phaser';
+import type { UiKey } from '@/config/UiSizes.generated';
+import { uiImage } from './UiImage';
 
 // Bouton image a deux etats (repos / enfonce). La zone de toucher est un disque.
 export class ImageButton {
   readonly image: Phaser.GameObjects.Image;
+  private readonly baseScale: number;
   private held = false;
 
   constructor(
     scene: Phaser.Scene,
     x: number,
     y: number,
-    private readonly idleKey: string,
-    private readonly pressedKey: string | null,
+    private readonly idleKey: UiKey,
+    private readonly pressedKey: UiKey | null,
+    scale: number,
     handlers: { onDown?: () => void; onUp?: () => void },
   ) {
-    this.image = scene.add.image(x, y, idleKey);
-    const r = this.image.width * 0.46;
+    this.image = uiImage(scene, idleKey, x, y, scale);
+    this.baseScale = this.image.scale;
+    const r = this.image.width * 0.48;
     this.image.setInteractive(new Phaser.Geom.Circle(this.image.width / 2, this.image.height / 2, r), Phaser.Geom.Circle.Contains);
     this.image.on('pointerdown', () => {
       this.setPressed(true);
@@ -32,6 +37,6 @@ export class ImageButton {
   private setPressed(pressed: boolean): void {
     this.held = pressed;
     if (this.pressedKey) this.image.setTexture(pressed ? this.pressedKey : this.idleKey);
-    else this.image.setScale(pressed ? 0.92 : 1);
+    else this.image.setScale(this.baseScale * (pressed ? 0.94 : 1));
   }
 }

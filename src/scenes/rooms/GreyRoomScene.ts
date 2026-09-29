@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_VIEW, SCREEN_WIDTH, SCREENS_PER_ROOM } from '@/config/Layout';
+import { GAME_VIEW } from '@/config/Layout';
 import { SceneKeys } from '@/config/SceneKeys';
 import { greyRoom } from '@/data/rooms/greyRoom';
 import { DEPTH, type LayerId } from '@/world/Layers';
@@ -19,7 +19,6 @@ const C = {
   object: 0xb2b2bb,
   objectEdge: 0xdcdce4,
   foreground: 0x18181c,
-  label: '#d0d0d8',
 };
 
 // Salle grise de test : uniquement des formes geometriques, en attendant les vrais decors.
@@ -52,7 +51,7 @@ export class GreyRoomScene extends RoomScene {
         }
         break;
       case 'main':
-        this.drawStructure(g, container);
+        this.drawStructure(g);
         break;
       case 'foreground':
         g.fillStyle(C.foreground, 0.9);
@@ -62,16 +61,9 @@ export class GreyRoomScene extends RoomScene {
     }
   }
 
-  private drawStructure(g: Phaser.GameObjects.Graphics, container: Phaser.GameObjects.Container): void {
+  private drawStructure(g: Phaser.GameObjects.Graphics): void {
     const W = this.room.width;
     g.fillStyle(C.wall).fillRect(0, 0, 16, H).fillRect(W - 16, 0, 16, H).fillRect(0, 0, W, 8);
-
-    // Reperes des 6 ecrans de telephone qui composent la salle.
-    for (let i = 0; i < SCREENS_PER_ROOM; i++) {
-      const x = i * SCREEN_WIDTH;
-      g.lineStyle(1, C.floorEdge, 0.25).lineBetween(x, 8, x, H);
-      container.add(this.add.text(x + 20, 14, `écran ${i + 1}/${SCREENS_PER_ROOM}`, { fontFamily: 'monospace', fontSize: '8px', color: C.label }).setAlpha(0.6));
-    }
 
     const byKind = (k: PathSegment['kind']) => this.room.paths.filter((p) => p.kind === k);
     for (const s of byKind('stairs')) this.drawStairs(g, s);
@@ -79,7 +71,7 @@ export class GreyRoomScene extends RoomScene {
     for (const s of byKind('floor')) {
       const x1 = Math.min(s.from.x, s.to.x);
       const x2 = Math.max(s.from.x, s.to.x);
-      const bottom = s.from.y >= H - 40 ? H : s.from.y + 10;
+      const bottom = s.from.y >= H - 120 ? H : s.from.y + 10;
       g.fillStyle(C.floor).fillRect(x1, s.from.y, x2 - x1, bottom - s.from.y);
       g.fillStyle(C.floorEdge).fillRect(x1, s.from.y, x2 - x1, 2);
     }

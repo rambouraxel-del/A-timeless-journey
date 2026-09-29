@@ -14,13 +14,13 @@ npm run build      # vérifie les types et compile dans dist/
 Chaque push sur `main` publie le jeu sur GitHub Pages (`.github/workflows/deploy.yml`).
 Sur ordinateur : flèches ou ZQSD pour bouger, Maj pour courir, Espace ou E pour interagir.
 
-## Écran
+## Écran et netteté
 
-- Résolution logique **360 × 640** (portrait), mise à l'échelle de l'écran.
-- La scène fait toujours 360 × 427. Le reste de l'écran (213 px en 16:9, plus sur les téléphones allongés) est le panneau de contrôle.
+- Le jeu est dessiné à la **résolution réelle de l'écran** (un canvas de 1170 × 2532 px sur un iPhone 390 × 844 pt) : aucun agrandissement flou.
+- Les positions restent en **pixels logiques** (~360 de large). `RENDER_SCALE` (1 à 4, entier) = pixels d'écran par pixel logique ; le décor et le héros sont agrandis d'un facteur entier, sans lissage.
+- Le format suit le téléphone (de 16:9 à 860/360). **Environ 66 % de la hauteur** pour la scène, le reste pour le panneau de contrôle.
 - **HUD** (haut) : emblème temporel, cœurs de vie, jauge d'énergie (= endurance), bouton menu.
-- **Panneau** (bas) : joystick, INTERAGIR (objet à portée le plus proche), COURIR (à maintenir), boîte de dialogue au-dessus des contrôles.
-- Une salle standard = **6 écrans de long** (2160 px).
+- **Panneau** (bas) : joystick, INTERAGIR (objet à portée le plus proche), COURIR (à maintenir), boîte de dialogue au-dessus des commandes. Les commandes grandissent (jusqu'à ×1,3) sur les écrans allongés.
 
 ## Architecture
 
@@ -28,7 +28,7 @@ Sur ordinateur : flèches ou ZQSD pour bouger, Maj pour courir, Espace ou E pour
 public/assets/            Graphismes (fournis par toi ou libres de droits, jamais générés)
   characters/hero_temp/   Héros TEMPORAIRE (LPC) + CREDITS.md
   rooms/                  Décors des salles, une image par couche
-  ui/                     Interface, découpée depuis assets-source/ui/
+  ui/x2 x3 x4/            Interface haute définition (un dossier par densité d'écran)
   fonts/                  Police VT323 (licence OFL)
 assets-source/ui/         Maquette et planches d'UI d'origine
 src/
@@ -62,12 +62,12 @@ Une salle = un fichier dans `src/data/rooms/` + une scène dans `src/scenes/room
 | `foreground` | 1,3 | premier plan, passe devant le joueur |
 
 Largeur d'une image de couche = `360 + (largeur de la salle − 360) × défilement`.
-Pour une salle de 2160 px : far = 810 px, near = 1440 px, main = 2160 px, foreground = 2700 px. Hauteur : 427 px.
+Pour une salle de 2160 px sur un écran de 390 px logiques : far = 780 px, near = 1440 px, main = 2160 px, foreground = 2700 px. La hauteur suit `GAME_VIEW.height` (≈ 425 px en 16:9, ≈ 557 px sur un iPhone).
 
 ## Assets
 
 Aucun asset n'est généré. Le héros actuel est **temporaire** : assemblé depuis le projet libre LPC (Liberated Pixel Cup), attribution obligatoire, voir `public/assets/characters/hero_temp/CREDITS.md`.
 
-L'interface vient des planches fournies (`assets-source/ui/`) : `python tools/decouper-ui.py` les découpe et les réduit à leur taille d'affichage dans `public/assets/ui/`. Pour modifier un élément, modifie la planche puis relance le script.
+L'interface vient des planches fournies (`assets-source/ui/`) : `python tools/decouper-ui.py` les découpe en 3 densités dans `public/assets/ui/x2|x3|x4/` (le jeu charge celle de l'appareil) et écrit `src/config/UiSizes.generated.ts`. Pour modifier un élément, modifie la planche puis relance le script.
 
 Police : [VT323](https://fonts.google.com/specimen/VT323), licence SIL Open Font License (`public/assets/fonts/VT323-OFL.txt`).

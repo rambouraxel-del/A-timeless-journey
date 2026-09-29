@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { Player } from '@/entities/Player';
 import { DEPTH } from '@/world/Layers';
 import type { InteractableDef } from '@/world/RoomDefinition';
+import { uiImage } from '@/ui/UiImage';
 import { controls } from './Controls';
 import { EventBus, GameEvents } from './EventBus';
 
@@ -24,8 +25,7 @@ export class InteractionSystem {
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => this.tryInteract(def));
 
-      const marker = scene.add
-        .image(def.x, def.y - def.height - 4, 'marker_interact')
+      const marker = uiImage(scene, 'marker_interact', def.x, def.y - def.height - 4)
         .setOrigin(0.5, 1)
         .setDepth(DEPTH.markers)
         .setVisible(false);

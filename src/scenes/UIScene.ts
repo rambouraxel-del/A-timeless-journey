@@ -1,27 +1,19 @@
 import Phaser from 'phaser';
-import { GAME_VIEW, SCREEN_HEIGHT, SCREEN_WIDTH } from '@/config/Layout';
+import { GAME_VIEW, LOGICAL_HEIGHT, LOGICAL_WIDTH, RENDER_SCALE, UI_ZONE } from '@/config/Layout';
 import { SceneKeys } from '@/config/SceneKeys';
 import { controls } from '@/systems/Controls';
 import type { DialogueLine } from '@/systems/Dialogue';
 import { EventBus, GameEvents } from '@/systems/EventBus';
-import { DialogueBox } from '@/ui/DialogueBox';
+import { DialogueBox, dialogueHeight } from '@/ui/DialogueBox';
 import { Hud } from '@/ui/Hud';
 import { ImageButton } from '@/ui/ImageButton';
+import { uiImage, useLogicalCamera } from '@/ui/UiImage';
 import { textStyle, UiColors } from '@/ui/UiStyle';
 import { VirtualJoystick } from '@/ui/VirtualJoystick';
 
-// Les controles sont ancres au bas de l'ecran ; sur un ecran 16:9 (640 px), la boite de
-// dialogue deborde un peu sur le bas de la scene, comme sur la maquette.
-const H = SCREEN_HEIGHT;
-const LAYOUT = {
-  joystick: { x: 84, y: H - 118, travel: 34 },
-  interact: { x: 286, y: H - 134 },
-  run: { x: 318, y: H - 62 },
-  astral: { x: 178, y: H - 124 },
-  controlsTop: H - 186,
-};
-
 // Interface : HUD en haut, panneau decoratif en bas avec joystick, INTERAGIR, COURIR, dialogues.
+// Les commandes sont groupees en haut du panneau et grandissent (jusqu'a x1,3) quand le
+// panneau est plus haut (telephones allonges), pour ne laisser aucune grande zone vide.
 export class UIScene extends Phaser.Scene {
   private joystick!: VirtualJoystick;
   private dialogue!: DialogueBox;
@@ -35,23 +27,36 @@ export class UIScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.createPanel();
+    useLogicalCamera(this, RENDER_SCALE);
+    const W = LOGICAL_WIDTH;
+    const top = UI_ZONE.y;
+    const s = Phaser.Math.Clamp(UI_ZONE.height / 213, 1, 1.3);
 
-    const stickArea = new Phaser.Geom.Rectangle(0, LAYOUT.controlsTop, 200, H - LAYOUT.controlsTop);
-    this.joystick = new VirtualJoystick(this, LAYOUT.joystick.x, LAYOUT.joystick.y, LAYOUT.joystick.travel, stickArea);
-    new ImageButton(this, LAYOUT.interact.x, LAYOUT.interact.y, 'btn_interact', 'btn_interact_pressed', { onDown: () => this.interact() });
-    new ImageButton(this, LAYOUT.run.x, LAYOUT.run.y, 'btn_run', 'btn_run_pressed', {
+    // Positions des commandes (centres), calculees depuis le haut du panneau.
+    const joystick = { x: 14 + 64 * s, y: top + 24 + 64 * s };
+    const interact = { x: W - 14 - 48 * s, y: top + 22 + 48 * s };
+    const run = { x: W - 12 - 33 * s, y: interact.y + 81 * s - 10 };
+    const controlsTop = joystick.y - 64 * s;
+
+    this.createPanel(joystick, interact, s);
+
+    const stickArea = new Phaser.Geom.Rectangle(0, top, W * 0.55, UI_ZONE.height);
+    this.joystick = new VirtualJoystick(this, joystick.x, joystick.y, s, stickArea);
+    new ImageButton(this, interact.x, interact.y, 'btn_interact', 'btn_interact_pressed', s, { onDown: () => this.interact() });
+    new ImageButton(this, run.x, run.y, 'btn_run', 'btn_run_pressed', s, {
       onDown: () => (this.runHeld = true),
       onUp: () => (this.runHeld = false),
     });
 
     this.hud = new Hud(this, 4, 4, controls.maxHealth);
-    new ImageButton(this, SCREEN_WIDTH - 23, 23, 'btn_menu', null, { onDown: () => this.showHint('Menu : à venir.') });
+    new ImageButton(this, W - 23, 23, 'btn_menu', null, 1, { onDown: () => this.showHint('Menu : à venir.') });
 
-    this.dialogue = new DialogueBox(this, 10, LAYOUT.controlsTop - 86, () => (controls.locked = false));
+    // La boite de dialogue se pose juste au-dessus des commandes.
+    const dialogueWidth = Math.min(W - 16, 420);
+    this.dialogue = new DialogueBox(this, (W - dialogueWidth) / 2, controlsTop - 6 - dialogueHeight(dialogueWidth), dialogueWidth, () => (controls.locked = false));
 
     this.hint = this.add
-      .text(SCREEN_WIDTH / 2, GAME_VIEW.height - 8, '', { ...textStyle(14, UiColors.gold), backgroundColor: '#10121cdd', padding: { x: 6, y: 2 } })
+      .text(W / 2, GAME_VIEW.height - 8, '', { ...textStyle(14, UiColors.gold), backgroundColor: '#10121cdd', padding: { x: 6, y: 2 } })
       .setOrigin(0.5, 1)
       .setDepth(200)
       .setAlpha(0);
@@ -82,14 +87,20 @@ export class UIScene extends Phaser.Scene {
     this.hud.update(controls.health, controls.stamina);
   }
 
-  private createPanel(): void {
-    const top = GAME_VIEW.height;
-    this.add.rectangle(0, top, SCREEN_WIDTH, H - top, UiColors.panel).setOrigin(0);
-    this.add.image(SCREEN_WIDTH / 2, top, 'orn_separator');
-    this.add.image(3, top + 3, 'orn_corner').setOrigin(0);
-    this.add.image(SCREEN_WIDTH - 3, top + 3, 'orn_corner').setOrigin(1, 0).setFlipX(true);
-    this.add.image(SCREEN_WIDTH / 2, H, 'orn_mountains').setOrigin(0.5, 1);
-    this.add.image(LAYOUT.astral.x, LAYOUT.astral.y, 'orn_astral').setAlpha(0.9);
+  private createPanel(joystick: { x: number; y: number }, interact: { x: number; y: number }, s: number): void {
+    const W = LOGICAL_WIDTH;
+    const top = UI_ZONE.y;
+    this.add.rectangle(0, top, W, UI_ZONE.height, UiColors.panel).setOrigin(0);
+
+    // Montagnes en bas, motif astral entre le joystick et le bouton INTERAGIR.
+    uiImage(this, 'orn_mountains', W / 2, LOGICAL_HEIGHT, W / 440).setOrigin(0.5, 1);
+    const gapLeft = joystick.x + 64 * s;
+    const gapRight = interact.x - 48 * s;
+    uiImage(this, 'orn_astral', (gapLeft + gapRight) / 2, joystick.y + 2, s).setAlpha(0.95);
+
+    uiImage(this, 'orn_separator', W / 2, top + 1);
+    uiImage(this, 'orn_corner', 3, top + 3).setOrigin(0);
+    uiImage(this, 'orn_corner', W - 3, top + 3).setOrigin(1, 0).setFlipX(true);
   }
 
   private createKeyboard(): void {

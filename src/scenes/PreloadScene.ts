@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
-import { Assets, UiFont, UiTextures } from '@/config/Assets';
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@/config/Layout';
+import { Assets, UiFont, UiTextureKeys } from '@/config/Assets';
+import { LOGICAL_HEIGHT, LOGICAL_WIDTH, RENDER_SCALE, UI_DENSITY } from '@/config/Layout';
 import { SceneKeys } from '@/config/SceneKeys';
+import { useLogicalCamera } from '@/ui/UiImage';
 
 export class PreloadScene extends Phaser.Scene {
   constructor() {
@@ -9,17 +10,20 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload(): void {
-    const bar = this.add.rectangle(SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2, 0, 6, 0xd0d0d8).setOrigin(0, 0.5);
+    useLogicalCamera(this, RENDER_SCALE);
+    const bar = this.add.rectangle(LOGICAL_WIDTH / 2 - 100, LOGICAL_HEIGHT / 2, 0, 6, 0xd0d0d8).setOrigin(0, 0.5);
     this.load.on('progress', (v: number) => (bar.width = 200 * v));
     this.load.on('loaderror', (file: Phaser.Loader.File) => console.error('Asset introuvable :', file.src));
 
     const { hero } = Assets;
     this.load.spritesheet(hero.key, hero.url, { frameWidth: hero.frameWidth, frameHeight: hero.frameHeight });
-    for (const key of UiTextures) this.load.image(key, `assets/ui/${key}.png`);
+    for (const key of UiTextureKeys) this.load.image(key, `assets/ui/x${UI_DENSITY}/${key}.png`);
     this.load.font(UiFont.family, UiFont.url);
   }
 
   create(): void {
+    // Interface haute definition : lissage bilineaire (le mode pixel-art serait crenele).
+    for (const key of UiTextureKeys) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
     this.scene.start(SceneKeys.GreyRoom);
     this.scene.launch(SceneKeys.UI);
   }

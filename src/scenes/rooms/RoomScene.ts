@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_VIEW } from '@/config/Layout';
+import { GAME_VIEW, LOGICAL_WIDTH, RENDER_SCALE } from '@/config/Layout';
 import { Player } from '@/entities/Player';
 import { controls } from '@/systems/Controls';
 import { EventBus, GameEvents } from '@/systems/EventBus';
@@ -22,8 +22,10 @@ export abstract class RoomScene extends Phaser.Scene {
 
   create(): void {
     const cam = this.cameras.main;
-    cam.setViewport(GAME_VIEW.x, GAME_VIEW.y, GAME_VIEW.width, GAME_VIEW.height);
-    cam.setBounds(0, 0, this.room.width, this.room.height);
+    // Le canvas est RENDER_SCALE fois plus grand que le monde logique : on zoome d'autant
+    // (nombre entier, donc pixel-art net). Origine en haut a gauche : ecran = zoom x (monde - scroll).
+    cam.setViewport(GAME_VIEW.x, GAME_VIEW.y, GAME_VIEW.width * RENDER_SCALE, GAME_VIEW.height * RENDER_SCALE);
+    cam.setOrigin(0, 0).setZoom(RENDER_SCALE);
 
     for (const layer of LAYERS) {
       const image = this.room.layerImages?.[layer.id];
@@ -35,7 +37,8 @@ export abstract class RoomScene extends Phaser.Scene {
 
     this.player = new Player(this, new WalkGraph(this.room.paths), this.room.spawn);
     this.interactions = new InteractionSystem(this, this.room.interactables, this.player);
-    cam.startFollow(this.player.sprite, true, 0.15, 0.15);
+    cam.scrollX = this.followTarget();
+    cam.scrollY = 0;
 
     EventBus.on(GameEvents.Interact, this.onInteract, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -51,6 +54,14 @@ export abstract class RoomScene extends Phaser.Scene {
     const rate = this.player.running ? -STAMINA_DRAIN_RUN : this.player.moving ? STAMINA_REGEN_WALK : STAMINA_REGEN_IDLE;
     controls.stamina = Math.min(1, Math.max(0, controls.stamina + rate * dt));
     this.interactions.update();
+
+    // Suivi horizontal du joueur, amorti, sans sortir de la salle.
+    const cam = this.cameras.main;
+    cam.scrollX += (this.followTarget() - cam.scrollX) * Math.min(1, dt * 8);
+  }
+
+  private followTarget(): number {
+    return Phaser.Math.Clamp(this.player.position.x - LOGICAL_WIDTH / 2, 0, this.room.width - LOGICAL_WIDTH);
   }
 
   // Couche sans image fournie : rien par defaut.

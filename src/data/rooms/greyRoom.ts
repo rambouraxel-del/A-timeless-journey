@@ -1,10 +1,12 @@
-import { GAME_VIEW, SCREEN_WIDTH, SCREENS_PER_ROOM } from '@/config/Layout';
+import { GAME_VIEW, ROOM_WIDTH } from '@/config/Layout';
 import type { RoomDefinition } from '@/world/RoomDefinition';
 
-const W = SCREEN_WIDTH * SCREENS_PER_ROOM; // 2160
-const GROUND = 400;
-const MEZZANINE = 260;
-const TOP = 125;
+const W = ROOM_WIDTH; // 6 ecrans = 2160
+// Les niveaux sont ancres au bas de la scene : sous le sol il reste ~96 px, que la boite de
+// dialogue peut recouvrir sans cacher le heros.
+const GROUND = GAME_VIEW.height - 96;
+const MEZZANINE = GROUND - 120;
+const TOP = GROUND - 235;
 
 // Salle de test : 3 niveaux relies par 2 escaliers et 2 echelles, un objet de chaque type.
 export const greyRoom: RoomDefinition = {

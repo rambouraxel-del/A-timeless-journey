@@ -1,24 +1,29 @@
 import Phaser from 'phaser';
+import { RENDER_SCALE } from '@/config/Layout';
 import type { Vec2 } from '@/world/RoomDefinition';
+import { uiImage } from './UiImage';
 
 // Joystick fixe : on pose le doigt n'importe ou dans sa zone, le vecteur part du centre du socle.
 export class VirtualJoystick {
   readonly value: Vec2 = { x: 0, y: 0 };
   private readonly thumb: Phaser.GameObjects.Image;
+  private readonly travel: number;
   private pointerId: number | null = null;
 
   constructor(
     scene: Phaser.Scene,
     private readonly x: number,
     private readonly y: number,
-    private readonly travel: number,
+    scale: number,
     area: Phaser.Geom.Rectangle,
   ) {
-    scene.add.image(x, y, 'joystick_base');
-    this.thumb = scene.add.image(x, y, 'joystick_thumb');
+    uiImage(scene, 'joystick_base', x, y, scale);
+    this.thumb = uiImage(scene, 'joystick_thumb', x, y, scale);
+    this.travel = 38 * scale;
 
+    // Les pointeurs arrivent en pixels d'ecran ; le jeu raisonne en pixels logiques.
     scene.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
-      if (this.pointerId === null && area.contains(p.x, p.y)) {
+      if (this.pointerId === null && area.contains(p.x / RENDER_SCALE, p.y / RENDER_SCALE)) {
         this.pointerId = p.id;
         this.follow(p);
       }
@@ -34,8 +39,8 @@ export class VirtualJoystick {
   }
 
   private follow(p: Phaser.Input.Pointer): void {
-    const dx = p.x - this.x;
-    const dy = p.y - this.y;
+    const dx = p.x / RENDER_SCALE - this.x;
+    const dy = p.y / RENDER_SCALE - this.y;
     const len = Math.hypot(dx, dy);
     const k = len > this.travel ? this.travel / len : 1;
     this.thumb.setPosition(this.x + dx * k, this.y + dy * k);

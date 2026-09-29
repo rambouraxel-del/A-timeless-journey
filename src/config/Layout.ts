@@ -1,15 +1,31 @@
-// Largeur logique fixe : 360. La hauteur suit le format de l'ecran (telephones allonges inclus)
-// pour ne laisser aucune marge : 640 minimum (16:9), 860 maximum.
-export const SCREEN_WIDTH = 360;
-const BASE_HEIGHT = 640;
-const MAX_HEIGHT = 860;
-const screenRatio = typeof window === 'undefined' ? BASE_HEIGHT / SCREEN_WIDTH : window.innerHeight / window.innerWidth;
-export const SCREEN_HEIGHT = Math.min(MAX_HEIGHT, Math.max(BASE_HEIGHT, Math.round(SCREEN_WIDTH * screenRatio)));
+// Le jeu est dessine a la resolution reelle de l'ecran (pas de flou d'agrandissement).
+//  - RENDER_SCALE : nombre entier de pixels d'ecran par pixel "logique" du jeu (1 a 4).
+//  - Toutes les positions du jeu restent exprimees en pixels logiques (~360 de large).
+// Le format suit celui du telephone : 16:9 minimum, 860/360 maximum.
+export const DESIGN_WIDTH = 360;
+const MIN_RATIO = 640 / 360;
+const MAX_RATIO = 860 / 360;
 
-// La scene de jeu garde toujours la meme taille (2/3 d'un ecran 16:9).
-// Tout le reste de l'ecran est pour le joystick, les boutons et les dialogues.
-export const GAME_VIEW = { x: 0, y: 0, width: SCREEN_WIDTH, height: Math.round((BASE_HEIGHT * 2) / 3) };
-export const UI_ZONE = { x: 0, y: GAME_VIEW.height, width: SCREEN_WIDTH, height: SCREEN_HEIGHT - GAME_VIEW.height };
+const win = typeof window === 'undefined' ? { innerWidth: 360, innerHeight: 640, devicePixelRatio: 1 } : window;
+const dpr = win.devicePixelRatio || 1;
+const ratio = Math.min(MAX_RATIO, Math.max(MIN_RATIO, win.innerHeight / win.innerWidth));
+const cssWidth = Math.min(win.innerWidth, win.innerHeight / ratio);
+const deviceWidth = Math.round(cssWidth * dpr);
+const deviceHeight = Math.round(cssWidth * ratio * dpr);
 
-// Une salle standard = 6 ecrans de long.
+export const RENDER_SCALE = Math.min(4, Math.max(1, Math.round(deviceWidth / 380)));
+export const LOGICAL_WIDTH = Math.floor(deviceWidth / RENDER_SCALE);
+export const LOGICAL_HEIGHT = Math.floor(deviceHeight / RENDER_SCALE);
+export const CANVAS_WIDTH = LOGICAL_WIDTH * RENDER_SCALE;
+export const CANVAS_HEIGHT = LOGICAL_HEIGHT * RENDER_SCALE;
+
+// Jeu de textures d'interface charge (dossier public/assets/ui/x<densite>/).
+export const UI_DENSITY = Math.min(4, Math.max(2, RENDER_SCALE));
+
+// Environ 2/3 de l'ecran pour la scene de jeu, 1/3 pour le panneau de controle.
+export const GAME_VIEW = { x: 0, y: 0, width: LOGICAL_WIDTH, height: Math.round(LOGICAL_HEIGHT * 0.66) };
+export const UI_ZONE = { x: 0, y: GAME_VIEW.height, width: LOGICAL_WIDTH, height: LOGICAL_HEIGHT - GAME_VIEW.height };
+
+// Une salle standard = 6 ecrans de 360 px de long.
 export const SCREENS_PER_ROOM = 6;
+export const ROOM_WIDTH = SCREENS_PER_ROOM * DESIGN_WIDTH;

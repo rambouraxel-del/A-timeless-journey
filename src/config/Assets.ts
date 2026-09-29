@@ -20,8 +20,10 @@ export const HeroFrames = {
   climb: { start: 4 * COLS, end: 4 * COLS + 5 },
 } as const;
 
-// Elements d'interface decoupes par tools/decouper-ui.py (public/assets/ui/<cle>.png).
-export const UiTextures = [
+// Elements d'interface (tailles dans UiSizes.generated.ts), decoupes par tools/decouper-ui.py
+// dans public/assets/ui/x<densite>/<cle>.png.
+export { UiSizes } from './UiSizes.generated';
+export const UiTextureKeys = [
   'hud_emblem',
   'hud_hearts_frame',
   'hud_heart_full',
