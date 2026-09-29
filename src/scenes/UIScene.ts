@@ -8,11 +8,16 @@ import { DialogueBox } from '@/ui/DialogueBox';
 import { createTextButton } from '@/ui/TextButton';
 import { VirtualJoystick } from '@/ui/VirtualJoystick';
 
+const STAMINA_BAR_WIDTH = 100;
+
 // Tiers bas de l'ecran : joystick, boutons, dialogues. Tourne en parallele de la salle active.
 export class UIScene extends Phaser.Scene {
   private joystick!: VirtualJoystick;
   private buttons: Phaser.GameObjects.Container[] = [];
   private dialogue!: DialogueBox;
+  private runHeld = false;
+  private runKeys: Phaser.Input.Keyboard.Key[] = [];
+  private staminaFill!: Phaser.GameObjects.Rectangle;
   private hint!: Phaser.GameObjects.Text;
   private keys!: Record<'left' | 'right' | 'up' | 'down', Phaser.Input.Keyboard.Key[]>;
 
@@ -32,6 +37,8 @@ export class UIScene extends Phaser.Scene {
     this.buttons = [
       createTextButton(this, bx, zone.y + 48, 'MENU', () => this.showHint('Menu : à venir.')),
       createTextButton(this, bx, zone.y + 96, 'SAC', () => this.showHint('Inventaire : à venir.')),
+      // À maintenir enfoncé.
+      createTextButton(this, bx, zone.y + 144, 'COURIR', () => (this.runHeld = true), () => (this.runHeld = false)),
     ];
 
     this.hint = this.add
@@ -42,6 +49,9 @@ export class UIScene extends Phaser.Scene {
     this.dialogue = new DialogueBox(this, zone, () => this.setDialogueMode(false));
 
     const kb = this.input.keyboard!;
+    this.runKeys = [kb.addKey('SHIFT')];
+    this.createStaminaBar();
+
     // Fleches ou ZQSD, pour tester sur ordinateur.
     this.keys = {
       left: [kb.addKey('LEFT'), kb.addKey('Q')],
@@ -66,11 +76,22 @@ export class UIScene extends Phaser.Scene {
     const down = (keys: Phaser.Input.Keyboard.Key[]) => (keys.some((k) => k.isDown) ? 1 : 0);
     const kx = down(this.keys.right) - down(this.keys.left);
     const ky = down(this.keys.down) - down(this.keys.up);
+    controls.run = this.runHeld || this.runKeys.some((k) => k.isDown);
+    this.staminaFill.width = STAMINA_BAR_WIDTH * controls.stamina;
     controls.move.x = kx !== 0 || ky !== 0 ? kx : this.joystick.value.x;
     controls.move.y = kx !== 0 || ky !== 0 ? ky : this.joystick.value.y;
   }
 
+  private createStaminaBar(): void {
+    const x = 10;
+    const y = 10;
+    const w = STAMINA_BAR_WIDTH;
+    this.add.rectangle(x - 2, y - 2, w + 4, 12, 0x000000, 0.6).setOrigin(0).setStrokeStyle(1, 0xc8c8d2);
+    this.staminaFill = this.add.rectangle(x, y, w, 8, 0x6fd26f).setOrigin(0);
+  }
+
   private setDialogueMode(open: boolean): void {
+    if (open) this.runHeld = false;
     controls.locked = open;
     this.joystick.setVisible(!open);
     for (const b of this.buttons) b.setVisible(!open);

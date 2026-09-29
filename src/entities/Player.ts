@@ -6,6 +6,7 @@ import type { WalkGraph } from '@/world/WalkGraph';
 
 const WALK_SPEED = 80;
 const CLIMB_SPEED = 55;
+const RUN_MULTIPLIER = 1.5; // vitesse de deplacement ET d'animation
 const DEAD_ZONE = 0.2;
 // Alignement minimal entre le joystick et un chemin pour l'emprunter.
 const MIN_ALIGN = 0.35;
@@ -20,6 +21,8 @@ export class Player {
   private edge: number;
   private s: number;
   private facing: Facing = 'right';
+  // Vrai si le joueur s'est deplace en courant pendant la derniere mise a jour.
+  running = false;
 
   constructor(
     scene: Phaser.Scene,
@@ -40,15 +43,18 @@ export class Player {
     return this.graph.pointOn(this.edge, this.s);
   }
 
-  update(dt: number, input: Vec2): void {
+  update(dt: number, input: Vec2, run = false): void {
+    this.running = false;
     const magnitude = Math.min(1, Math.hypot(input.x, input.y));
     if (magnitude < DEAD_ZONE) {
+      this.sprite.anims.timeScale = 1;
       this.animate(false, 0);
       return;
     }
     const want = { x: input.x / Math.hypot(input.x, input.y), y: input.y / Math.hypot(input.x, input.y) };
     const edges = this.graph.edges;
-    let budget = (edges[this.edge].kind === 'ladder' ? CLIMB_SPEED : WALK_SPEED) * magnitude * dt;
+    const speedFactor = run ? RUN_MULTIPLIER : 1;
+    let budget = (edges[this.edge].kind === 'ladder' ? CLIMB_SPEED : WALK_SPEED) * speedFactor * magnitude * dt;
     let moved = false;
     let moveX = 0;
 
@@ -76,6 +82,8 @@ export class Player {
       moveX = cur.dir.x * sign;
     }
 
+    this.running = run && moved;
+    this.sprite.anims.timeScale = speedFactor;
     this.syncSprite();
     this.animate(moved, moveX);
   }
