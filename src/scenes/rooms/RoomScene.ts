@@ -8,8 +8,10 @@ import { LAYERS, type LayerId, layerWidth } from '@/world/Layers';
 import type { InteractableDef, RoomDefinition } from '@/world/RoomDefinition';
 import { WalkGraph } from '@/world/WalkGraph';
 
-// 2 % d'endurance perdus par seconde de course.
-const STAMINA_DRAIN_PER_SECOND = 0.02;
+// Endurance (0 a 1) : perte en courant, gain en marchant, gain a l'arret. Par seconde.
+const STAMINA_DRAIN_RUN = 0.02;
+const STAMINA_REGEN_WALK = 0.05;
+const STAMINA_REGEN_IDLE = 0.1;
 
 // Base commune a toutes les salles : couches de profondeur, camera, joueur, interactions.
 // Une salle concrete fournit sa definition et, si besoin, dessine ses couches sans image.
@@ -43,7 +45,8 @@ export abstract class RoomScene extends Phaser.Scene {
     const dt = delta / 1000;
     const canRun = controls.run && controls.stamina > 0;
     this.player.update(dt, controls.locked ? { x: 0, y: 0 } : controls.move, canRun);
-    if (this.player.running) controls.stamina = Math.max(0, controls.stamina - STAMINA_DRAIN_PER_SECOND * dt);
+    const rate = this.player.running ? -STAMINA_DRAIN_RUN : this.player.moving ? STAMINA_REGEN_WALK : STAMINA_REGEN_IDLE;
+    controls.stamina = Math.min(1, Math.max(0, controls.stamina + rate * dt));
     this.interactions.update();
   }
 

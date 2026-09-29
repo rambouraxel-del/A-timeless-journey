@@ -23,6 +23,8 @@ export class Player {
   private facing: Facing = 'right';
   // Vrai si le joueur s'est deplace en courant pendant la derniere mise a jour.
   running = false;
+  // Vrai si le joueur s'est deplace (marche ou course) pendant la derniere mise a jour.
+  moving = false;
 
   constructor(
     scene: Phaser.Scene,
@@ -45,6 +47,7 @@ export class Player {
 
   update(dt: number, input: Vec2, run = false): void {
     this.running = false;
+    this.moving = false;
     const magnitude = Math.min(1, Math.hypot(input.x, input.y));
     if (magnitude < DEAD_ZONE) {
       this.sprite.anims.timeScale = 1;
@@ -82,6 +85,7 @@ export class Player {
       moveX = cur.dir.x * sign;
     }
 
+    this.moving = moved;
     this.running = run && moved;
     this.sprite.anims.timeScale = speedFactor;
     this.syncSprite();
