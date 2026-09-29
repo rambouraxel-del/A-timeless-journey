@@ -31,14 +31,18 @@ export class UIScene extends Phaser.Scene {
     this.add.rectangle(zone.x, zone.y, zone.width, 2, 0x3a3a44).setOrigin(0);
 
     const stickArea = new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width * 0.6, zone.height);
-    this.joystick = new VirtualJoystick(this, zone.x + 95, zone.centerY + 6, 52, stickArea);
+    // Joystick et boutons grandissent avec la zone (base : 213 px de haut, plafonne a x1,3).
+    const k = Math.min(1.3, zone.height / 213);
+    this.joystick = new VirtualJoystick(this, zone.x + 85 * k, zone.centerY, 52 * k, stickArea);
 
-    const bx = zone.right - 58;
+    const buttonW = 76 * k;
+    const gap = 48 * k;
+    const bx = zone.right - buttonW / 2 - 14;
     this.buttons = [
-      createTextButton(this, bx, zone.y + 48, 'MENU', () => this.showHint('Menu : à venir.')),
-      createTextButton(this, bx, zone.y + 96, 'SAC', () => this.showHint('Inventaire : à venir.')),
+      createTextButton(this, bx, zone.centerY - gap, 'MENU', () => this.showHint('Menu : à venir.'), undefined, k),
+      createTextButton(this, bx, zone.centerY, 'SAC', () => this.showHint('Inventaire : à venir.'), undefined, k),
       // À maintenir enfoncé.
-      createTextButton(this, bx, zone.y + 144, 'COURIR', () => (this.runHeld = true), () => (this.runHeld = false)),
+      createTextButton(this, bx, zone.centerY + gap, 'COURIR', () => (this.runHeld = true), () => (this.runHeld = false), k),
     ];
 
     this.hint = this.add
