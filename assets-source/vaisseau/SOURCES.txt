@@ -1,0 +1,6 @@
+Images : générées avec l'outil d'image de ChatGPT pour Axel, conversation A Timeless Journey du 29/09/2026.
+Référence : sources/reference_validee.png.
+Préparation technique : découpe, alpha, redimensionnement nearest-neighbor, assemblage des couches.
+Aucun pack d'assets tiers importé ; aucune licence tierce CC0/CC-BY revendiquée.
+Attribution : pas d'auteur tiers identifié dans ce pack. Les conditions applicables au service de génération restent applicables.
+Les sources originales sont conservées dans sources/ ; seuls les fichiers assets/ sont destinés au chargement en jeu.

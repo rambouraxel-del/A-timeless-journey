@@ -44,14 +44,24 @@ src/
 tools/                    Assemblage du héros (assembler-heros.py), découpe de l'UI (decouper-ui.py)
 ```
 
-## Construire une salle
+## La salle du vaisseau
 
-Une salle = un fichier dans `src/data/rooms/` + une scène dans `src/scenes/rooms/` (voir `greyRoom.ts` et `GreyRoomScene.ts`).
+Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack `A-Timeless-Journey_Pack-Vaisseau` (images dans `public/assets/rooms/vaisseau/`, manifeste `src/data/rooms/vaisseau/scene.json`, notes d'origine dans `assets-source/vaisseau/`).
 
-- **Chemins** : `floor` (sol), `stairs` (escalier), `ladder` (échelle). Quand un escalier ou une échelle touche un sol, un embranchement est créé automatiquement ; le joueur prend la direction qui correspond le mieux au joystick.
-- **Objets interactifs** : `chest`, `door`, `computer`, `character`, `object`. Un point d'exclamation apparaît quand le joueur est assez près ; un tap déclenche l'interaction (pour l'instant : « Interaction à définir »).
+- Le pack est calé sur 2880 × 1080 px de texture. Il est adapté à chaque téléphone : `sx = largeur de vue / 720`, `sy = hauteur de vue / 1080`, largeur de salle = 4 × la vue. Les panneaux remplissent la vue, les équipements gardent leurs proportions (`min(sx, sy)`) et posent leurs pieds au sol.
+- Profondeurs : fond 10, structure 30, équipements 40, héros 50, repères 55, rebord 60, angles proches 70 (léger décalage de parallaxe, recalé aux deux extrémités de la salle).
+- Déplacement : un seul segment de sol. Interactions : 2 portes, réacteur, console, écran mural, 2 armoires, banquette (réponse générique pour l'instant, aucune destination ni scénario).
+- Ambiance (`vaisseauEffects.ts`) : halo cyan pulsant et particules autour du réacteur, voyants et lumières qui pulsent ou clignotent. Les images restent statiques.
+- Le héros est affiché ×1,5 dans cette salle (`heroScale` dans `vaisseau.ts`) pour rester proportionné aux équipements.
 
-## Couches de profondeur
+## Construire une autre salle
+
+Une salle = un fichier dans `src/data/rooms/` + une scène dans `src/scenes/rooms/` qui étend `RoomScene`. Sans surcharge, `RoomScene` utilise les couches génériques ci-dessous ; le vaisseau surcharge `buildScenery()` pour poser ses propres panneaux.
+
+- **Chemins** : `floor` (sol), `stairs` (escalier), `ladder` (échelle) ; un embranchement est créé quand ils se touchent.
+- **Objets interactifs** : `chest`, `door`, `computer`, `character`, `object`. Un point d'exclamation apparaît à portée ; un tap ou INTERAGIR déclenche l'interaction. `standY` et `reachX` règlent l'endroit où le héros se place et la largeur de la zone.
+
+## Couches génériques (RoomScene)
 
 | Couche | Défilement | Rôle |
 |---|---|---|

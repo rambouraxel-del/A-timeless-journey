@@ -1,5 +1,5 @@
 export const SceneKeys = {
   Preload: 'Preload',
   UI: 'UI',
-  GreyRoom: 'GreyRoom',
+  Vaisseau: 'Vaisseau',
 } as const;

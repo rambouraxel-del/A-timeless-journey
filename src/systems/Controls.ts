@@ -13,4 +13,6 @@ export const controls = {
   stamina: 1,
   health: 4,
   maxHealth: 4,
+  // Bord haut de la boite de dialogue (pixels logiques) : la scene remonte pour ne pas cacher le heros.
+  dialogueTop: Infinity,
 };

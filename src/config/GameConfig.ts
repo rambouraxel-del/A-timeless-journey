@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from './Layout';
 import { PreloadScene } from '@/scenes/PreloadScene';
-import { GreyRoomScene } from '@/scenes/rooms/GreyRoomScene';
+import { VaisseauScene } from '@/scenes/rooms/VaisseauScene';
 import { UIScene } from '@/scenes/UIScene';
 
 export const gameConfig: Phaser.Types.Core.GameConfig = {
@@ -18,5 +18,5 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
   },
   input: { activePointers: 3 }, // joystick + tap simultanes
   // L'ordre compte : la scene UI est dessinee par-dessus la salle.
-  scene: [PreloadScene, GreyRoomScene, UIScene],
+  scene: [PreloadScene, VaisseauScene, UIScene],
 };

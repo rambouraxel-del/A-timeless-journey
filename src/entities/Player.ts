@@ -31,13 +31,14 @@ export class Player {
     scene: Phaser.Scene,
     private readonly graph: WalkGraph,
     spawn: Vec2,
+    heroScale = 1,
   ) {
     ({ edge: this.edge, s: this.s } = graph.closest(spawn));
     createHeroAnimations(scene);
     this.sprite = scene.add
       .sprite(0, 0, Assets.hero.key)
       .setOrigin(0.5, Assets.hero.feetY / Assets.hero.frameHeight)
-      .setScale(HERO_PIXEL_SCALE / RENDER_SCALE)
+      .setScale(Math.max(1, Math.round(HERO_PIXEL_SCALE * heroScale)) / RENDER_SCALE)
       .setDepth(DEPTH.player);
     this.syncSprite();
     this.sprite.play('hero-idle-right');

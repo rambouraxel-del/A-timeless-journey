@@ -27,15 +27,9 @@ export abstract class RoomScene extends Phaser.Scene {
     cam.setViewport(GAME_VIEW.x, GAME_VIEW.y, GAME_VIEW.width * RENDER_SCALE, GAME_VIEW.height * RENDER_SCALE);
     cam.setOrigin(0, 0).setZoom(RENDER_SCALE);
 
-    for (const layer of LAYERS) {
-      const image = this.room.layerImages?.[layer.id];
-      const container = this.add.container(0, 0).setDepth(layer.depth).setScrollFactor(layer.scrollFactor);
-      if (image) container.add(this.add.image(0, 0, image).setOrigin(0));
-      else this.drawLayer(layer.id, container, layerWidth(this.room.width, GAME_VIEW.width, layer.scrollFactor));
-    }
-    for (const def of this.room.interactables) this.drawInteractable(def);
+    this.buildScenery();
 
-    this.player = new Player(this, new WalkGraph(this.room.paths), this.room.spawn);
+    this.player = new Player(this, new WalkGraph(this.room.paths), this.room.spawn, this.room.heroScale ?? 1);
     this.interactions = new InteractionSystem(this, this.room.interactables, this.player);
     cam.scrollX = this.followTarget();
     cam.scrollY = 0;
@@ -58,10 +52,26 @@ export abstract class RoomScene extends Phaser.Scene {
     // Suivi horizontal du joueur, amorti, sans sortir de la salle.
     const cam = this.cameras.main;
     cam.scrollX += (this.followTarget() - cam.scrollX) * Math.min(1, dt * 8);
+
+    // Pendant un dialogue, la scene remonte juste assez pour que la boite ne cache pas les pieds.
+    const shift = controls.locked ? Phaser.Math.Clamp(this.player.position.y + 8 - controls.dialogueTop, 0, 120) : 0;
+    cam.scrollY += (shift - cam.scrollY) * Math.min(1, dt * 10);
   }
 
   private followTarget(): number {
     return Phaser.Math.Clamp(this.player.position.x - LOGICAL_WIDTH / 2, 0, this.room.width - LOGICAL_WIDTH);
+  }
+
+  // Construit le decor. Par defaut : les couches generiques (LAYERS), une image ou un dessin par
+  // couche. Une salle avec son propre assemblage (ex. le vaisseau) surcharge cette methode.
+  protected buildScenery(): void {
+    for (const layer of LAYERS) {
+      const image = this.room.layerImages?.[layer.id];
+      const container = this.add.container(0, 0).setDepth(layer.depth).setScrollFactor(layer.scrollFactor);
+      if (image) container.add(this.add.image(0, 0, image).setOrigin(0));
+      else this.drawLayer(layer.id, container, layerWidth(this.room.width, GAME_VIEW.width, layer.scrollFactor));
+    }
+    for (const def of this.room.interactables) this.drawInteractable(def);
   }
 
   // Couche sans image fournie : rien par defaut.

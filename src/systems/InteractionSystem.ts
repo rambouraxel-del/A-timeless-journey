@@ -25,7 +25,9 @@ export class InteractionSystem {
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => this.tryInteract(def));
 
-      const marker = uiImage(scene, 'marker_interact', def.x, def.y - def.height - 4)
+      // Au-dessus de l'objet, mais jamais trop haut : un grand equipement garde son repere pres du heros.
+      const markerY = Math.max(def.y - def.height, (def.standY ?? def.y) - 190) - 4;
+      const marker = uiImage(scene, 'marker_interact', def.x, markerY)
         .setOrigin(0.5, 1)
         .setDepth(DEPTH.markers)
         .setVisible(false);
@@ -60,6 +62,7 @@ export class InteractionSystem {
 
   private inReach(def: InteractableDef): boolean {
     const p = this.player.position;
-    return Math.abs(p.x - def.x) <= def.width / 2 + REACH_X && Math.abs(p.y - def.y) <= REACH_Y;
+    const reachX = def.reachX ?? def.width / 2 + REACH_X;
+    return Math.abs(p.x - def.x) <= reachX && Math.abs(p.y - (def.standY ?? def.y)) <= REACH_Y;
   }
 }

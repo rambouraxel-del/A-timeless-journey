@@ -1,0 +1,710 @@
+{
+  "version": 1,
+  "scene": "vaisseau",
+  "units": "texture pixels; nominal logical = texture / 2",
+  "room": {
+    "width": 2880,
+    "height": 1080,
+    "floorY": 1000,
+    "screens": 4,
+    "sectionWidth": 720,
+    "gameHeightFraction": 0.69,
+    "uiHeightFraction": 0.31,
+    "nominalLogicalWidth": 1440,
+    "nominalLogicalHeight": 540,
+    "spawn": {
+      "x": 360,
+      "y": 1000
+    }
+  },
+  "fit": {
+    "method": "background and structure fit each viewport; props uniformly scaled and bottom anchored",
+    "sx": "GAME_VIEW.width/720",
+    "sy": "GAME_VIEW.height/1080",
+    "propScale": "min(sx,sy)",
+    "worldWidth": "4*GAME_VIEW.width",
+    "floorY": "1000*sy",
+    "note": "All positions x use sx, y use sy. Background planes adapt slightly to screen aspect; never stretch props or the hero. See README."
+  },
+  "layers": [
+    {
+      "id": "background_01",
+      "file": "assets/background/background_01.png",
+      "x": 0,
+      "y": 0,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 10,
+      "scrollFactor": 1,
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "id": "background_02",
+      "file": "assets/background/background_02.png",
+      "x": 720,
+      "y": 0,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 10,
+      "scrollFactor": 1,
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "id": "background_03",
+      "file": "assets/background/background_03.png",
+      "x": 1440,
+      "y": 0,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 10,
+      "scrollFactor": 1,
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "id": "background_04",
+      "file": "assets/background/background_04.png",
+      "x": 2160,
+      "y": 0,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 10,
+      "scrollFactor": 1,
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "id": "structure_01",
+      "file": "assets/structure/structure_01.png",
+      "x": 0,
+      "y": 0,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 30,
+      "scrollFactor": 1,
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "id": "structure_02",
+      "file": "assets/structure/structure_02.png",
+      "x": 720,
+      "y": 0,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 30,
+      "scrollFactor": 1,
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "id": "structure_03",
+      "file": "assets/structure/structure_03.png",
+      "x": 1440,
+      "y": 0,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 30,
+      "scrollFactor": 1,
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "id": "structure_04",
+      "file": "assets/structure/structure_04.png",
+      "x": 2160,
+      "y": 0,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 30,
+      "scrollFactor": 1,
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "id": "foreground_01",
+      "file": "assets/foreground/foreground_01.png",
+      "x": 0,
+      "y": 0,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 60,
+      "scrollFactor": 1,
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "id": "foreground_02",
+      "file": "assets/foreground/foreground_02.png",
+      "x": 720,
+      "y": 0,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 60,
+      "scrollFactor": 1,
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "id": "foreground_03",
+      "file": "assets/foreground/foreground_03.png",
+      "x": 1440,
+      "y": 0,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 60,
+      "scrollFactor": 1,
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "id": "foreground_04",
+      "file": "assets/foreground/foreground_04.png",
+      "x": 2160,
+      "y": 0,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 60,
+      "scrollFactor": 1,
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "id": "near_01",
+      "file": "assets/foreground/near_01.png",
+      "x": 0,
+      "y": 0,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 70,
+      "scrollFactor": 1.025,
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "id": "near_02",
+      "file": "assets/foreground/near_02.png",
+      "x": 720,
+      "y": 0,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 70,
+      "scrollFactor": 1.025,
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "id": "near_03",
+      "file": "assets/foreground/near_03.png",
+      "x": 1440,
+      "y": 0,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 70,
+      "scrollFactor": 1.025,
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "id": "near_04",
+      "file": "assets/foreground/near_04.png",
+      "x": 2160,
+      "y": 0,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 70,
+      "scrollFactor": 1.025,
+      "width": 720,
+      "height": 1080
+    }
+  ],
+  "props": [
+    {
+      "id": "porte_gauche",
+      "file": "assets/props/porte_gauche.png",
+      "x": 160,
+      "y": 1000,
+      "origin": [
+        0.5,
+        1
+      ],
+      "width": 226,
+      "height": 360,
+      "depth": 40,
+      "scrollFactor": 1,
+      "interaction": {
+        "kind": "door",
+        "radius": 100
+      }
+    },
+    {
+      "id": "armoire_basse",
+      "file": "assets/props/armoire_basse.png",
+      "x": 430,
+      "y": 1000,
+      "origin": [
+        0.5,
+        1
+      ],
+      "width": 126,
+      "height": 230,
+      "depth": 40,
+      "scrollFactor": 1
+    },
+    {
+      "id": "plante_gauche",
+      "file": "assets/props/plante_gauche.png",
+      "x": 305,
+      "y": 1000,
+      "origin": [
+        0.5,
+        1
+      ],
+      "width": 120,
+      "height": 160,
+      "depth": 40,
+      "scrollFactor": 1
+    },
+    {
+      "id": "banquette",
+      "file": "assets/props/banquette.png",
+      "x": 920,
+      "y": 1000,
+      "origin": [
+        0.5,
+        1
+      ],
+      "width": 398,
+      "height": 150,
+      "depth": 40,
+      "scrollFactor": 1
+    },
+    {
+      "id": "armoire_haute",
+      "file": "assets/props/armoire_haute.png",
+      "x": 1210,
+      "y": 1000,
+      "origin": [
+        0.5,
+        1
+      ],
+      "width": 182,
+      "height": 440,
+      "depth": 40,
+      "scrollFactor": 1
+    },
+    {
+      "id": "ecran_mural",
+      "file": "assets/props/ecran_mural.png",
+      "x": 640,
+      "y": 720,
+      "origin": [
+        0.5,
+        1
+      ],
+      "width": 72,
+      "height": 230,
+      "depth": 40,
+      "scrollFactor": 1
+    },
+    {
+      "id": "reacteur",
+      "file": "assets/props/reacteur.png",
+      "x": 1760,
+      "y": 1000,
+      "origin": [
+        0.5,
+        1
+      ],
+      "width": 546,
+      "height": 920,
+      "depth": 40,
+      "scrollFactor": 1,
+      "interaction": {
+        "kind": "object",
+        "radius": 100
+      }
+    },
+    {
+      "id": "console",
+      "file": "assets/props/console.png",
+      "x": 2330,
+      "y": 1000,
+      "origin": [
+        0.5,
+        1
+      ],
+      "width": 600,
+      "height": 260,
+      "depth": 40,
+      "scrollFactor": 1,
+      "interaction": {
+        "kind": "computer",
+        "radius": 100
+      }
+    },
+    {
+      "id": "porte_droite",
+      "file": "assets/props/porte_droite.png",
+      "x": 2720,
+      "y": 1000,
+      "origin": [
+        0.5,
+        1
+      ],
+      "width": 210,
+      "height": 360,
+      "depth": 40,
+      "scrollFactor": 1,
+      "interaction": {
+        "kind": "door",
+        "radius": 100
+      }
+    },
+    {
+      "id": "plante_droite",
+      "file": "assets/props/plante_droite.png",
+      "x": 2530,
+      "y": 1000,
+      "origin": [
+        0.5,
+        1
+      ],
+      "width": 112,
+      "height": 160,
+      "depth": 40,
+      "scrollFactor": 1
+    }
+  ],
+  "optionalNearObjects": [
+    {
+      "id": "montant_proche",
+      "file": "assets/foreground/montant_proche.png",
+      "x": 8,
+      "y": 30,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 70,
+      "scrollFactor": 1.025,
+      "enabled": false
+    },
+    {
+      "id": "angle_gauche",
+      "file": "assets/foreground/angle_gauche.png",
+      "x": 65,
+      "y": 4,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 70,
+      "scrollFactor": 1.025,
+      "enabled": true
+    },
+    {
+      "id": "angle_droit",
+      "file": "assets/foreground/angle_droit.png",
+      "x": 2665,
+      "y": 4,
+      "origin": [
+        0,
+        0
+      ],
+      "depth": 70,
+      "scrollFactor": 1.025,
+      "enabled": true
+    }
+  ],
+  "player": {
+    "depth": 50,
+    "existingSprite": "reuse project Player; no hero embedded in any runtime texture"
+  },
+  "effects": [
+    {
+      "id": "reactor-pulse",
+      "target": "reacteur",
+      "type": "subtle alpha pulse of separate cyan glow",
+      "anchor": [
+        1760,
+        615
+      ],
+      "radius": 115
+    },
+    {
+      "id": "reactor-motes",
+      "target": "reacteur",
+      "type": "sparse cyan particles",
+      "bounds": [
+        1620,
+        420,
+        1900,
+        850
+      ],
+      "maxParticles": 14
+    }
+  ],
+  "assets": [
+    {
+      "file": "assets/props/porte_gauche.png",
+      "width": 226,
+      "height": 360,
+      "source": "sources/equipements_01.png",
+      "crop": [
+        70,
+        10,
+        630,
+        855
+      ]
+    },
+    {
+      "file": "assets/props/armoire_basse.png",
+      "width": 126,
+      "height": 230,
+      "source": "sources/equipements_01.png",
+      "crop": [
+        810,
+        290,
+        1150,
+        855
+      ]
+    },
+    {
+      "file": "assets/props/plante_gauche.png",
+      "width": 120,
+      "height": 160,
+      "source": "sources/equipements_01.png",
+      "crop": [
+        1320,
+        455,
+        1650,
+        865
+      ]
+    },
+    {
+      "file": "assets/props/banquette.png",
+      "width": 398,
+      "height": 150,
+      "source": "sources/equipements_02.png",
+      "crop": [
+        270,
+        445,
+        905,
+        715
+      ]
+    },
+    {
+      "file": "assets/props/armoire_haute.png",
+      "width": 182,
+      "height": 440,
+      "source": "sources/equipements_02.png",
+      "crop": [
+        1005,
+        40,
+        1310,
+        715
+      ]
+    },
+    {
+      "file": "assets/props/ecran_mural.png",
+      "width": 72,
+      "height": 230,
+      "source": "sources/equipements_02.png",
+      "crop": [
+        1480,
+        120,
+        1685,
+        700
+      ]
+    },
+    {
+      "file": "assets/props/reacteur.png",
+      "width": 546,
+      "height": 920,
+      "source": "sources/reacteur.png",
+      "crop": [
+        55,
+        10,
+        970,
+        1470
+      ]
+    },
+    {
+      "file": "assets/props/console.png",
+      "width": 600,
+      "height": 260,
+      "source": "sources/equipements_04.png",
+      "crop": [
+        40,
+        360,
+        1010,
+        810
+      ]
+    },
+    {
+      "file": "assets/props/porte_droite.png",
+      "width": 210,
+      "height": 360,
+      "source": "sources/equipements_04.png",
+      "crop": [
+        1060,
+        50,
+        1525,
+        805
+      ]
+    },
+    {
+      "file": "assets/props/plante_droite.png",
+      "width": 112,
+      "height": 160,
+      "source": "sources/equipements_04.png",
+      "crop": [
+        1570,
+        425,
+        1850,
+        817
+      ]
+    },
+    {
+      "file": "assets/foreground/rebord_module.png",
+      "width": 720,
+      "height": 24
+    },
+    {
+      "file": "assets/foreground/montant_proche.png",
+      "width": 145,
+      "height": 1020
+    },
+    {
+      "file": "assets/foreground/angle_gauche.png",
+      "width": 151,
+      "height": 125
+    },
+    {
+      "file": "assets/foreground/angle_droit.png",
+      "width": 168,
+      "height": 125
+    },
+    {
+      "file": "assets/background/background_01.png",
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "file": "assets/background/background_02.png",
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "file": "assets/background/background_03.png",
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "file": "assets/background/background_04.png",
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "file": "assets/structure/structure_01.png",
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "file": "assets/structure/structure_02.png",
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "file": "assets/structure/structure_03.png",
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "file": "assets/structure/structure_04.png",
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "file": "assets/foreground/foreground_01.png",
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "file": "assets/foreground/foreground_02.png",
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "file": "assets/foreground/foreground_03.png",
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "file": "assets/foreground/foreground_04.png",
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "file": "assets/foreground/near_01.png",
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "file": "assets/foreground/near_02.png",
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "file": "assets/foreground/near_03.png",
+      "width": 720,
+      "height": 1080
+    },
+    {
+      "file": "assets/foreground/near_04.png",
+      "width": 720,
+      "height": 1080
+    }
+  ],
+  "notes": [
+    "No story or quest; one horizontal walk segment.",
+    "Use tile layers OR their source modules, never both.",
+    "Near layers default 1.025; pad edges; for zero drift use 1. All mechanically connected layers stay at 1.",
+    "These are static assets, no animated frames or audio supplied."
+  ]
+}

@@ -1,0 +1,12 @@
+À transmettre à Claude avec ce dossier :
+
+Intègre cette salle du vaisseau dans mon projet A Timeless Journey existant.
+Commence par README_CLAUDE.md, scene.json et preview/scene_complete.png.
+Utilise les fichiers du dossier assets, déjà découpés et mis à l'échelle, et conserve le personnage animé existant.
+Le jeu reste MOBILE PORTRAIT, avec une scène de QUATRE écrans de long, UN SEUL niveau et 69 % de l'écran en hauteur ; les commandes existantes gardent les 31 % restants.
+Respecte l'assemblage, les coordonnées et les couches décrits. Adapte le chargement et les définitions de salle du projet plutôt que de refaire son moteur.
+L'objectif est le level design, la circulation, les interactions de base et l'ambiance visuelle. N'ajoute aucune quête, histoire, séquence scénarisée, atelier, étage ou fenêtre sur l'espace.
+Ajoute une animation légère par effets du moteur autour du réacteur et des voyants, sans faire tourner toute la machine. Les images sont statiques et aucun son n'est fourni.
+Le fichier integration/VaisseauAssets.ts est une aide, à adapter à l'architecture existante.
+
+APERCU.html permet de parcourir localement les quatre écrans avant intégration.

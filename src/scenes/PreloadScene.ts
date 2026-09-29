@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { Assets, UiFont, UiTextureKeys } from '@/config/Assets';
 import { LOGICAL_HEIGHT, LOGICAL_WIDTH, RENDER_SCALE, UI_DENSITY } from '@/config/Layout';
 import { SceneKeys } from '@/config/SceneKeys';
+import { layers, props, textureKey, textureUrl } from '@/data/rooms/vaisseau';
 import { useLogicalCamera } from '@/ui/UiImage';
 
 export class PreloadScene extends Phaser.Scene {
@@ -19,12 +20,14 @@ export class PreloadScene extends Phaser.Scene {
     this.load.spritesheet(hero.key, hero.url, { frameWidth: hero.frameWidth, frameHeight: hero.frameHeight });
     for (const key of UiTextureKeys) this.load.image(key, `assets/ui/x${UI_DENSITY}/${key}.png`);
     this.load.font(UiFont.family, UiFont.url);
+    // Salle du vaisseau : panneaux et equipements listes dans scene.json.
+    for (const item of [...layers, ...props]) this.load.image(textureKey(item.file), textureUrl(item.file));
   }
 
   create(): void {
     // Interface haute definition : lissage bilineaire (le mode pixel-art serait crenele).
     for (const key of UiTextureKeys) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
-    this.scene.start(SceneKeys.GreyRoom);
+    this.scene.start(SceneKeys.Vaisseau);
     this.scene.launch(SceneKeys.UI);
   }
 }

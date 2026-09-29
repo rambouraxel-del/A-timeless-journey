@@ -24,6 +24,10 @@ export interface InteractableDef {
   y: number;
   width: number;
   height: number;
+  // Ou le heros se place pour interagir (par defaut : y, le sol sous l'objet).
+  standY?: number;
+  // Demi-largeur de la zone ou l'interaction est possible (par defaut : width / 2 + 28).
+  reachX?: number;
 }
 
 export interface RoomDefinition {
@@ -33,6 +37,8 @@ export interface RoomDefinition {
   spawn: Vec2;
   paths: PathSegment[];
   interactables: InteractableDef[];
-  // Image par couche (cle de texture). Une couche sans image est dessinee par la scene (salle grise).
+  // Image par couche (cle de texture) pour les salles construites avec les couches generiques.
   layerImages?: Partial<Record<string, string>>;
+  // Multiplicateur de la taille du heros dans cette salle (1 = taille de reference).
+  heroScale?: number;
 }

@@ -54,7 +54,9 @@ export class UIScene extends Phaser.Scene {
 
     // La boite de dialogue se pose juste au-dessus des commandes.
     const dialogueWidth = Math.min(W - 16, 420);
-    this.dialogue = new DialogueBox(this, (W - dialogueWidth) / 2, controlsTop - 6 - dialogueHeight(dialogueWidth), dialogueWidth, () => (controls.locked = false));
+    const dialogueY = controlsTop - 6 - dialogueHeight(dialogueWidth);
+    controls.dialogueTop = dialogueY;
+    this.dialogue = new DialogueBox(this, (W - dialogueWidth) / 2, dialogueY, dialogueWidth, () => (controls.locked = false));
 
     this.hint = this.add
       .text(W / 2, GAME_VIEW.height - 8, '', { ...textStyle(14, UiColors.gold), backgroundColor: '#10121cdd', padding: { x: 6, y: 2 } })
