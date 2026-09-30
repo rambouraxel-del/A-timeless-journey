@@ -14,6 +14,15 @@ npm run build      # vérifie les types et compile dans dist/
 Chaque push sur `main` publie le jeu sur GitHub Pages (`.github/workflows/deploy.yml`).
 Sur ordinateur : flèches ou ZQSD pour bouger, Maj pour courir, Espace ou E pour interagir.
 
+## Démarrage, menu et sauvegarde
+
+- `BootScene` charge le fond, le titre et les boutons ; `TitleScene` les affiche puis charge tout le reste avec une **barre dorée** liée au chargement réel. La barre disparaît, puis les 3 boutons apparaissent en montant légèrement.
+- Un même fond (`assets/menu/fond.jpg`) sert au chargement et au menu : il remplit l'écran sans déformation, aligné en bas pour que le héros reste au-dessus des boutons.
+- **Continuer** reprend la sauvegarde (grisé et inactif sans sauvegarde). **Nouvelle partie** demande confirmation si une sauvegarde existe. **Paramètres** : effets d'ambiance oui/non, effacer la sauvegarde.
+- Le bouton MENU en jeu sauvegarde et revient à l'écran titre.
+- Sauvegarde locale (`localStorage`, `src/systems/SaveGame.ts`) : position, orientation, vie, endurance. Automatique au démarrage, toutes les 3 s, au retour au menu et quand la page passe en arrière-plan.
+- Images du menu : sources dans `assets-source/menu/`, préparées par `python tools/preparer-menu.py`.
+
 ## Écran et netteté
 
 - Le jeu est dessiné à la **résolution réelle de l'écran** (un canvas de 1170 × 2532 px sur un iPhone 390 × 844 pt) : aucun agrandissement flou.
@@ -42,7 +51,7 @@ src/
   systems/                Commandes, interactions, bus d'événements, type de dialogue
   scenes/                 Chargement, interface (UIScene), salles (rooms/)
   ui/                     Joystick, boutons, boîte de dialogue
-tools/                    Assemblage du héros (assembler-heros.py), découpe de l'UI (decouper-ui.py)
+tools/                    Assemblage du héros, découpe de l'UI, préparation du menu (preparer-menu.py)
 ```
 
 ## La salle du vaisseau

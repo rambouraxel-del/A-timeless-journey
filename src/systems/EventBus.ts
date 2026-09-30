@@ -4,6 +4,7 @@ import Phaser from 'phaser';
 export const EventBus = new Phaser.Events.EventEmitter();
 
 export const GameEvents = {
+  SaveRequest: 'save:request', // demande une sauvegarde immediate (ex. retour au menu)
   Interact: 'interact', // (def: InteractableDef)
   InteractRequest: 'interact:request', // bouton INTERAGIR : objet a portee le plus proche
   Hint: 'hint', // (texte court affiche brievement)

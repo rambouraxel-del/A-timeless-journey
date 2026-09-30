@@ -52,7 +52,7 @@ export class UIScene extends Phaser.Scene {
     this.controlsGroup.push(interactButton.image, runButton.image);
 
     this.hud = new Hud(this, 4, 4, controls.maxHealth);
-    new ImageButton(this, W - 23, 23, 'btn_menu', null, 1, { onDown: () => this.showHint('Menu : à venir.') });
+    new ImageButton(this, W - 23, 23, 'btn_menu', null, 1, { onDown: () => this.backToMenu() });
 
     // Les dialogues s'affichent dans le panneau bas, a la place des commandes.
     const dialogueArea = new Phaser.Geom.Rectangle(8, top + 12, W - 16, LOGICAL_HEIGHT - 10 - (top + 12));
@@ -126,6 +126,14 @@ export class UIScene extends Phaser.Scene {
       interact: k('SPACE', 'E'),
     };
     for (const key of this.keys.interact) key.on('down', () => this.interact());
+  }
+
+  // Bouton MENU : sauvegarde puis retour a l'ecran titre (les ressources restent en memoire).
+  private backToMenu(): void {
+    if (controls.locked) return;
+    EventBus.emit(GameEvents.SaveRequest);
+    this.scene.stop(SceneKeys.Vaisseau);
+    this.scene.start(SceneKeys.Title, { loaded: true });
   }
 
   private interact(): void {

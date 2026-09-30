@@ -47,3 +47,12 @@ export const UiTextureKeys = [
 ] as const;
 
 export const UiFont = { family: 'VT323', url: 'assets/fonts/VT323-Regular.ttf' } as const;
+
+// Ecran titre : fond commun au chargement et au menu, titre et boutons (tools/preparer-menu.py).
+export const MenuImages = [
+  { key: 'menu_fond', url: 'assets/menu/fond.jpg' },
+  { key: 'menu_titre', url: 'assets/menu/titre.png' },
+  { key: 'menu_btn_continuer', url: 'assets/menu/btn_continuer.png' },
+  { key: 'menu_btn_nouvelle_partie', url: 'assets/menu/btn_nouvelle_partie.png' },
+  { key: 'menu_btn_parametres', url: 'assets/menu/btn_parametres.png' },
+] as const;

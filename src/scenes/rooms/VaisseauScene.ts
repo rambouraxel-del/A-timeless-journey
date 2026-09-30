@@ -1,5 +1,6 @@
 import { SceneKeys } from '@/config/SceneKeys';
 import { layers, propScale, props, sx, sy, textureKey, vaisseau } from '@/data/rooms/vaisseau';
+import { getSettings } from '@/systems/SaveGame';
 import { addVaisseauEffects } from './vaisseauEffects';
 import { RoomScene } from './RoomScene';
 
@@ -36,6 +37,6 @@ export class VaisseauScene extends RoomScene {
         .setScrollFactor(prop.scrollFactor);
     }
 
-    addVaisseauEffects(this);
+    if (getSettings().ambient) addVaisseauEffects(this);
   }
 }

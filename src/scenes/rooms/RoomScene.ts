@@ -4,6 +4,7 @@ import { Player } from '@/entities/Player';
 import { controls } from '@/systems/Controls';
 import { EventBus, GameEvents } from '@/systems/EventBus';
 import { InteractionSystem } from '@/systems/InteractionSystem';
+import { loadGame, saveGame } from '@/systems/SaveGame';
 import { LAYERS, type LayerId, layerWidth } from '@/world/Layers';
 import type { InteractableDef, RoomDefinition } from '@/world/RoomDefinition';
 import { WalkGraph } from '@/world/WalkGraph';
@@ -19,6 +20,13 @@ export abstract class RoomScene extends Phaser.Scene {
   protected abstract readonly room: RoomDefinition;
   protected player!: Player;
   private interactions!: InteractionSystem;
+  private resume = false;
+  private saveTimer = 0;
+
+  // data.resume : reprendre la sauvegarde (Continuer) ; sinon nouvelle partie.
+  init(data?: { resume?: boolean }): void {
+    this.resume = data?.resume === true;
+  }
 
   create(): void {
     const cam = this.cameras.main;
@@ -28,21 +36,57 @@ export abstract class RoomScene extends Phaser.Scene {
     cam.setOrigin(0, 0).setZoom(RENDER_SCALE);
 
     this.buildScenery();
+    cam.fadeIn(300, 0, 0, 0);
 
-    this.player = new Player(this, new WalkGraph(this.room.paths), this.room.spawn, this.room.heroScale ?? 1);
+    const save = this.resume ? loadGame() : null;
+    const spawn = save ? { x: save.x * this.room.width, y: this.room.spawn.y } : this.room.spawn;
+    controls.health = save ? Math.min(controls.maxHealth, save.health) : controls.maxHealth;
+    controls.stamina = save ? save.stamina : 1;
+    controls.locked = false;
+    controls.run = false;
+    controls.move.x = 0;
+    controls.move.y = 0;
+    this.player = new Player(this, new WalkGraph(this.room.paths), spawn, this.room.heroScale ?? 1);
+    if (save) this.player.setFacing(save.facing);
     this.interactions = new InteractionSystem(this, this.room.interactables, this.player);
     cam.scrollX = this.followTarget();
     cam.scrollY = 0;
 
+    // Sauvegarde automatique : au demarrage, toutes les 3 s, et quand la page passe en arriere-plan.
+    this.writeSave();
+    const onHidden = () => document.visibilityState === 'hidden' && this.writeSave();
+    document.addEventListener('visibilitychange', onHidden);
+    window.addEventListener('pagehide', this.writeSave);
+    EventBus.on(GameEvents.SaveRequest, this.writeSave, this);
+
     EventBus.on(GameEvents.Interact, this.onInteract, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.writeSave();
+      document.removeEventListener('visibilitychange', onHidden);
+      window.removeEventListener('pagehide', this.writeSave);
+      EventBus.off(GameEvents.SaveRequest, this.writeSave, this);
       EventBus.off(GameEvents.Interact, this.onInteract, this);
       this.interactions.destroy();
     });
   }
 
+  private readonly writeSave = (): void => {
+    saveGame({
+      room: this.room.id,
+      x: this.player.position.x / this.room.width,
+      facing: this.player.facingDirection,
+      health: controls.health,
+      stamina: controls.stamina,
+    });
+  };
+
   update(_time: number, delta: number): void {
     const dt = delta / 1000;
+    this.saveTimer += dt;
+    if (this.saveTimer >= 3) {
+      this.saveTimer = 0;
+      this.writeSave();
+    }
     const canRun = controls.run && controls.stamina > 0;
     this.player.update(dt, controls.locked ? { x: 0, y: 0 } : controls.move, canRun);
     const rate = this.player.running ? -STAMINA_DRAIN_RUN : this.player.moving ? STAMINA_REGEN_WALK : STAMINA_REGEN_IDLE;

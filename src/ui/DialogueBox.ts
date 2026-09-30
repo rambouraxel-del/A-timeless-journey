@@ -1,12 +1,8 @@
 import Phaser from 'phaser';
-import { UiSizes, type UiKey } from '@/config/UiSizes.generated';
 import type { DialogueLine } from '@/systems/Dialogue';
+import { FRAME_SLICES, PLATE_SLICES, resizeNineSlice as resize, uiNineSlice } from './NineSlice';
 import { uiImage } from './UiImage';
 import { textStyle, UiColors } from './UiStyle';
-
-// Epaisseur des bords (pixels logiques) des images decoupees en neuf parties.
-const FRAME_SLICES = { left: 17, right: 18, top: 23, bottom: 15 };
-const PLATE_SLICES = { left: 9, right: 9, top: 7, bottom: 7 };
 
 const PAD = { left: 18, right: 18, top: 14, bottom: 12 }; // marge interieure du cadre
 const PORTRAIT_SIZE = 76;
@@ -14,19 +10,6 @@ const NAME = { size: 14, padX: 8, padY: 3, maxWidthRatio: 0.6 };
 const BODY = { size: 16, lineSpacing: 1 };
 const BUTTON = { height: 28, padX: 14, size: 15 };
 const MOTIF_HEIGHT = 50;
-
-// Image d'interface decoupee en neuf parties : les coins restent nets, les bords s'etirent.
-function uiNineSlice(scene: Phaser.Scene, key: UiKey, slices: typeof FRAME_SLICES): Phaser.GameObjects.NineSlice {
-  const texture = scene.textures.get(key).getSourceImage() as HTMLImageElement;
-  const r = texture.width / UiSizes[key].w; // pixels de texture par pixel logique
-  const plate = scene.add.nineslice(0, 0, key, undefined, texture.width, texture.height, slices.left * r, slices.right * r, slices.top * r, slices.bottom * r);
-  plate.setOrigin(0).setScale(1 / r);
-  return plate;
-}
-
-function resize(plate: Phaser.GameObjects.NineSlice, width: number, height: number): void {
-  plate.setSize(width / plate.scaleX, height / plate.scaleY);
-}
 
 // Boite de dialogue affichee dans le panneau bas, a la place des commandes.
 // Nom et texte s'adaptent au contenu ; un texte trop long est decoupe en pages.

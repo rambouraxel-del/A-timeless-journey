@@ -49,6 +49,12 @@ export class Player {
     this.sprite.play('hero-idle-right');
   }
 
+  // Tourne le heros (reprise de sauvegarde).
+  setFacing(direction: -1 | 1): void {
+    this.facing = direction < 0 ? 'left' : 'right';
+    this.sprite.play(`hero-idle-${this.facing}`);
+  }
+
   get position(): Vec2 {
     return this.graph.pointOn(this.edge, this.s);
   }
