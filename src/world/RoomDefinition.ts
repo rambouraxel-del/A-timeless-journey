@@ -34,6 +34,8 @@ export interface InteractableDef {
 
 export interface RoomDefinition {
   id: string;
+  // Nom du lieu, affiche dans les sauvegardes.
+  name: string;
   width: number;
   height: number;
   spawn: Vec2;

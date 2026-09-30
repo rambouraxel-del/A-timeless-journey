@@ -3,8 +3,9 @@ import { Assets, UiFont, UiTextureKeys } from '@/config/Assets';
 import { LOGICAL_HEIGHT, LOGICAL_WIDTH, RENDER_SCALE, UI_DENSITY } from '@/config/Layout';
 import { SceneKeys } from '@/config/SceneKeys';
 import { layers, props, textureKey, textureUrl } from '@/data/rooms/vaisseau';
-import { clearSave, getSettings, hasSave, setSettings } from '@/systems/SaveGame';
+import { hasAnySave, setActiveSlot } from '@/systems/SaveGame';
 import { Modal } from '@/ui/Modal';
+import { openSettings, openSlotPicker } from '@/ui/SaveMenus';
 import { useLogicalCamera } from '@/ui/UiImage';
 
 // Fond commun (852 x 1846) : le heros est en bas a droite, ses pieds a 76 % de la hauteur.
@@ -22,7 +23,6 @@ export class TitleScene extends Phaser.Scene {
   private barWidth = 0;
   private buttonsBox = { top: 0, width: 0 };
   private continueButton!: Phaser.GameObjects.Image;
-  private modal: Modal | null = null;
   private starting = false;
 
   constructor() {
@@ -33,7 +33,6 @@ export class TitleScene extends Phaser.Scene {
   init(data?: { loaded?: boolean }): void {
     this.loaded = data?.loaded === true;
     this.starting = false;
-    this.modal = null;
   }
 
   create(): void {
@@ -159,7 +158,7 @@ export class TitleScene extends Phaser.Scene {
       const finalY = image.y;
       image.y = finalY + 14;
       // "Continuer" est grise et inactif sans sauvegarde.
-      const enabled = i !== 0 || hasSave();
+      const enabled = i !== 0 || hasAnySave();
       if (i === 0) image.setTint(enabled ? 0xffffff : 0xa8a8a8).setData('enabled', enabled);
       this.tweens.add({ targets: image, alpha: enabled ? 1 : 0.6, y: finalY, duration: 520, delay: i * 130, ease: 'Cubic.easeOut' });
       image.setInteractive();
@@ -168,7 +167,7 @@ export class TitleScene extends Phaser.Scene {
       image.on('pointerout', () => image.setScale(base));
       image.on('pointerup', () => {
         image.setScale(base);
-        if (!this.modal && !this.starting) spec.onTap();
+        if (!Modal.isOpen() && !this.starting) spec.onTap();
       });
       if (i === 0) this.continueButton = image;
       y += width * spec.ratio + gap;
@@ -177,7 +176,7 @@ export class TitleScene extends Phaser.Scene {
 
   // Met a jour "Continuer" apres un changement de sauvegarde.
   private refreshContinue(): void {
-    const enabled = hasSave();
+    const enabled = hasAnySave();
     this.continueButton.setTint(enabled ? 0xffffff : 0xa8a8a8);
     this.continueButton.setData('enabled', enabled);
     const target = enabled ? 1 : 0.6;
@@ -187,79 +186,21 @@ export class TitleScene extends Phaser.Scene {
 
   private onContinue(): void {
     if (!this.continueButton.getData('enabled')) return;
-    this.startGame(true);
+    openSlotPicker(this, 'load', (slot) => this.startGame(slot, true));
   }
 
   private onNewGame(): void {
-    if (!hasSave()) {
-      this.startGame(false);
-      return;
-    }
-    this.modal = new Modal(this, {
-      title: 'Nouvelle partie',
-      text: 'Une partie est déjà enregistrée.\nLa remplacer par une nouvelle partie ?',
-      layout: 'row',
-      buttons: [
-        { label: 'Annuler', onTap: (_b, m) => this.closeModal(m) },
-        {
-          label: 'Remplacer',
-          onTap: (_b, m) => {
-            clearSave();
-            this.closeModal(m);
-            this.startGame(false);
-          },
-        },
-      ],
-    });
+    openSlotPicker(this, 'new', (slot) => this.startGame(slot, false));
   }
 
   private openSettings(): void {
-    const ambientLabel = () => `Effets d'ambiance : ${getSettings().ambient ? 'oui' : 'non'}`;
-    this.modal = new Modal(this, {
-      title: 'Paramètres',
-      layout: 'column',
-      buttons: [
-        {
-          label: ambientLabel(),
-          onTap: (button) => {
-            setSettings({ ambient: !getSettings().ambient });
-            button.setLabel(ambientLabel());
-          },
-        },
-        { label: 'Effacer la sauvegarde', enabled: hasSave(), onTap: (button, m) => this.confirmErase(button, m) },
-        { label: 'Retour', onTap: (_b, m) => this.closeModal(m) },
-      ],
-    });
+    openSettings(this, { allowErase: true, onBack: () => this.refreshContinue(), onErased: () => this.refreshContinue() });
   }
 
-  private confirmErase(_button: unknown, settings: Modal): void {
-    this.closeModal(settings);
-    this.modal = new Modal(this, {
-      title: 'Effacer la sauvegarde',
-      text: 'Cette progression sera définitivement perdue.',
-      layout: 'row',
-      buttons: [
-        { label: 'Annuler', onTap: (_b, m) => this.closeModal(m) },
-        {
-          label: 'Effacer',
-          onTap: (_b, m) => {
-            clearSave();
-            this.refreshContinue();
-            this.closeModal(m);
-          },
-        },
-      ],
-    });
-  }
-
-  private closeModal(modal: Modal): void {
-    modal.close();
-    if (this.modal === modal) this.modal = null;
-  }
-
-  private startGame(resume: boolean): void {
+  private startGame(slot: number, resume: boolean): void {
     if (this.starting) return;
     this.starting = true;
+    setActiveSlot(slot);
     this.cameras.main.fadeOut(250, 0, 0, 0);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       this.scene.start(SceneKeys.Vaisseau, { resume });

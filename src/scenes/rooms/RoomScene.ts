@@ -4,7 +4,7 @@ import { Player } from '@/entities/Player';
 import { controls } from '@/systems/Controls';
 import { EventBus, GameEvents } from '@/systems/EventBus';
 import { InteractionSystem } from '@/systems/InteractionSystem';
-import { loadGame, saveGame } from '@/systems/SaveGame';
+import { getActiveSlot, loadSlot, saveSlot } from '@/systems/SaveGame';
 import { LAYERS, type LayerId, layerWidth } from '@/world/Layers';
 import type { InteractableDef, RoomDefinition } from '@/world/RoomDefinition';
 import { WalkGraph } from '@/world/WalkGraph';
@@ -21,7 +21,7 @@ export abstract class RoomScene extends Phaser.Scene {
   protected player!: Player;
   private interactions!: InteractionSystem;
   private resume = false;
-  private saveTimer = 0;
+  private playTime = 0;
 
   // data.resume : reprendre la sauvegarde (Continuer) ; sinon nouvelle partie.
   init(data?: { resume?: boolean }): void {
@@ -38,7 +38,8 @@ export abstract class RoomScene extends Phaser.Scene {
     this.buildScenery();
     cam.fadeIn(300, 0, 0, 0);
 
-    const save = this.resume ? loadGame() : null;
+    const save = this.resume ? loadSlot(getActiveSlot()) : null;
+    this.playTime = save?.playTime ?? 0;
     const spawn = save ? { x: save.x * this.room.width, y: this.room.spawn.y } : this.room.spawn;
     controls.health = save ? Math.min(controls.maxHealth, save.health) : controls.maxHealth;
     controls.stamina = save ? save.stamina : 1;
@@ -52,18 +53,14 @@ export abstract class RoomScene extends Phaser.Scene {
     cam.scrollX = this.followTarget();
     cam.scrollY = 0;
 
-    // Sauvegarde automatique : au demarrage, toutes les 3 s, et quand la page passe en arriere-plan.
-    this.writeSave();
-    const onHidden = () => document.visibilityState === 'hidden' && this.writeSave();
-    document.addEventListener('visibilitychange', onHidden);
-    window.addEventListener('pagehide', this.writeSave);
+    // Sauvegarde manuelle (menu Pause) dans l'emplacement actif. Une nouvelle partie reserve
+    // son emplacement des le depart.
+    if (!save) this.writeSave();
+    controls.dirty = false;
     EventBus.on(GameEvents.SaveRequest, this.writeSave, this);
 
     EventBus.on(GameEvents.Interact, this.onInteract, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      this.writeSave();
-      document.removeEventListener('visibilitychange', onHidden);
-      window.removeEventListener('pagehide', this.writeSave);
       EventBus.off(GameEvents.SaveRequest, this.writeSave, this);
       EventBus.off(GameEvents.Interact, this.onInteract, this);
       this.interactions.destroy();
@@ -71,26 +68,26 @@ export abstract class RoomScene extends Phaser.Scene {
   }
 
   private readonly writeSave = (): void => {
-    saveGame({
+    const ok = saveSlot(getActiveSlot(), {
       room: this.room.id,
+      place: this.room.name,
+      playTime: Math.floor(this.playTime),
       x: this.player.position.x / this.room.width,
       facing: this.player.facingDirection,
       health: controls.health,
       stamina: controls.stamina,
     });
+    if (ok) controls.dirty = false;
   };
 
   update(_time: number, delta: number): void {
     const dt = delta / 1000;
-    this.saveTimer += dt;
-    if (this.saveTimer >= 3) {
-      this.saveTimer = 0;
-      this.writeSave();
-    }
+    this.playTime += dt;
     const canRun = controls.run && controls.stamina > 0;
     this.player.update(dt, controls.locked ? { x: 0, y: 0 } : controls.move, canRun);
     const rate = this.player.running ? -STAMINA_DRAIN_RUN : this.player.moving ? STAMINA_REGEN_WALK : STAMINA_REGEN_IDLE;
     controls.stamina = Math.min(1, Math.max(0, controls.stamina + rate * dt));
+    if (this.player.moving) controls.dirty = true;
     this.interactions.update();
 
     // Suivi horizontal du joueur, amorti, sans sortir de la salle.
@@ -121,6 +118,7 @@ export abstract class RoomScene extends Phaser.Scene {
 
   // Reaction par defaut : a remplacer par les vrais dialogues / ouvertures / changements de salle.
   protected onInteract(def: InteractableDef): void {
+    controls.dirty = true;
     EventBus.emit(GameEvents.DialogueOpen, [{ speaker: def.label, text: 'Interaction à définir.' }]);
   }
 }

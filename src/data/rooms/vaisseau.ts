@@ -67,6 +67,7 @@ function interactableFor(entry: (typeof INTERACTABLES)[number]): InteractableDef
 
 export const vaisseau: RoomDefinition = {
   id: manifest.scene,
+  name: 'Vaisseau',
   width: roomWidth,
   height: GAME_VIEW.height,
   spawn: { x: manifest.room.spawn.x * sx, y: groundY },

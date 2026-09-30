@@ -8,6 +8,8 @@ export interface ModalButton {
   label: string;
   onTap: (button: TextButton, modal: Modal) => void;
   enabled?: boolean;
+  // Hauteur du bouton (32 par defaut) ; le libelle peut tenir sur deux lignes.
+  height?: number;
 }
 
 export interface ModalOptions {
@@ -16,11 +18,19 @@ export interface ModalOptions {
   buttons: ModalButton[];
   // 'row' : boutons cote a cote (confirmation) ; 'column' : empiles (reglages).
   layout?: 'row' | 'column';
+  // Appui en dehors de la fenetre (ou Echap) : par defaut, rien.
+  onDismiss?: (modal: Modal) => void;
 }
 
 // Fenetre modale au style de l'interface : fond assombri qui bloque les touches, cadre dore,
 // titre, texte et boutons. La hauteur s'adapte au contenu.
 export class Modal {
+  private static readonly instances = new Set<Modal>();
+  // Vrai si une fenetre est ouverte (bloque les boutons en dessous).
+  static isOpen(): boolean {
+    return [...Modal.instances].some((m) => m.root.scene !== undefined);
+  }
+
   readonly buttons: TextButton[] = [];
   private readonly root: Phaser.GameObjects.Container;
 
@@ -33,6 +43,8 @@ export class Modal {
 
     const overlay = scene.add.rectangle(0, 0, W, H, 0x05060c, 0.74).setOrigin(0).setInteractive();
     const frame = uiNineSlice(scene, 'dialogue_frame', FRAME_SLICES);
+    frame.setInteractive(); // absorbe les appuis dans la fenetre
+    if (options.onDismiss) overlay.on('pointerdown', () => options.onDismiss!(this));
     const items: Phaser.GameObjects.GameObject[] = [overlay, frame];
 
     let y = pad;
@@ -50,27 +62,34 @@ export class Modal {
     }
 
     const layout = options.layout ?? 'column';
-    const buttonHeight = 32;
     const count = options.buttons.length;
+    const heightOf = (def: ModalButton) => def.height ?? 32;
     const buttonWidth = layout === 'row' ? (inner - 10 * (count - 1)) / count : inner;
     options.buttons.forEach((def, i) => {
-      const button = new TextButton(scene, def.label, buttonWidth, buttonHeight, (b) => def.onTap(b, this));
+      const height = heightOf(def);
+      const button = new TextButton(scene, def.label, buttonWidth, height, (b) => def.onTap(b, this));
       button.setEnabled(def.enabled !== false);
-      if (layout === 'row') button.container.setPosition(pad + buttonWidth / 2 + i * (buttonWidth + 10), y + buttonHeight / 2);
-      else button.container.setPosition(panelWidth / 2, y + buttonHeight / 2 + i * (buttonHeight + 8));
+      if (layout === 'row') button.container.setPosition(pad + buttonWidth / 2 + i * (buttonWidth + 10), y + height / 2);
+      else {
+        button.container.setPosition(panelWidth / 2, y + height / 2);
+        y += height + 8;
+      }
       this.buttons.push(button);
       items.push(button.container);
     });
-    y += layout === 'row' ? buttonHeight : count * buttonHeight + (count - 1) * 8;
+    if (layout === 'row') y += Math.max(...options.buttons.map(heightOf));
+    else y -= 8;
 
     const panelHeight = y + pad;
     resizeNineSlice(frame, panelWidth, panelHeight);
     const panel = scene.add.container((W - panelWidth) / 2, (H - panelHeight) / 2, items.slice(1));
     // Le fond couvre l'ecran ; on le garde hors du panneau pour qu'il ne suive pas son decalage.
     this.root = scene.add.container(0, 0, [overlay, panel]).setDepth(1000);
+    Modal.instances.add(this);
   }
 
   close(): void {
+    Modal.instances.delete(this);
     this.root.destroy();
   }
 }

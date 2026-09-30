@@ -18,9 +18,9 @@ Sur ordinateur : flèches ou ZQSD pour bouger, Maj pour courir, Espace ou E pour
 
 - `BootScene` charge le fond, le titre et les boutons ; `TitleScene` les affiche puis charge tout le reste avec une **barre dorée** liée au chargement réel. La barre disparaît, puis les 3 boutons apparaissent en montant légèrement.
 - Un même fond (`assets/menu/fond.jpg`) sert au chargement et au menu : il remplit l'écran sans déformation, aligné en bas pour que le héros reste au-dessus des boutons.
-- **Continuer** reprend la sauvegarde (grisé et inactif sans sauvegarde). **Nouvelle partie** demande confirmation si une sauvegarde existe. **Paramètres** : effets d'ambiance oui/non, effacer la sauvegarde.
-- Le bouton MENU en jeu sauvegarde et revient à l'écran titre.
-- Sauvegarde locale (`localStorage`, `src/systems/SaveGame.ts`) : position, orientation, vie, endurance. Automatique au démarrage, toutes les 3 s, au retour au menu et quand la page passe en arrière-plan.
+- **Continuer** ouvre la liste des 3 emplacements (vides grisés) ; **Nouvelle partie** propose un emplacement et demande confirmation avant d'écraser. **Paramètres** : effets d'ambiance oui/non, effacer une sauvegarde.
+- Le bouton MENU en jeu ouvre le menu **Pause** (jeu suspendu) : Reprendre, Sauvegarder, Paramètres, Retour à l'accueil (confirmation si la progression n'est pas sauvegardée). Échap fait de même au clavier.
+- 3 emplacements en `localStorage` (`src/systems/SaveGame.ts`) : lieu, temps de jeu, date, position, orientation, vie, endurance. Sauvegarde manuelle dans l'emplacement actif (pas de sauvegarde automatique). L'ancienne sauvegarde unique est migrée vers l'emplacement 1.
 - Images du menu : sources dans `assets-source/menu/`, préparées par `python tools/preparer-menu.py`.
 
 ## Écran et netteté

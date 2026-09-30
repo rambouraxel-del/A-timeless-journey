@@ -5,6 +5,7 @@ import type { Vec2 } from '@/world/RoomDefinition';
 // locked : vrai pendant un dialogue ou un menu, le joueur ne bouge plus.
 // run : bouton de course maintenu.
 // stamina : endurance restante, de 0 a 1 (jauge d'energie du HUD).
+// dirty : vrai si la progression n'est pas sauvegardee.
 // health / maxHealth : coeurs de vie (aucun degat n'existe encore).
 export const controls = {
   move: { x: 0, y: 0 } as Vec2,
@@ -13,4 +14,6 @@ export const controls = {
   stamina: 1,
   health: 4,
   maxHealth: 4,
+  // Progression depuis la derniere sauvegarde (deplacement ou interaction).
+  dirty: false,
 };

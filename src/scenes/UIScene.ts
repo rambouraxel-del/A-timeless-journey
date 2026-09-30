@@ -4,6 +4,8 @@ import { SceneKeys } from '@/config/SceneKeys';
 import { controls } from '@/systems/Controls';
 import type { DialogueLine } from '@/systems/Dialogue';
 import { EventBus, GameEvents } from '@/systems/EventBus';
+import { Modal } from '@/ui/Modal';
+import { openConfirm, openSettings } from '@/ui/SaveMenus';
 import { DialogueBox } from '@/ui/DialogueBox';
 import { Hud } from '@/ui/Hud';
 import { ImageButton } from '@/ui/ImageButton';
@@ -52,7 +54,7 @@ export class UIScene extends Phaser.Scene {
     this.controlsGroup.push(interactButton.image, runButton.image);
 
     this.hud = new Hud(this, 4, 4, controls.maxHealth);
-    new ImageButton(this, W - 23, 23, 'btn_menu', null, 1, { onDown: () => this.backToMenu() });
+    new ImageButton(this, W - 23, 23, 'btn_menu', null, 1, { onDown: () => this.openPause() });
 
     // Les dialogues s'affichent dans le panneau bas, a la place des commandes.
     const dialogueArea = new Phaser.Geom.Rectangle(8, top + 12, W - 16, LOGICAL_HEIGHT - 10 - (top + 12));
@@ -65,6 +67,7 @@ export class UIScene extends Phaser.Scene {
       .setAlpha(0);
 
     this.createKeyboard();
+    this.input.keyboard!.on('keydown-ESC', () => (Modal.isOpen() ? this.closeTopPause() : this.openPause()));
 
     const onDialogue = (lines: DialogueLine[]) => {
       this.setDialogueMode(true);
@@ -128,10 +131,81 @@ export class UIScene extends Phaser.Scene {
     for (const key of this.keys.interact) key.on('down', () => this.interact());
   }
 
-  // Bouton MENU : sauvegarde puis retour a l'ecran titre (les ressources restent en memoire).
-  private backToMenu(): void {
-    if (controls.locked) return;
-    EventBus.emit(GameEvents.SaveRequest);
+  // --- Menu Pause ---------------------------------------------------------------
+
+  private paused = false;
+  private pauseModal: Modal | null = null;
+
+  // Bouton MENU : suspend aussitot la salle et ouvre le menu Pause.
+  private openPause(): void {
+    if (this.paused || Modal.isOpen() || controls.locked) return;
+    this.paused = true;
+    this.runHeld = false;
+    this.scene.pause(SceneKeys.Vaisseau);
+    this.showPauseMenu();
+  }
+
+  private showPauseMenu(): void {
+    this.pauseModal = new Modal(this, {
+      title: 'Pause',
+      layout: 'column',
+      onDismiss: () => this.resumeGame(),
+      buttons: [
+        { label: 'Reprendre', onTap: () => this.resumeGame() },
+        {
+          label: 'Sauvegarder',
+          onTap: (button) => {
+            EventBus.emit(GameEvents.SaveRequest);
+            button.setLabel(controls.dirty ? 'Échec de la sauvegarde' : 'Sauvegardé');
+          },
+        },
+        {
+          label: 'Paramètres',
+          onTap: (_b, m) => {
+            m.close();
+            this.pauseModal = null;
+            // Le jeu reste en pause pendant les parametres.
+            openSettings(this, { allowErase: false, onBack: () => this.showPauseMenu() });
+          },
+        },
+        { label: 'Retour à l\'accueil', onTap: (_b, m) => this.confirmHome(m) },
+      ],
+    });
+  }
+
+  // Echap : ferme la fenetre ouverte ; depuis le menu Pause lui-meme, reprend le jeu.
+  private closeTopPause(): void {
+    if (this.pauseModal) this.resumeGame();
+  }
+
+  private resumeGame(): void {
+    this.pauseModal?.close();
+    this.pauseModal = null;
+    this.paused = false;
+    this.scene.resume(SceneKeys.Vaisseau);
+  }
+
+  // Retour a l'accueil : demande confirmation si la progression n'est pas sauvegardee.
+  private confirmHome(pause: Modal): void {
+    if (!controls.dirty) {
+      this.goHome();
+      return;
+    }
+    pause.close();
+    this.pauseModal = null;
+    openConfirm(this, {
+      title: 'Quitter ?',
+      text: 'Ta progression depuis la dernière sauvegarde sera perdue.',
+      confirmLabel: 'Quitter',
+      onConfirm: () => this.goHome(),
+      onCancel: () => this.showPauseMenu(),
+    });
+  }
+
+  private goHome(): void {
+    this.pauseModal?.close();
+    this.pauseModal = null;
+    this.paused = false;
     this.scene.stop(SceneKeys.Vaisseau);
     this.scene.start(SceneKeys.Title, { loaded: true });
   }

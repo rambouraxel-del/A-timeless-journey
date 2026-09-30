@@ -19,7 +19,7 @@ export class TextButton {
     this.plate = uiNineSlice(scene, 'dialogue_nameplate', PLATE_SLICES);
     resizeNineSlice(this.plate, width, height);
     this.plate.setPosition(-width / 2, -height / 2);
-    this.text = scene.add.text(0, 0, label, textStyle(16, UiColors.gold)).setOrigin(0.5);
+    this.text = scene.add.text(0, 0, label, { ...textStyle(16, UiColors.gold), align: 'center', lineSpacing: 0 }).setOrigin(0.5);
     this.container = scene.add.container(0, 0, [this.plate, this.text]);
     this.plate.setInteractive();
     this.plate.on('pointerdown', () => this.enabled && this.container.setScale(0.96));
