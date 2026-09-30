@@ -40,7 +40,6 @@ export const UiTextureKeys = [
   'dialogue_motif',
   'dialogue_portrait',
   'dialogue_nameplate',
-  'marker_interact',
   'orn_astral',
   'orn_mountains',
   'orn_separator',

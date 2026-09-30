@@ -18,7 +18,6 @@ export const UiSizes = {
   dialogue_motif: { w: 71.2, h: 57.59 },
   dialogue_portrait: { w: 64, h: 58.18 },
   dialogue_nameplate: { w: 64, h: 19.89 },
-  marker_interact: { w: 16, h: 16.25 },
   orn_astral: { w: 112, h: 113.2 },
   orn_mountains: { w: 440, h: 44.65 },
   orn_separator: { w: 200, h: 23.74 },

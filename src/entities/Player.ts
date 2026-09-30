@@ -22,6 +22,11 @@ export class Player {
   private edge: number;
   private s: number;
   private facing: Facing = 'right';
+
+  // Direction du regard : -1 (gauche) ou 1 (droite).
+  get facingDirection(): -1 | 1 {
+    return this.facing === 'left' ? -1 : 1;
+  }
   // Vrai si le joueur s'est deplace en courant pendant la derniere mise a jour.
   running = false;
   // Vrai si le joueur s'est deplace (marche ou course) pendant la derniere mise a jour.
@@ -58,6 +63,8 @@ export class Player {
       return;
     }
     const want = { x: input.x / Math.hypot(input.x, input.y), y: input.y / Math.hypot(input.x, input.y) };
+    // Le heros se tourne vers la direction visee, meme s'il ne peut pas avancer (mur, arret).
+    if (Math.abs(want.x) >= 0.5) this.facing = want.x < 0 ? 'left' : 'right';
     const edges = this.graph.edges;
     const speedFactor = run ? RUN_MULTIPLIER : 1;
     let budget = (edges[this.edge].kind === 'ladder' ? CLIMB_SPEED : WALK_SPEED) * speedFactor * magnitude * dt;

@@ -26,6 +26,8 @@ export interface InteractableDef {
   height: number;
   // Ou le heros se place pour interagir (par defaut : y, le sol sous l'objet).
   standY?: number;
+  // Texture de l'objet (affiche origine bas-centre, largeur = width) : sert a cerner sa partie visible.
+  textureKey?: string;
   // Demi-largeur de la zone ou l'interaction est possible (par defaut : width / 2 + 28).
   reachX?: number;
 }

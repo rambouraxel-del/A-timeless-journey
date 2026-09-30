@@ -60,7 +60,7 @@ Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack
 Une salle = un fichier dans `src/data/rooms/` + une scène dans `src/scenes/rooms/` qui étend `RoomScene`. Sans surcharge, `RoomScene` utilise les couches génériques ci-dessous ; le vaisseau surcharge `buildScenery()` pour poser ses propres panneaux.
 
 - **Chemins** : `floor` (sol), `stairs` (escalier), `ladder` (échelle) ; un embranchement est créé quand ils se touchent.
-- **Objets interactifs** : `chest`, `door`, `computer`, `character`, `object`. Un point d'exclamation apparaît à portée ; un tap ou INTERAGIR déclenche l'interaction. `standY` et `reachX` règlent l'endroit où le héros se place et la largeur de la zone.
+- **Objets interactifs** : `chest`, `door`, `computer`, `character`, `object`. Parmi les objets à portée, un seul est sélectionné et entouré d'un halo doré : celui qui est devant le héros (le plus proche d'abord), sinon le plus proche. La sélection suit les déplacements et le regard ; INTERAGIR n'agit que sur l'objet entouré (un tap direct sur un objet à portée fonctionne aussi). `standY` et `reachX` règlent l'endroit où le héros se place et la largeur de la zone.
 
 ## Couches génériques (RoomScene)
 

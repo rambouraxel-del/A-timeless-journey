@@ -58,6 +58,7 @@ function interactableFor(entry: (typeof INTERACTABLES)[number]): InteractableDef
     width,
     height: prop.height * propScale,
     // Le heros interagit debout sur le sol, meme pour l'ecran fixe au mur.
+    textureKey: textureKey(prop.file),
     standY: groundY,
     // Zone de declenchement : la moitie de l'objet + une marge (au moins le rayon du manifeste).
     reachX: Math.max(width / 2 + 24, (interaction?.radius ?? 0) * sx),

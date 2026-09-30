@@ -113,7 +113,6 @@ def main():
     sauver("dialogue_motif", HUD.crop((1075, 545, 1368, 782)), round(293 * 0.243, 2))
     sauver("dialogue_portrait", HUD.crop((188, 828, 452, 1068)), 64, 1.5)
     sauver("dialogue_nameplate", HUD.crop((503, 908, 828, 1009)), 64, 1.25)
-    sauver("marker_interact", HUD.crop((1217, 348, 1347, 480)), 16, 1.25)
 
     # --- Ornements du panneau ---------------------------------------------------
     sauver("orn_astral", ORNEMENTS.crop((29, 2, 590, 569)), 112, 1.3)
