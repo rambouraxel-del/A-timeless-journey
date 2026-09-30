@@ -14,6 +14,8 @@ npm run build      # vérifie les types et compile dans dist/
 Chaque push sur `main` publie le jeu sur GitHub Pages (`.github/workflows/deploy.yml`).
 Sur ordinateur : flèches ou ZQSD pour bouger, Maj pour courir, Espace ou E pour interagir.
 
+Version mobile iOS/Android (Capacitor) : voir [MOBILE.md](MOBILE.md).
+
 ## Démarrage, menu et sauvegarde
 
 - `BootScene` charge le fond, le titre et les boutons ; `TitleScene` les affiche puis charge tout le reste avec une **barre dorée** liée au chargement réel. La barre disparaît, puis les 3 boutons apparaissent en montant légèrement.

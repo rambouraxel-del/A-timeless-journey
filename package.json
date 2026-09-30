@@ -8,12 +8,18 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:mobile": "tsc --noEmit && vite build --mode capacitor",
+    "cap:sync": "npm run build:mobile && cap sync"
   },
   "dependencies": {
+    "@capacitor/core": "^8.5.2",
     "phaser": "^4.2.1"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/ios": "^8.5.2",
     "typescript": "^7.0.2",
     "vite": "^8.3.1"
   }

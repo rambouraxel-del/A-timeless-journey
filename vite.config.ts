@@ -4,8 +4,9 @@ import { fileURLToPath, URL } from 'node:url';
 // Sur GitHub Pages le jeu est servi depuis /A-timeless-journey/ et non depuis la racine.
 const REPO_BASE = '/A-timeless-journey/';
 
-export default defineConfig(({ command, isPreview }) => ({
-  base: command === 'build' || isPreview ? REPO_BASE : '/',
+// Application mobile (Capacitor) : les fichiers sont embarques, chemins relatifs.
+export default defineConfig(({ command, isPreview, mode }) => ({
+  base: mode === 'capacitor' ? './' : command === 'build' || isPreview ? REPO_BASE : '/',
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
