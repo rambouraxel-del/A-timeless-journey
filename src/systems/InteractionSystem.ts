@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { RENDER_SCALE } from '@/config/Layout';
 import type { Player } from '@/entities/Player';
 import { DEPTH } from '@/world/Layers';
 import type { InteractableDef } from '@/world/RoomDefinition';
@@ -11,7 +12,10 @@ const REACH_Y = 24;
 // Un objet est "devant" le heros si son centre est de son cote du regard, au-dela de cette marge.
 const FRONT_MARGIN = 4;
 
-const GOLD = 0xf2c46b;
+const GOLD_CSS = '#f2c46b';
+// Contour : 1 pixel logique de trait, lueur exterieure de quelques pixels logiques.
+const LINE = 1;
+const GLOW = 5;
 
 interface Bounds {
   x: number; // centre
@@ -58,12 +62,13 @@ function visibleBounds(scene: Phaser.Scene, def: InteractableDef): Bounds {
 // Rend les objets d'une salle cliquables. Un seul objet a portee est selectionne a la fois,
 // entoure d'un halo dore ; le bouton INTERAGIR agit uniquement sur lui.
 export class InteractionSystem {
-  private readonly halo: Phaser.GameObjects.Graphics;
+  private readonly halo: Phaser.GameObjects.Image;
+  private readonly outlineKeys = new Map<string, string>();
   private readonly bounds = new Map<string, Bounds>();
   private selected: InteractableDef | null = null;
 
   constructor(
-    scene: Phaser.Scene,
+    private readonly scene: Phaser.Scene,
     private readonly defs: InteractableDef[],
     private readonly player: Player,
   ) {
@@ -75,8 +80,8 @@ export class InteractionSystem {
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => this.tryInteract(def));
     }
-    // Au-dessus des equipements, sous le heros.
-    this.halo = scene.add.graphics().setDepth(DEPTH.interactables + 2).setVisible(false);
+    // Au-dessus des equipements, sous le heros ; l'image change selon l'objet selectionne.
+    this.halo = scene.add.image(0, 0, '__DEFAULT').setDepth(DEPTH.interactables + 2).setVisible(false);
     scene.tweens.add({ targets: this.halo, alpha: { from: 0.7, to: 1 }, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     EventBus.on(GameEvents.InteractRequest, this.onRequest);
   }
@@ -117,38 +122,72 @@ export class InteractionSystem {
     return closest(ahead.length > 0 ? ahead : inReach);
   }
 
-  // Halo pixel-art : contour a coins coupes (trait vif + deux traits plus doux) et leger voile dore.
+  // Contour dore fin + legere lueur exterieure, epousant la silhouette reelle de l'objet.
   private drawHalo(): void {
-    const g = this.halo.clear();
     const def = this.selected;
     if (!def) return;
-    const b = this.bounds.get(def.id)!;
-    const rect = (grow: number) => ({ x0: b.left - grow, y0: b.top - grow, x1: b.right + grow, y1: b.bottom + grow });
-    const path = (r: { x0: number; y0: number; x1: number; y1: number }, c: number) => {
-      g.beginPath();
-      g.moveTo(r.x0 + c, r.y0);
-      g.lineTo(r.x1 - c, r.y0);
-      g.lineTo(r.x1, r.y0 + c);
-      g.lineTo(r.x1, r.y1 - c);
-      g.lineTo(r.x1 - c, r.y1);
-      g.lineTo(r.x0 + c, r.y1);
-      g.lineTo(r.x0, r.y1 - c);
-      g.lineTo(r.x0, r.y0 + c);
-      g.closePath();
-    };
-    g.fillStyle(GOLD, 0.07);
-    path(rect(2), 4);
-    g.fillPath();
-    const rings = [
-      { grow: 7, width: 4, alpha: 0.16, c: 6 },
-      { grow: 4.5, width: 3, alpha: 0.34, c: 5 },
-      { grow: 2, width: 2, alpha: 1, c: 4 },
-    ];
-    for (const ring of rings) {
-      g.lineStyle(ring.width, GOLD, ring.alpha);
-      path(rect(ring.grow), ring.c);
-      g.strokePath();
+    const outline = this.outlineFor(def);
+    this.halo
+      .setTexture(outline.key)
+      .setDisplaySize(outline.width / RENDER_SCALE, outline.height / RENDER_SCALE)
+      .setOrigin(outline.originX, outline.originY)
+      .setPosition(def.x, def.y)
+      .setAlpha(1);
+  }
+
+  // Cree (une fois par objet) l'image du contour a la resolution de l'ecran : masque de la silhouette
+  // (transparence du sprite), dilate d'un trait, puis lueur douce ; l'interieur est evide.
+  private outlineFor(def: InteractableDef): { key: string; width: number; height: number; originX: number; originY: number } {
+    const key = this.outlineKeys.get(def.id) ?? `outline:${def.id}`;
+    const line = Math.max(1, Math.round(LINE * RENDER_SCALE));
+    const pad = (GLOW + LINE + 1) * RENDER_SCALE;
+    const mw = Math.max(1, Math.round(def.width * RENDER_SCALE));
+    const mh = Math.max(1, Math.round(def.height * RENDER_SCALE));
+    const width = mw + pad * 2;
+    const height = mh + pad * 2;
+    const info = { key, width, height, originX: (pad + mw / 2) / width, originY: (pad + mh) / height };
+    if (this.outlineKeys.has(def.id)) return info;
+
+    // 1. Masque binaire de la silhouette, dessine a la taille ecran.
+    const mask = document.createElement('canvas');
+    mask.width = mw;
+    mask.height = mh;
+    const mctx = mask.getContext('2d', { willReadFrequently: true })!;
+    if (def.textureKey && this.scene.textures.exists(def.textureKey)) {
+      mctx.imageSmoothingEnabled = true;
+      mctx.drawImage(this.scene.textures.get(def.textureKey).getSourceImage() as HTMLImageElement, 0, 0, mw, mh);
+      const img = mctx.getImageData(0, 0, mw, mh);
+      for (let i = 0; i < img.data.length; i += 4) {
+        const on = img.data[i + 3] > 110;
+        img.data[i] = 242;
+        img.data[i + 1] = 196;
+        img.data[i + 2] = 107;
+        img.data[i + 3] = on ? 255 : 0;
+      }
+      mctx.putImageData(img, 0, 0);
+    } else {
+      mctx.fillStyle = GOLD_CSS;
+      mctx.fillRect(0, 0, mw, mh);
     }
+
+    // 2. Silhouette dilatee (trait) avec lueur exterieure, puis interieur retire.
+    const out = document.createElement('canvas');
+    out.width = width;
+    out.height = height;
+    const ctx = out.getContext('2d')!;
+    ctx.shadowColor = 'rgba(242, 196, 107, 0.4)';
+    ctx.shadowBlur = GLOW * RENDER_SCALE;
+    for (let dx = -line; dx <= line; dx += line) {
+      for (let dy = -line; dy <= line; dy += line) ctx.drawImage(mask, pad + dx, pad + dy);
+    }
+    ctx.shadowColor = 'transparent';
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.drawImage(mask, pad, pad);
+
+    const texture = this.scene.textures.addCanvas(key, out);
+    texture?.setFilter(Phaser.Textures.FilterMode.NEAREST);
+    this.outlineKeys.set(def.id, key);
+    return info;
   }
 
   private tryInteract(def: InteractableDef): void {
