@@ -1,0 +1,145 @@
+{
+  "_aide": "Textes du jeu. Modifier uniquement les valeurs \"texte\" et les noms des interlocuteurs. Ne pas renommer les identifiants (cles de \"dialogues\" et \"indications\") : le code s'en sert pour declencher les evenements. Voir docs/DIALOGUES.md.",
+  "suffixe_pensee": " (pensée)",
+  "interlocuteurs": {
+    "heros": "Moi",
+    "ines": "Inès",
+    "malik": "Malik",
+    "chloe": "Chloé",
+    "theo": "Théo",
+    "professeur": "Professeur",
+    "mysterieux": "Homme mystérieux",
+    "etudiant": "Étudiant",
+    "etudiante": "Étudiante",
+    "visiteur": "Visiteur",
+    "visiteuse": "Visiteuse",
+    "agent": "Agent de sécurité",
+    "issue": "Issue de secours"
+  },
+  "dialogues": {
+    "prologue.intro.camarade": [
+      { "qui": "ines", "texte": "Tu as réussi à dormir ? Moi, j’ai relu mes notes jusqu’à deux heures du matin." },
+      { "qui": "heros", "texte": "Un peu. Je suis surtout content de voir enfin ces tableaux en vrai." },
+      { "qui": "ines", "texte": "Pareil. En photo, on ne se rend pas du tout compte de leur taille." },
+      { "qui": "heros", "texte": "Et le prof a promis qu’il n’y aurait pas de fiche à rendre après." },
+      { "qui": "ines", "texte": "Il a dit « peut-être pas ». Ce n’est pas tout à fait pareil." }
+    ],
+    "prologue.intro.professeur": [
+      { "qui": "professeur", "texte": "Bien, tout le monde est là ? Bienvenue au musée !" },
+      { "qui": "professeur", "texte": "Aujourd’hui, nous allons étudier quatre grandes toiles de la peinture française." },
+      { "qui": "professeur", "texte": "Restez groupés et suivez-moi. Première étape : La Liberté guidant le peuple." }
+    ],
+
+    "visite.rappel": [
+      { "qui": "professeur", "texte": "Hé ! On reste avec le groupe, s’il te plaît. Chaque tableau en son temps." }
+    ],
+
+    "visite.liberte.professeur": [
+      { "qui": "professeur", "texte": "Approche-toi du tableau et prends le temps de l’observer. Je commence dès que tu es prêt." }
+    ],
+    "visite.liberte.presentation": [
+      { "qui": "professeur", "texte": "Eugène Delacroix peint ce tableau en 1830, juste après les Trois Glorieuses : trois journées de révolution à Paris." },
+      { "qui": "professeur", "texte": "Au centre, la Liberté n’est pas une femme réelle mais une allégorie. Bonnet phrygien, drapeau tricolore levé : elle entraîne le peuple par-dessus la barricade." },
+      { "qui": "professeur", "texte": "Regardez la composition : une pyramide de corps, avec le drapeau tout en haut. L’œil monte naturellement vers lui." },
+      { "qui": "chloe", "texte": "Et l’homme au chapeau haut-de-forme, c’est qui ?" },
+      { "qui": "professeur", "texte": "On a souvent dit que c’était Delacroix lui-même, mais rien ne le prouve. Il montre surtout que des Parisiens de tous milieux prennent part au combat." },
+      { "qui": "professeur", "texte": "Bien. Suivez-moi : prochaine étape, Le Radeau de la Méduse." }
+    ],
+
+    "visite.radeau.professeur": [
+      { "qui": "professeur", "texte": "Regarde bien le tableau d’abord : chaque détail compte." }
+    ],
+    "visite.radeau.presentation": [
+      { "qui": "professeur", "texte": "En 1816, la frégate Méduse s’échoue au large des côtes de l’Afrique. Faute de canots, environ cent cinquante personnes s’entassent sur un radeau de fortune." },
+      { "qui": "professeur", "texte": "Après près de deux semaines de dérive, une quinzaine de survivants seulement sont recueillis." },
+      { "qui": "professeur", "texte": "Géricault a rencontré des rescapés et fait construire une maquette du radeau pour peindre la scène au plus juste." },
+      { "qui": "malik", "texte": "Le petit point à l’horizon, c’est un bateau ?" },
+      { "qui": "professeur", "texte": "Exactement : l’Argus, le navire qui finira par les sauver. Tout le tableau tient dans cette tension entre désespoir et espoir." },
+      { "qui": "theo", "texte": "Il est immense…" },
+      { "qui": "professeur", "texte": "Plus de sept mètres de large ! Allez, on continue : direction Les Sabines." }
+    ],
+
+    "visite.sabines.professeur": [
+      { "qui": "professeur", "texte": "Observe d’abord le centre de la toile. Je t’explique ensuite." }
+    ],
+    "visite.sabines.presentation": [
+      { "qui": "professeur", "texte": "Jacques-Louis David achève Les Sabines en 1799. La scène vient de la légende de la fondation de Rome." },
+      { "qui": "professeur", "texte": "Les Romains ont enlevé les femmes sabines. Des années plus tard, les Sabins viennent les reprendre et la bataille éclate." },
+      { "qui": "professeur", "texte": "Au centre, Hersilie se jette entre son père, le roi sabin Tatius, et son époux Romulus pour arrêter le combat." },
+      { "qui": "ines", "texte": "Pourquoi peindre une scène de réconciliation à cette époque-là ?" },
+      { "qui": "professeur", "texte": "Bonne question. Le tableau est souvent lu comme un appel à la réconciliation des Français après les déchirements de la Révolution." },
+      { "qui": "professeur", "texte": "Dernière étape, et pas la moindre : le Sacre de Napoléon. Suivez-moi." }
+    ],
+
+    "visite.sacre.professeur": [
+      { "qui": "professeur", "texte": "Observe ce tableau attentivement. C’est le plus impressionnant de la visite." }
+    ],
+    "visite.sacre.presentation": [
+      { "qui": "professeur", "texte": "Le Sacre de Napoléon, de Jacques-Louis David. C’est Napoléon lui-même qui lui a commandé ce tableau." },
+      { "qui": "professeur", "texte": "La scène se déroule le 2 décembre 1804, à Notre-Dame de Paris. Le pape Pie VII est assis derrière l’empereur et le bénit." },
+      { "qui": "professeur", "texte": "David a même peint la mère de Napoléon dans une tribune, alors qu’elle n’assistait pas à la cérémonie." },
+      { "qui": "heros", "pensee": true, "texte": "Attends… Il y a quelque chose qui cloche dans ce tableau." },
+      { "qui": "theo", "texte": "Il fait quelle taille, celui-là ?" },
+      { "qui": "professeur", "texte": "Près de dix mètres de large. C’est l’un des plus grands tableaux du musée." },
+      { "qui": "heros", "pensee": true, "texte": "Je connais cette toile par cœur. Il manque quelqu’un. Là, au centre… j’en suis sûr." },
+      { "qui": "heros", "texte": "Professeur… où est Joséphine ?" },
+      { "qui": "professeur", "texte": "Joséphine ?" },
+      { "qui": "professeur", "texte": "Tu as révisé dans un roman, ou quoi ? Joséphine n’a pas pu assister au sacre : elle avait disparu quelques jours plus tôt. C’est pourtant dans votre cours !" },
+      { "qui": "heros", "pensee": true, "texte": "Disparu ? Non… Je suis certain de l’avoir déjà vue sur ce tableau." },
+      { "qui": "professeur", "texte": "Bien ! C’est la fin de notre visite. Merci à tous, on se retrouve à l’entrée pour le retour." }
+    ],
+
+    "prologue.depart.pensee": [
+      { "qui": "heros", "pensee": true, "texte": "Ils s’en vont comme si de rien n’était… Je suis pourtant sûr de moi." }
+    ],
+    "prologue.rencontre": [
+      { "qui": "mysterieux", "texte": "Joséphine, hein ?" },
+      { "qui": "heros", "texte": "Pardon ? Vous m’avez entendu ?" },
+      { "qui": "mysterieux", "texte": "Difficile de faire autrement. Mais ce qui m’étonne, c’est que tu te souviennes d’elle dans ce tableau." },
+      { "qui": "heros", "texte": "Alors je ne suis pas fou ? Elle devrait être là ?" },
+      { "qui": "mysterieux", "texte": "Tu ne te trompes pas." },
+      { "qui": "heros", "texte": "Comment ça ? Qu’est-ce qui lui est arrivé ? Et vous, qui êtes-vous ?" },
+      { "qui": "mysterieux", "texte": "Écoute-moi bien. Ce que tu as remarqué…" }
+    ],
+    "prologue.alarme": [
+      { "texte": "Une alarme stridente retentit soudain dans tout le musée !" },
+      { "qui": "mysterieux", "texte": "Pas maintenant…" }
+    ],
+
+    "issue_secours.fermee": [
+      { "qui": "issue", "texte": "Issue de secours — réservée aux urgences." }
+    ],
+
+    "ambiance.etudiant_2": [
+      { "qui": "etudiante", "texte": "Chut ! J’essaie de noter ce que dit le professeur." }
+    ],
+    "ambiance.etudiant_5": [
+      { "qui": "etudiant", "texte": "Le cadre doré est presque aussi beau que la peinture." }
+    ],
+    "ambiance.etudiant_8": [
+      { "qui": "etudiante", "texte": "On a le droit de prendre des photos ? Non ? Dommage." }
+    ],
+    "ambiance.visiteur_1": [
+      { "qui": "visiteur", "texte": "Vous cherchez la sortie ? C’est la porte tout au fond, à gauche." }
+    ],
+    "ambiance.visiteur_3": [
+      { "qui": "visiteur", "texte": "Je viens ici chaque semaine. Et chaque fois, je remarque un détail nouveau." }
+    ],
+    "ambiance.visiteur_4": [
+      { "qui": "visiteuse", "texte": "Quel calme… on entendrait presque les tableaux respirer." }
+    ],
+    "ambiance.agent_1": [
+      { "qui": "agent", "texte": "Merci de ne pas toucher aux œuvres, s’il vous plaît." }
+    ],
+    "ambiance.agent_2": [
+      { "qui": "agent", "texte": "Tout est calme. Profitez de la visite, mais sans courir !" }
+    ]
+  },
+  "indications": {
+    "etape": "Visite : étape {n}/4 — {oeuvre}",
+    "suivre": "Rejoins le groupe devant « {oeuvre} ».",
+    "groupe_attend": "Le groupe t’attend devant « {oeuvre} ».",
+    "alarme": "ALARME !",
+    "fuite": "L’homme mystérieux s’est enfui vers l’issue de secours."
+  }
+}

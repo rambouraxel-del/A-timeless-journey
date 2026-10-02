@@ -66,6 +66,7 @@ export abstract class RoomScene extends Phaser.Scene {
     controls.health = save ? Math.min(controls.maxHealth, save.health) : controls.maxHealth;
     controls.stamina = save ? save.stamina : 1;
     controls.locked = false;
+    controls.cutscene = false;
     if (!this.arrivalDoor) controls.breathless = 0;
     controls.run = false;
     controls.move.x = 0;
@@ -91,12 +92,13 @@ export abstract class RoomScene extends Phaser.Scene {
     });
   }
 
-  private readonly writeSave = (): void => {
+  protected readonly writeSave = (): void => {
     const ok = saveSlot(getActiveSlot(), {
       room: this.room.id,
       place: this.room.name,
       playTime: Math.floor(gameState.playTime),
       visit: { step: gameState.visit.step, examined: [...gameState.visit.examined] },
+      story: { ...gameState.story, presentations: [...gameState.story.presentations] },
       x: this.player.position.x / this.room.width,
       facing: this.player.facingDirection,
       health: controls.health,

@@ -136,7 +136,21 @@ function npcInteractable(spec: NpcSpec): InteractableDef {
     lowPriority: true,
   };
 }
-export const npcDefs = new Map<string, InteractableDef>(NPCS.filter((n) => n.lines || n.role === 'professeur').map((n) => [n.id, npcInteractable(n)]));
+// Homme mysterieux (scene 1 du prologue). Image separee, regard vers la droite comme les autres personnages ;
+// sa taille et ses pieds sont mesures sur l'image au chargement (n'importe quelle taille d'image convient).
+export const MYSTERIOUS = {
+  key: 'musee:mysterieux',
+  url: 'assets/characters/gardien/gardien.png',
+  size: 1.06,
+  // Image provisoire = celle du visiteur age : ce visiteur est retire du musee pour eviter un sosie.
+  // Mettre null une fois le vrai sprite du gardien depose.
+  placeholderOf: 'visiteur_3' as string | null,
+};
+
+export const npcDefs = new Map<string, InteractableDef>(NPCS.filter((n) => (n.dialogue || n.role === 'professeur') && n.id !== MYSTERIOUS.placeholderOf).map((n) => [n.id, npcInteractable(n)]));
+
+// Hauteur visible du heros dans la galerie, en pixels du monde (reference des echelles).
+export const HERO_VISIBLE_HEIGHT = HERO_VISIBLE_WORLD_PX * S;
 
 // Vraie sortie de secours a l'extremite droite du musee : porte metallique contemporaine (image separee,
 // panneau vert compris, jamais en miroir). Seuil au niveau du pied du mur (y = 600, comme l'autre porte).
@@ -192,7 +206,8 @@ export const musee: RoomDefinition = {
   name: 'Musée',
   width: roomWidth,
   height: GAME_VIEW.height,
-  spawn: { x: 300 * S, y: groundY },
+  // Nouvelle partie : a l'entree, un peu a droite de la porte, au milieu des camarades.
+  spawn: { x: 420 * S, y: groundY },
   // Un seul segment de sol, avec une marge aux extremites.
   paths: [{ kind: 'floor', from: { x: 30 * S, y: groundY }, to: { x: (WORLD_WIDTH - 30) * S, y: groundY } }],
   interactables,

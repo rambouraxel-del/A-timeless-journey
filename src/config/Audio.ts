@@ -6,3 +6,10 @@ export const MusicTracks = {
 } as const;
 
 export type MusicTrack = keyof typeof MusicTracks;
+
+// Bruitages joues une fois. Aucun fichier n'est encore fourni : sans fichier, le jeu reste silencieux.
+export const SoundEffects = {
+  alarme: { url: 'assets/audio/alarme.mp3', volume: 0.6 },
+} as const;
+
+export type SoundEffect = keyof typeof SoundEffects;

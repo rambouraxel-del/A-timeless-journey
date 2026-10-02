@@ -13,6 +13,27 @@ export interface VisitData {
   examined: string[];
 }
 
+// Progression narrative du prologue (scene 1 : musee). Chaque evenement unique a son drapeau.
+export interface StoryData {
+  introDone: boolean; // conversation d'arrivee et consigne du professeur
+  presentations: string[]; // oeuvres deja presentees par le professeur (la visite avance avec visit.step)
+  anomalyFound: boolean; // question sur Josephine posee devant le Sacre
+  groupLeft: boolean; // le groupe a quitte la salle
+  encounterDone: boolean; // conversation avec l'homme mysterieux terminee
+  alarmTriggered: boolean; // alarme declenchee, homme enfui : l'issue de secours est utilisable
+  scene1Done: boolean; // le heros a rejoint la ruelle
+}
+
+export const newStory = (): StoryData => ({
+  introDone: false,
+  presentations: [],
+  anomalyFound: false,
+  groupLeft: false,
+  encounterDone: false,
+  alarmTriggered: false,
+  scene1Done: false,
+});
+
 export interface SaveData {
   version: number;
   room: string;
@@ -26,6 +47,7 @@ export interface SaveData {
   // Temps de jeu cumule, en secondes.
   playTime: number;
   visit: VisitData;
+  story: StoryData;
   savedAt: number;
 }
 
@@ -63,6 +85,21 @@ function validVisit(raw: unknown): VisitData {
   return { step, examined };
 }
 
+function validStory(raw: unknown, visit: VisitData): StoryData {
+  const s = (raw ?? {}) as Partial<StoryData>;
+  const flag = (v: unknown) => v === true;
+  return {
+    // Ancienne sauvegarde sans recit : une visite deja commencee vaut introduction faite.
+    introDone: flag(s.introDone) || (raw == null && visit.step > 0),
+    presentations: Array.isArray(s.presentations) ? s.presentations.filter((e): e is string => typeof e === 'string') : [],
+    anomalyFound: flag(s.anomalyFound),
+    groupLeft: flag(s.groupLeft),
+    encounterDone: flag(s.encounterDone),
+    alarmTriggered: flag(s.alarmTriggered),
+    scene1Done: flag(s.scene1Done),
+  };
+}
+
 function validate(raw: unknown): SaveData | null {
   const data = raw as Partial<SaveData> | null;
   if (!data || typeof data.room !== 'string') return null;
@@ -77,6 +114,7 @@ function validate(raw: unknown): SaveData | null {
     stamina: data.stamina,
     playTime: isNumber(data.playTime) ? Math.max(0, data.playTime) : 0,
     visit: validVisit(data.visit),
+    story: validStory(data.story, validVisit(data.visit)),
     savedAt: isNumber(data.savedAt) ? data.savedAt : 0,
   };
 }

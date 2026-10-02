@@ -127,7 +127,7 @@ export class UIScene extends Phaser.Scene {
 
   // Pendant un dialogue : deplacements bloques, commandes remplacees par la boite de dialogue.
   private setDialogueMode(open: boolean): void {
-    controls.locked = open;
+    controls.locked = open || controls.cutscene;
     this.runHeld = false;
     this.joystick.setVisible(!open);
     for (const o of this.controlsGroup) (o as Phaser.GameObjects.Image).setVisible(!open);

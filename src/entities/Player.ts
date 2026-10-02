@@ -69,6 +69,22 @@ export class Player {
     });
   }
 
+  // Replace le heros sur le chemin le plus proche du point donne (mise en scene).
+  placeAt(p: Vec2): void {
+    ({ edge: this.edge, s: this.s } = this.graph.closest(p));
+    this.syncSprite();
+  }
+
+  // Empeche le heros de depasser x = max (limite de progression). Vrai s'il a ete retenu.
+  limitX(max: number): boolean {
+    const p = this.position;
+    const e = this.graph.edges[this.edge];
+    if (p.x <= max || Math.abs(e.dir.x) < 1e-6) return false;
+    this.s = Math.min(e.length, Math.max(0, this.s - (p.x - max) / e.dir.x));
+    this.syncSprite();
+    return true;
+  }
+
   get position(): Vec2 {
     return this.graph.pointOn(this.edge, this.s);
   }

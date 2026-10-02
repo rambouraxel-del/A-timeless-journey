@@ -72,6 +72,12 @@ Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack
 - Portes : `src/data/rooms/connections.ts` (vaisseau ↔ musée provisoire ; sortie de secours du musée ↔ ruelle). La porte du vaisseau (`portes.ts`, `Door.ts`) est en miroir selon sa place dans la salle ; la sortie de secours est une image séparée (`tools/preparer-portes.py`).
 - Musique : déposer `public/assets/audio/musee-galerie.mp3` et `musee-sacre.mp3` (`src/config/Audio.ts`) ; sans fichiers, silence.
 
+## Scène 1 du prologue (musée)
+
+- Une nouvelle partie commence à l'entrée du musée : conversation, consigne du professeur, puis visite guidée en 4 étapes (Liberté → Radeau → Sabines → Sacre) avec limite de progression. Devant le Sacre : anomalie de Joséphine, départ du groupe, homme mystérieux, alarme, fuite ; l'issue de secours mène alors à la ruelle.
+- Logique : `src/scenes/rooms/MuseeScene.ts` ; état : `gameState.story` (sauvegardé). Textes : **`src/data/dialogues/dialogues.fr.json`** — voir [docs/DIALOGUES.md](docs/DIALOGUES.md).
+- Homme mystérieux : `public/assets/characters/gardien/gardien.png` (remplaçable, mis à l'échelle automatiquement). Alarme : déposer `public/assets/audio/alarme.mp3` pour le son.
+
 ## La ruelle du Louvre
 
 - `src/data/rooms/ruelle.ts` + `RuelleScene.ts` : 4 sections (1086 × 1448, `public/assets/rooms/ruelle/`, sources et consignes dans `assets-source/ruelle/`), échelle unique hauteur de vue / 1448, héros à la taille du musée, pieds à Y = 1168, mur de fermeture à droite.

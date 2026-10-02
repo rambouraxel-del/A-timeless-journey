@@ -9,7 +9,8 @@ export const ROOM_SCENES = {
 
 export type RoomId = keyof typeof ROOM_SCENES;
 
-export const DEFAULT_ROOM: RoomId = 'vaisseau';
+// Une nouvelle partie commence a l'entree du musee (scene 1 du prologue).
+export const DEFAULT_ROOM: RoomId = 'musee';
 
 export function roomSceneKey(room: string): string {
   return ROOM_SCENES[room as RoomId] ?? ROOM_SCENES[DEFAULT_ROOM];

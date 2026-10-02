@@ -1,4 +1,4 @@
-import { MusicTracks, type MusicTrack } from '@/config/Audio';
+import { MusicTracks, type MusicTrack, type SoundEffect, SoundEffects } from '@/config/Audio';
 
 const FADE_SECONDS = 1.6;
 
@@ -67,3 +67,15 @@ class MusicPlayer {
 }
 
 export const Music = new MusicPlayer();
+
+// Bruitage ponctuel ; ignore si le fichier est absent ou si la lecture est bloquee.
+export function playSound(name: SoundEffect): void {
+  try {
+    const audio = new Audio(SoundEffects[name].url);
+    audio.volume = SoundEffects[name].volume;
+    audio.addEventListener('error', () => undefined);
+    void audio.play().catch(() => undefined);
+  } catch {
+    // pas de son
+  }
+}

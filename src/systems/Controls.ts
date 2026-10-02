@@ -19,4 +19,6 @@ export const controls = {
   maxHealth: 4,
   // Progression depuis la derniere sauvegarde (deplacement ou interaction).
   dirty: false,
+  // Sequence scenarisee en cours : les commandes restent bloquees entre deux dialogues.
+  cutscene: false,
 };
