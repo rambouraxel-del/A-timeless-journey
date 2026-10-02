@@ -21,8 +21,11 @@ export class Hud {
     uiImage(scene, 'hud_emblem', x, y).setOrigin(0);
   }
 
-  update(health: number, stamina: number): void {
+  // breathless : jauge en rouge pendant l'essoufflement.
+  update(health: number, stamina: number, breathless = false): void {
     this.hearts.forEach((h, i) => h.setTexture(i < health ? 'hud_heart_full' : 'hud_heart_empty'));
+    if (breathless) this.energyFill.setTint(0xd8333a).setTintMode(Phaser.TintModes.FILL);
+    else this.energyFill.clearTint();
     const width = ENERGY.width * Phaser.Math.Clamp(stamina, 0, 1);
     this.energyFill.setVisible(width > 0.5).setDisplaySize(Math.max(0.5, width), ENERGY.height);
   }

@@ -14,9 +14,13 @@ import type { InteractableDef, RoomDefinition } from '@/world/RoomDefinition';
 import { WalkGraph } from '@/world/WalkGraph';
 
 // Endurance (0 a 1) : perte en courant, gain en marchant, gain a l'arret. Par seconde.
-const STAMINA_DRAIN_RUN = 0.05;
+const STAMINA_DRAIN_RUN = 0.0625;
 const STAMINA_REGEN_WALK = 0.05;
 const STAMINA_REGEN_IDLE = 0.1;
+// Endurance a zero : essoufflement de 5 s, marche 30 % plus lente, recharge 50 % plus lente.
+const BREATHLESS_SECONDS = 5;
+const BREATHLESS_WALK_FACTOR = 0.7;
+const BREATHLESS_REGEN_FACTOR = 0.5;
 // Distance (px) entre le bord d'une porte et le heros qui en sort (hors de portee de la porte, qui s'arrete 24 px apres son bord).
 const ARRIVAL_GAP = 36;
 
@@ -62,6 +66,7 @@ export abstract class RoomScene extends Phaser.Scene {
     controls.health = save ? Math.min(controls.maxHealth, save.health) : controls.maxHealth;
     controls.stamina = save ? save.stamina : 1;
     controls.locked = false;
+    if (!this.arrivalDoor) controls.breathless = 0;
     controls.run = false;
     controls.move.x = 0;
     controls.move.y = 0;
@@ -103,10 +108,15 @@ export abstract class RoomScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     const dt = delta / 1000;
     gameState.playTime += dt;
-    const canRun = controls.run && controls.stamina > 0;
-    this.player.update(dt, controls.locked ? { x: 0, y: 0 } : controls.move, canRun);
-    const rate = this.player.running ? -STAMINA_DRAIN_RUN : this.player.moving ? STAMINA_REGEN_WALK : STAMINA_REGEN_IDLE;
+    const breathless = controls.breathless > 0;
+    const canRun = controls.run && controls.stamina > 0 && !breathless;
+    this.player.update(dt, controls.locked ? { x: 0, y: 0 } : controls.move, canRun, breathless ? BREATHLESS_WALK_FACTOR : 1);
+    let rate = this.player.running ? -STAMINA_DRAIN_RUN : this.player.moving ? STAMINA_REGEN_WALK : STAMINA_REGEN_IDLE;
+    if (rate > 0 && breathless) rate *= BREATHLESS_REGEN_FACTOR;
+    const before = controls.stamina;
     controls.stamina = Math.min(1, Math.max(0, controls.stamina + rate * dt));
+    controls.breathless = Math.max(0, controls.breathless - dt);
+    if (before > 0 && controls.stamina <= 0) controls.breathless = BREATHLESS_SECONDS;
     if (this.player.moving) controls.dirty = true;
     this.interactions.update();
 

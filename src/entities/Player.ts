@@ -73,7 +73,8 @@ export class Player {
     return this.graph.pointOn(this.edge, this.s);
   }
 
-  update(dt: number, input: Vec2, run = false): void {
+  // walkFactor : ralentissement (essoufflement) de la vitesse et de l'animation.
+  update(dt: number, input: Vec2, run = false, walkFactor = 1): void {
     this.running = false;
     this.moving = false;
     if (this.interacting) return;
@@ -87,7 +88,7 @@ export class Player {
     // Le heros se tourne vers la direction visee, meme s'il ne peut pas avancer (mur, arret).
     if (Math.abs(want.x) >= 0.5) this.facing = want.x < 0 ? 'left' : 'right';
     const edges = this.graph.edges;
-    const speedFactor = run ? RUN_MULTIPLIER : 1;
+    const speedFactor = (run ? RUN_MULTIPLIER : 1) * walkFactor;
     let budget = (edges[this.edge].kind === 'ladder' ? CLIMB_SPEED : WALK_SPEED) * speedFactor * magnitude * dt;
     let moved = false;
     let moveX = 0;
@@ -118,7 +119,7 @@ export class Player {
 
     this.moving = moved;
     this.running = run && moved;
-    this.sprite.anims.timeScale = 1;
+    this.sprite.anims.timeScale = walkFactor;
     this.syncSprite();
     this.animate(moved, moveX, this.running);
   }

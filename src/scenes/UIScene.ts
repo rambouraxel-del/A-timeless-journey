@@ -106,7 +106,7 @@ export class UIScene extends Phaser.Scene {
     controls.move.x = keyboard ? kx : this.joystick.value.x;
     controls.move.y = keyboard ? ky : this.joystick.value.y;
     controls.run = this.runHeld || down(this.keys.run) === 1;
-    this.hud.update(controls.health, controls.stamina);
+    this.hud.update(controls.health, controls.stamina, controls.breathless > 0);
   }
 
   private createPanel(joystick: { x: number; y: number }, interact: { x: number; y: number }, s: number, si: number): void {
