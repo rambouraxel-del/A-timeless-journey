@@ -7,7 +7,7 @@ import type { WalkGraph } from '@/world/WalkGraph';
 
 const WALK_SPEED = 80;
 const CLIMB_SPEED = 55;
-const RUN_MULTIPLIER = 1.2; // vitesse de deplacement (la course a sa propre animation)
+const RUN_MULTIPLIER = 1.875; // 1,5 d'origine + 25 % // vitesse de deplacement (la course a sa propre animation)
 const DEAD_ZONE = 0.2;
 // Alignement minimal entre le joystick et un chemin pour l'emprunter.
 const MIN_ALIGN = 0.35;
