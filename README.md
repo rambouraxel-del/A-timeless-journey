@@ -75,7 +75,7 @@ Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack
 ## La ruelle du Louvre
 
 - `src/data/rooms/ruelle.ts` + `RuelleScene.ts` : 4 sections (1086 × 1448, `public/assets/rooms/ruelle/`, sources et consignes dans `assets-source/ruelle/`), échelle unique hauteur de vue / 1448, héros à la taille du musée, pieds à Y = 1168, mur de fermeture à droite.
-- Parallaxe réelle (`PARALLAX`) : ciel 0,15 · maisons et toits lointains 0,55 · façades, sol, premier plan 1. Le fond du pack est séparé en `fond/ciel.png` et `fond/maisons.png` par `python tools/preparer-ruelle-fond.py` (zones cachées derrière les piliers refaites par copie de zones voisines, nuages recopiés du panorama) ; `python tools/preparer-ruelle.py` copie les couches et nettoie les facades (trous, restes du fond).
+- Parallaxe réelle (`PARALLAX`) : ciel 0,15 · maisons et toits lointains 0,65 · façades, sol, premier plan 1. Le fond du pack est séparé en `fond/ciel.png` et `fond/maisons.png` par `python tools/preparer-ruelle-fond.py` (ciel : dégradé continu et nuages détourés avec alpha ; maisons : grande toiture du pack refermée sur elle-même puis prolongée par symétrie, sans coupe ni pixel étiré) ; `python tools/preparer-ruelle.py` copie les couches et nettoie les facades (trous, restes du fond).
 
 ## Construire une autre salle
 

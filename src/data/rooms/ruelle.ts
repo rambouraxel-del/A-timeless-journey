@@ -33,12 +33,11 @@ export const layerKey = (folder: string, layer: string) => `ruelle:${folder}:${l
 export const layerUrl = (folder: string, layer: string) => `assets/rooms/ruelle/${folder}/${layer}.png`;
 
 // Parallaxe reelle : facteur de defilement par rapport a la camera (1 = solidaire du monde).
-export const PARALLAX = { ciel: 0.15, maisons: 0.55, facades: 1, sol: 1, premierPlan: 1 };
-// Images de fond (pixels d'asset). Le ciel part de X = 0 ; les maisons sont la partie propre du panorama
-// (colonnes 1060 a 3412), posees pour couvrir toute la course de la camera sans jamais montrer la zone
-// de l'immeuble de gauche ni le mur du fond (X local de la premiere colonne : 572 = 0,55 x 1040).
-export const SKY = { key: 'ruelle:ciel', url: 'assets/rooms/ruelle/fond/ciel.png', width: 1700, height: 420, depth: 0, x: 0 };
-export const HOUSES = { key: 'ruelle:maisons', url: 'assets/rooms/ruelle/fond/maisons.png', width: 2352, height: 420, depth: 5, x: 572 };
+export const PARALLAX = { ciel: 0.15, maisons: 0.65, facades: 1, sol: 1, premierPlan: 1 };
+// Images de fond (pixels d'asset), posees a X = 0 : a l'origine de la camera elles commencent a leur premiere
+// colonne ; au facteur 0,65 les maisons couvrent toute la course de la camera (3300 >= 0,65 x 3374 + 970).
+export const SKY = { key: 'ruelle:ciel', url: 'assets/rooms/ruelle/fond/ciel.png', width: 1700, height: 440, depth: 0, x: 0 };
+export const HOUSES = { key: 'ruelle:maisons', url: 'assets/rooms/ruelle/fond/maisons.png', width: 3300, height: 440, depth: 5, x: 0 };
 
 export const LAYER_TEXTURES = [
   ...SECTIONS.flatMap((s) => SECTION_LAYERS.map((l) => ({ key: layerKey(s.folder, l.id), url: layerUrl(s.folder, l.id) }))),

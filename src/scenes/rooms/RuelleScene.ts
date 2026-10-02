@@ -41,5 +41,6 @@ export class RuelleScene extends RoomScene {
         .setScrollFactor(factor);
     place(SKY, PARALLAX.ciel);
     place(HOUSES, housesFactor);
+    if (housesFactor < PARALLAX.maisons) console.warn('Ruelle : facteur des maisons reduit a', housesFactor);
   }
 }
