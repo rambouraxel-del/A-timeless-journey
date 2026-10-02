@@ -65,6 +65,8 @@ export class InteractionSystem {
   private readonly halo: Phaser.GameObjects.Image;
   private readonly outlineKeys = new Map<string, string>();
   private readonly bounds = new Map<string, Bounds>();
+  private readonly zones = new Map<string, Phaser.GameObjects.Zone>();
+  private readonly anchors = new Map<string, number>(); // x de l'objet quand ses limites ont ete calculees
   private selected: InteractableDef | null = null;
 
   constructor(
@@ -75,15 +77,29 @@ export class InteractionSystem {
     for (const def of defs) {
       const b = visibleBounds(scene, def);
       this.bounds.set(def.id, b);
-      scene.add
+      const zone = scene.add
         .zone(b.x, (b.top + b.bottom) / 2, b.right - b.left + 12, b.bottom - b.top + 12)
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => this.tryInteract(def));
+      this.zones.set(def.id, zone);
+      this.anchors.set(def.id, def.x);
     }
     // Au-dessus des equipements, sous le heros ; l'image change selon l'objet selectionne.
     this.halo = scene.add.image(0, 0, '__DEFAULT').setDepth(DEPTH.interactables + 2).setVisible(false);
     scene.tweens.add({ targets: this.halo, alpha: { from: 0.7, to: 1 }, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     EventBus.on(GameEvents.InteractRequest, this.onRequest);
+  }
+
+  // Un objet mobile (personnage) a change de place : ses limites et sa zone de toucher le suivent.
+  relocate(def: InteractableDef): void {
+    const b = this.bounds.get(def.id);
+    const dx = def.x - (this.anchors.get(def.id) ?? def.x);
+    if (!b || dx === 0) return;
+    b.x += dx;
+    b.left += dx;
+    b.right += dx;
+    this.zones.get(def.id)?.setPosition(b.x, (b.top + b.bottom) / 2);
+    this.anchors.set(def.id, def.x);
   }
 
   // Bouton INTERAGIR : uniquement l'objet entoure du halo.
@@ -103,6 +119,10 @@ export class InteractionSystem {
       this.selected = next;
       this.drawHalo();
     }
+    if (this.selected) {
+      // Le contour suit un personnage qui se retourne ou change de place.
+      this.halo.setFlipX(this.selected.flipX === true).setPosition(this.selected.x, this.selected.y).setDepth(this.selected.depth ?? DEPTH.interactables + 2);
+    }
     this.halo.setVisible(this.selected !== null);
   }
 
@@ -119,7 +139,10 @@ export class InteractionSystem {
       list.sort((a, b) => distance(a) - distance(b) || Math.abs(this.bounds.get(a.id)!.x - p.x) - Math.abs(this.bounds.get(b.id)!.x - p.x))[0];
 
     const ahead = inReach.filter((d) => (this.bounds.get(d.id)!.x - p.x) * dir > FRONT_MARGIN);
-    return closest(ahead.length > 0 ? ahead : inReach);
+    const pool = ahead.length > 0 ? ahead : inReach;
+    // Les interactions secondaires (personnages d'ambiance) cedent devant celles de l'histoire.
+    const main = pool.filter((d) => !d.lowPriority);
+    return closest(main.length > 0 ? main : pool);
   }
 
   // Contour dore fin + legere lueur exterieure, epousant la silhouette reelle de l'objet.
@@ -131,7 +154,9 @@ export class InteractionSystem {
       .setTexture(outline.key)
       .setDisplaySize(outline.width / RENDER_SCALE, outline.height / RENDER_SCALE)
       .setOrigin(outline.originX, outline.originY)
+      .setFlipX(def.flipX === true)
       .setPosition(def.x, def.y)
+      .setDepth(def.depth ?? DEPTH.interactables + 2)
       .setAlpha(1);
   }
 

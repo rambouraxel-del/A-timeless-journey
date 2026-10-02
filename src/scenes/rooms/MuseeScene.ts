@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
-import { Assets, HeroFrames } from '@/config/Assets';
-import { HERO_PIXEL_SCALE, RENDER_SCALE } from '@/config/Layout';
+import { RENDER_SCALE } from '@/config/Layout';
 import { SceneKeys } from '@/config/SceneKeys';
 import {
   ARTWORKS,
@@ -10,10 +9,10 @@ import {
   doorGeo,
   doorMirrored,
   GUIDED_STEPS,
-  heroScale,
   largeKey,
   largeUrl,
   musee,
+  npcDefs,
   PARTS,
   partKey,
   S,
@@ -22,6 +21,7 @@ import {
   thumbKey,
 } from '@/data/rooms/musee';
 import { Door } from '@/entities/Door';
+import { depthForFeet, MuseeCrowd } from '@/entities/MuseeCrowd';
 import { controls } from '@/systems/Controls';
 import { EventBus, GameEvents } from '@/systems/EventBus';
 import { gameState } from '@/systems/GameState';
@@ -30,18 +30,11 @@ import { DEPTH } from '@/world/Layers';
 import type { InteractableDef } from '@/world/RoomDefinition';
 import { RoomScene } from './RoomScene';
 
-// Etudiants du groupe : le heros recolore, un peu plus petits. Decalage (px d'origine) autour du centre du tableau.
-const STUDENTS = [
-  { dx: -78, tint: 0xd0dcff, scale: 0.92 },
-  { dx: -40, tint: 0xffd8c8, scale: 0.86 },
-  { dx: 44, tint: 0xd4f0d0, scale: 0.9 },
-];
-
 // Salle du musee : galerie de 12 largeurs d'ecran, neuf tableaux a examiner, visite guidee en
 // quatre etapes et porte d'entree reliee a une autre salle (connections.ts).
 export class MuseeScene extends RoomScene {
   protected readonly room = musee;
-  private students: Phaser.GameObjects.Sprite[] = [];
+  private crowd!: MuseeCrowd;
 
   constructor() {
     super(SceneKeys.Musee);
@@ -49,7 +42,6 @@ export class MuseeScene extends RoomScene {
 
   create(): void {
     super.create();
-    this.createStudents();
     // Rappel de l'etape en cours a l'arrivee.
     this.time.delayedCall(900, () => {
       const step = gameState.visit.step;
@@ -79,10 +71,19 @@ export class MuseeScene extends RoomScene {
       const image = this.add.image((x + w / 2) * S, (y + h) * S, thumbKey(art.id)).setOrigin(0.5, 1).setDisplaySize(w * S, h * S).setDepth(DEPTH.interactables);
       image.texture.setFilter(Phaser.Textures.FilterMode.LINEAR); // reduction douce de l'image
     }
+
+    // Personnages d'ambiance (leurs zones d'interaction sont enregistrees ensuite par RoomScene).
+    this.crowd = new MuseeCrowd(this, (id) => {
+      const def = npcDefs.get(id);
+      if (def) this.interactions?.relocate(def);
+    });
   }
 
   update(time: number, delta: number): void {
     super.update(time, delta);
+    if (!controls.locked) this.crowd.update(time, this.cameras.main.scrollX);
+    // Ordre d'affichage selon les pieds : le heros (sol) passe devant ou derriere les personnages.
+    this.player.sprite.setDepth(depthForFeet(this.player.position.y));
     // Ambiance : la musique change a l'approche du Sacre.
     const x = this.player.position.x / S;
     const sacreX = artworkCenterX('sacre') / S;
@@ -90,6 +91,14 @@ export class MuseeScene extends RoomScene {
   }
 
   protected onInteract(def: InteractableDef): void {
+    const lines = this.crowd.linesFor(def.id);
+    if (lines) {
+      // Personnage : il se tourne vers le heros et dit quelques mots.
+      controls.dirty = true;
+      this.crowd.faceToward(def.id, this.player.position.x);
+      EventBus.emit(GameEvents.DialogueOpen, lines);
+      return;
+    }
     const art = ARTWORKS.find((a) => a.id === def.id);
     if (!art) {
       super.onInteract(def);
@@ -102,33 +111,8 @@ export class MuseeScene extends RoomScene {
     // l'oeuvre ouverte masque la salle.
     if (GUIDED_STEPS[visit.step] === art.id) {
       visit.step++;
-      this.placeStudents();
+      this.crowd.placeGroup();
     }
     EventBus.emit(GameEvents.ArtworkOpen, { key: largeKey(art.id), url: largeUrl(art.id), lines: [{ speaker: art.title, text: art.text }] });
-  }
-
-  // --- Groupe d'etudiants ---------------------------------------------------------
-
-  private createStudents(): void {
-    const scale = (HERO_PIXEL_SCALE * heroScale) / RENDER_SCALE;
-    this.students = STUDENTS.map((s) =>
-      this.add
-        .sprite(0, this.room.spawn.y, Assets.hero.key, HeroFrames.idleRight.start)
-        .setOrigin(0.5, Assets.hero.feetY / Assets.hero.frameHeight)
-        .setScale(scale * s.scale)
-        .setTint(s.tint)
-        .setDepth(DEPTH.player - 1),
-    );
-    this.placeStudents();
-  }
-
-  // Devant l'etape active (devant le Sacre une fois la visite terminee).
-  private placeStudents(): void {
-    const target = GUIDED_STEPS[Math.min(gameState.visit.step, GUIDED_STEPS.length - 1)];
-    const cx = artworkCenterX(target);
-    this.students.forEach((sprite, i) => {
-      sprite.x = cx + STUDENTS[i].dx * S;
-      sprite.setFrame(STUDENTS[i].dx < 0 ? HeroFrames.idleRight.start : HeroFrames.idleLeft.start);
-    });
   }
 }

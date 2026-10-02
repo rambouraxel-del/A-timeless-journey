@@ -25,7 +25,7 @@ const ARRIVAL_GAP = 36;
 export abstract class RoomScene extends Phaser.Scene {
   protected abstract readonly room: RoomDefinition;
   protected player!: Player;
-  private interactions!: InteractionSystem;
+  protected interactions!: InteractionSystem;
   private resume = false;
   private arrivalDoor: string | null = null;
   private travelling = false;

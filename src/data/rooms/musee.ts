@@ -1,5 +1,7 @@
 import { GAME_VIEW, HERO_PIXEL_SCALE, RENDER_SCALE } from '@/config/Layout';
 import type { InteractableDef, RoomDefinition } from '@/world/RoomDefinition';
+import pnjSprites from './musee/pnj-sprites.json';
+import { NPCS, type NpcSpec } from './musee-pnj';
 import { doorGeometry, doorTextureKey, isMirrored } from './portes';
 import positions from './musee/positions-tableaux.json';
 import scene from './musee/scene.json';
@@ -106,6 +108,36 @@ export const DOOR = { id: 'porte_entree', x: 100, y: 600, height: 200 };
 export const doorMirrored = isMirrored(DOOR.x * S, roomWidth);
 export const doorGeo = doorGeometry(DOOR.x * S, DOOR.y * S, DOOR.height * S, doorMirrored);
 
+// --- Personnages ---------------------------------------------------------------------
+
+export type NpcSprite = { file: string; size: number; feetY: number; visibleHeight: number; visibleWidth: number };
+export const npcSprite = (spec: NpcSpec): NpcSprite => (pnjSprites as Record<string, NpcSprite>)[spec.sprite];
+export const npcKey = (spec: NpcSpec): string => `musee:pnj:${spec.sprite}`;
+export const npcUrl = (spec: NpcSpec): string => `assets/characters/pnj/${npcSprite(spec).file}`;
+// Echelle d'un personnage : sa partie visible vaut `size` fois celle du heros de la galerie.
+export const npcScale = (spec: NpcSpec): number => (HERO_VISIBLE_WORLD_PX * S * spec.size) / npcSprite(spec).visibleHeight;
+
+// Zone d'interaction d'un personnage (position mise a jour quand il bouge) : image complete,
+// bas de l'image sous les pieds.
+function npcInteractable(spec: NpcSpec): InteractableDef {
+  const sprite = npcSprite(spec);
+  const scale = npcScale(spec);
+  return {
+    id: spec.id,
+    kind: 'character',
+    label: spec.label,
+    x: 0,
+    y: groundY + (sprite.size - sprite.feetY) * scale,
+    width: sprite.size * scale,
+    height: sprite.size * scale,
+    textureKey: npcKey(spec),
+    standY: groundY,
+    reachX: (sprite.visibleWidth * scale) / 2 + 30,
+    lowPriority: true,
+  };
+}
+export const npcDefs = new Map<string, InteractableDef>(NPCS.filter((n) => n.lines || n.role === 'professeur').map((n) => [n.id, npcInteractable(n)]));
+
 const interactables: InteractableDef[] = [
   {
     id: DOOR.id,
@@ -119,6 +151,7 @@ const interactables: InteractableDef[] = [
     standY: groundY,
     reachX: doorGeo.visibleWidth / 2 + 24,
   },
+  ...npcDefs.values(),
   ...ARTWORKS.map((a): InteractableDef => {
     const [x, y, w, h] = a.rect;
     return {

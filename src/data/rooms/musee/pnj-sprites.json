@@ -1,0 +1,135 @@
+{
+  "etudiants/01-garcon-blond": {
+    "file": "etudiants/01-garcon-blond.png",
+    "size": 128,
+    "feetY": 118,
+    "visibleHeight": 106,
+    "visibleWidth": 47
+  },
+  "etudiants/02-fille-chatain": {
+    "file": "etudiants/02-fille-chatain.png",
+    "size": 128,
+    "feetY": 118,
+    "visibleHeight": 101,
+    "visibleWidth": 42
+  },
+  "etudiants/03-garcon-sweat-jaune": {
+    "file": "etudiants/03-garcon-sweat-jaune.png",
+    "size": 128,
+    "feetY": 119,
+    "visibleHeight": 107,
+    "visibleWidth": 44
+  },
+  "etudiants/04-fille-sweat-lavande": {
+    "file": "etudiants/04-fille-sweat-lavande.png",
+    "size": 128,
+    "feetY": 119,
+    "visibleHeight": 105,
+    "visibleWidth": 46
+  },
+  "etudiants/05-garcon-veste-jean": {
+    "file": "etudiants/05-garcon-veste-jean.png",
+    "size": 128,
+    "feetY": 119,
+    "visibleHeight": 106,
+    "visibleWidth": 45
+  },
+  "etudiants/06-fille-rousse": {
+    "file": "etudiants/06-fille-rousse.png",
+    "size": 128,
+    "feetY": 117,
+    "visibleHeight": 102,
+    "visibleWidth": 46
+  },
+  "etudiants/07-garcon-chemise-verte": {
+    "file": "etudiants/07-garcon-chemise-verte.png",
+    "size": 128,
+    "feetY": 118,
+    "visibleHeight": 107,
+    "visibleWidth": 41
+  },
+  "etudiants/08-fille-sweat-terracotta": {
+    "file": "etudiants/08-fille-sweat-terracotta.png",
+    "size": 128,
+    "feetY": 117,
+    "visibleHeight": 104,
+    "visibleWidth": 42
+  },
+  "etudiants/09-garcon-sweat-gris": {
+    "file": "etudiants/09-garcon-sweat-gris.png",
+    "size": 128,
+    "feetY": 120,
+    "visibleHeight": 110,
+    "visibleWidth": 47
+  },
+  "etudiants/10-fille-veste-jean": {
+    "file": "etudiants/10-fille-veste-jean.png",
+    "size": 128,
+    "feetY": 117,
+    "visibleHeight": 102,
+    "visibleWidth": 41
+  },
+  "professeurs/01-homme-veste-marron": {
+    "file": "professeurs/01-homme-veste-marron.png",
+    "size": 128,
+    "feetY": 117,
+    "visibleHeight": 106,
+    "visibleWidth": 41
+  },
+  "professeurs/02-femme-veste-bleue": {
+    "file": "professeurs/02-femme-veste-bleue.png",
+    "size": 128,
+    "feetY": 119,
+    "visibleHeight": 107,
+    "visibleWidth": 44
+  },
+  "professeurs/03-homme-cardigan-vert": {
+    "file": "professeurs/03-homme-cardigan-vert.png",
+    "size": 128,
+    "feetY": 117,
+    "visibleHeight": 103,
+    "visibleWidth": 39
+  },
+  "professeurs/04-femme-cardigan-bordeaux": {
+    "file": "professeurs/04-femme-cardigan-bordeaux.png",
+    "size": 128,
+    "feetY": 118,
+    "visibleHeight": 105,
+    "visibleWidth": 41
+  },
+  "securite/01-agent-homme": {
+    "file": "securite/01-agent-homme.png",
+    "size": 128,
+    "feetY": 120,
+    "visibleHeight": 108,
+    "visibleWidth": 44
+  },
+  "securite/02-agent-femme": {
+    "file": "securite/02-agent-femme.png",
+    "size": 128,
+    "feetY": 119,
+    "visibleHeight": 107,
+    "visibleWidth": 44
+  },
+  "visiteurs/01-jeune-homme": {
+    "file": "visiteurs/01-jeune-homme.png",
+    "size": 128,
+    "feetY": 118,
+    "visibleHeight": 107,
+    "visibleWidth": 40
+  },
+  "visiteurs/02-femme": {
+    "file": "visiteurs/02-femme.png",
+    "size": 128,
+    "feetY": 118,
+    "visibleHeight": 106,
+    "visibleWidth": 45
+  },
+  "visiteurs/03-homme-age": {
+    "file": "visiteurs/03-homme-age.png",
+    "size": 128,
+    "feetY": 118,
+    "visibleHeight": 106,
+    "visibleWidth": 41
+  }
+}

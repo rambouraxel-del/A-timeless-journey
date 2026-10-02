@@ -30,6 +30,12 @@ export interface InteractableDef {
   textureKey?: string;
   // Demi-largeur de la zone ou l'interaction est possible (par defaut : width / 2 + 28).
   reachX?: number;
+  // Personnage mobile : image retournee (regarde a gauche) et profondeur d'affichage de son sprite.
+  flipX?: boolean;
+  depth?: number;
+  // Interaction secondaire (ex. personnage d'ambiance) : cede la place a une interaction de l'histoire
+  // situee dans la meme direction.
+  lowPriority?: boolean;
 }
 
 export interface RoomDefinition {
