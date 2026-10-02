@@ -3,6 +3,7 @@ import { CANVAS_HEIGHT, CANVAS_WIDTH } from './Layout';
 import { BootScene } from '@/scenes/BootScene';
 import { TitleScene } from '@/scenes/TitleScene';
 import { MuseeScene } from '@/scenes/rooms/MuseeScene';
+import { RuelleScene } from '@/scenes/rooms/RuelleScene';
 import { VaisseauScene } from '@/scenes/rooms/VaisseauScene';
 import { UIScene } from '@/scenes/UIScene';
 
@@ -20,5 +21,5 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
   },
   input: { activePointers: 3 }, // joystick + tap simultanes
   // L'ordre compte : la scene UI est dessinee par-dessus la salle.
-  scene: [BootScene, TitleScene, VaisseauScene, MuseeScene, UIScene],
+  scene: [BootScene, TitleScene, VaisseauScene, MuseeScene, RuelleScene, UIScene],
 };

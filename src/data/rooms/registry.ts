@@ -4,6 +4,7 @@ import { SceneKeys } from '@/config/SceneKeys';
 export const ROOM_SCENES = {
   vaisseau: SceneKeys.Vaisseau,
   musee: SceneKeys.Musee,
+  ruelle: SceneKeys.Ruelle,
 } as const;
 
 export type RoomId = keyof typeof ROOM_SCENES;

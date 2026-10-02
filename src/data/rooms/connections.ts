@@ -12,6 +12,10 @@ export const DOOR_LINKS: [DoorRef, DoorRef][] = [
     { room: 'vaisseau', door: 'porte_gauche' },
     { room: 'musee', door: 'porte_entree' },
   ],
+  [
+    { room: 'musee', door: 'sortie_secours' },
+    { room: 'ruelle', door: 'sortie_secours' },
+  ],
 ];
 
 // Destination de l'autre cote d'une porte (null si la porte n'est reliee a rien).

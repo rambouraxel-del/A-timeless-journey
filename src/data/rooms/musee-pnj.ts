@@ -69,7 +69,7 @@ export const PROFESSOR_LINES: Record<string, string> = {
 
 // Points d'arret des visiteurs (x d'origine) : de part et d'autre des tableaux, plus quelques points libres.
 // 'face' : regard vers le tableau (1 : vers la droite).
-export const EXTRA_SPOTS = [900, 1540, 2560, 3300, 4100, 4830, 5800];
+export const EXTRA_SPOTS = [900, 1540, 2560, 3300, 4100, 4830, 5650];
 export const SPOT_MIN_X = 300; // pas pres de la porte d'entree
 export const SPOT_SPACING = 120; // ecart minimal entre deux personnages
 export const GROUP_ZONE = 340; // demi-largeur reservee au groupe devant son tableau

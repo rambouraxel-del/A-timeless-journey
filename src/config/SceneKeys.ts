@@ -4,4 +4,5 @@ export const SceneKeys = {
   UI: 'UI',
   Vaisseau: 'Vaisseau',
   Musee: 'Musee',
+  Ruelle: 'Ruelle',
 } as const;

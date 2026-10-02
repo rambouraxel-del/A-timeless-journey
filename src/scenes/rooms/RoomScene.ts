@@ -159,7 +159,13 @@ export abstract class RoomScene extends Phaser.Scene {
         const toward = Math.sign(def.x - this.player.position.x);
         this.player.interact(toward === 0 ? this.player.facingDirection : (toward as -1 | 1));
         door.play(() => this.travel(link.room, link.door));
-      } else this.travel(link.room, link.door);
+      } else {
+        // Porte dessinee dans le decor : le heros se tourne vers elle, puis fondu.
+        controls.locked = true;
+        const toward = Math.sign(def.x - this.player.position.x);
+        this.player.interact(toward === 0 ? this.player.facingDirection : (toward as -1 | 1));
+        this.time.delayedCall(700, () => this.travel(link.room, link.door));
+      }
       return;
     }
     EventBus.emit(GameEvents.DialogueOpen, [{ speaker: def.label, text: 'Interaction à définir.' }]);

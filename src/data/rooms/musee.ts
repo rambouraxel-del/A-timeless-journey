@@ -138,6 +138,11 @@ function npcInteractable(spec: NpcSpec): InteractableDef {
 }
 export const npcDefs = new Map<string, InteractableDef>(NPCS.filter((n) => n.lines || n.role === 'professeur').map((n) => [n.id, npcInteractable(n)]));
 
+// Sortie de secours a l'extremite droite du musee (meme porte, orientation d'origine : moitie droite).
+export const EXIT = { id: 'sortie_secours', x: 6010, y: 600, height: 200 };
+export const exitMirrored = isMirrored(EXIT.x * S, roomWidth);
+export const exitGeo = doorGeometry(EXIT.x * S, EXIT.y * S, EXIT.height * S, exitMirrored);
+
 const interactables: InteractableDef[] = [
   {
     id: DOOR.id,
@@ -150,6 +155,18 @@ const interactables: InteractableDef[] = [
     textureKey: doorTextureKey('closed', doorMirrored),
     standY: groundY,
     reachX: doorGeo.visibleWidth / 2 + 24,
+  },
+  {
+    id: EXIT.id,
+    kind: 'door',
+    label: 'Sortie de secours',
+    x: exitGeo.x,
+    y: exitGeo.y,
+    width: exitGeo.width,
+    height: exitGeo.height,
+    textureKey: doorTextureKey('closed', exitMirrored),
+    standY: groundY,
+    reachX: exitGeo.visibleWidth / 2 + 24,
   },
   ...npcDefs.values(),
   ...ARTWORKS.map((a): InteractableDef => {
