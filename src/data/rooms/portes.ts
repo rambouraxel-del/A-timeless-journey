@@ -1,9 +1,15 @@
 // Porte commune au vaisseau et au musee : deux etats (fermee, ouverte), en deux orientations.
-// Image de 192 x 256 px ; la porte visible occupe x 39..152, y 20..244 (marge transparente autour).
-const FRAME = { width: 192, height: 256 };
-const VISIBLE = { left: 39, right: 152, top: 20, bottom: 244 };
+// Image de 543 x 724 px (orientation d'origine) ; la porte visible occupe x 78..465, y 8..688 (marge transparente
+// autour). Le passage lumineux est centre en x 257, y 415 et mesure environ 185 x 480.
+const FRAME = { width: 543, height: 724 };
+const VISIBLE = { left: 78, right: 465, top: 8, bottom: 688 };
+const PASSAGE = { x: 257, y: 415, width: 185, height: 480 };
 
 export type DoorState = 'closed' | 'open';
+
+// Une porte dans la moitie gauche de la salle est en miroir (ouverture vers la droite, vers l'interieur) ;
+// dans la moitie droite, elle garde son orientation d'origine (ouverture vers la gauche).
+export const isMirrored = (centerX: number, roomWidth: number): boolean => centerX < roomWidth / 2;
 
 // mirrored : miroir horizontal (vaisseau : ouverture vers la droite) ; sinon orientation d'origine.
 export const doorTextureKey = (state: DoorState, mirrored: boolean): string => `porte:${state}${mirrored ? ':miroir' : ''}`;
@@ -40,6 +46,6 @@ export function doorGeometry(centerX: number, floorY: number, visibleHeight: num
     height: FRAME.height * k,
     visibleWidth: (right - left) * k,
     k,
-    passage: { dx: centerOffset, dy: -(FRAME.height - 135) * k, width: 66 * k, height: 170 * k },
+    passage: { dx: ((mirrored ? FRAME.width - PASSAGE.x : PASSAGE.x) - FRAME.width / 2) * k, dy: -(FRAME.height - PASSAGE.y) * k, width: PASSAGE.width * k, height: PASSAGE.height * k },
   };
 }

@@ -1,6 +1,6 @@
 import { GAME_VIEW } from '@/config/Layout';
 import type { InteractableDef, RoomDefinition } from '@/world/RoomDefinition';
-import { doorGeometry, DOOR_TEXTURES } from './portes';
+import { doorGeometry, DOOR_TEXTURES, doorTextureKey, isMirrored } from './portes';
 import manifest from './vaisseau/scene.json';
 
 // Salle du vaisseau : 4 ecrans de long, un seul niveau. Les coordonnees du manifeste (scene.json)
@@ -46,10 +46,11 @@ const INTERACTABLES: { id: string; kind: InteractableDef['kind']; label: string 
   { id: 'console', kind: 'computer', label: 'Console' },
 ];
 
-// Porte a gauche (ancienne porte gauche), image en miroir : le battant s'ouvre vers la droite.
+// Porte a gauche (ancienne porte gauche) : en miroir selon sa position, le battant s'ouvre vers l'interieur de la salle.
 // Meme position, meme hauteur que l'ancienne porte du pack.
 export const DOOR_ID = 'porte_gauche';
-export const porteGeo = doorGeometry(160 * sx, groundY, 360 * propScale, true);
+export const porteMirrored = isMirrored(160 * sx, roomWidth);
+export const porteGeo = doorGeometry(160 * sx, groundY, 360 * propScale, porteMirrored);
 
 function doorInteractable(): InteractableDef {
   return {
@@ -60,7 +61,7 @@ function doorInteractable(): InteractableDef {
     y: porteGeo.y,
     width: porteGeo.width,
     height: porteGeo.height,
-    textureKey: 'porte:closed:miroir',
+    textureKey: doorTextureKey('closed', porteMirrored),
     standY: groundY,
     reachX: porteGeo.visibleWidth / 2 + 24,
   };

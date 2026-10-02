@@ -24,11 +24,13 @@ export class Door {
   ) {
     makeGlowTexture(scene, 'fx-glow', 128);
     makeMoteTexture(scene, 'fx-mote');
+    for (const state of ['closed', 'open'] as const) scene.textures.get(doorTextureKey(state, mirrored)).setFilter(Phaser.Textures.FilterMode.LINEAR);
     const place = (image: Phaser.GameObjects.Image) =>
       image.setOrigin(0.5, 1).setPosition(geo.x, geo.y).setDisplaySize(geo.width, geo.height);
     place(scene.add.image(0, 0, doorTextureKey('closed', mirrored))).setDepth(DEPTH.interactables);
     this.open = place(scene.add.image(0, 0, doorTextureKey('open', mirrored))).setDepth(DEPTH.interactables).setAlpha(0);
 
+    // Le passage est centre sur l'image, decale de dx.
     const px = geo.x + geo.passage.dx;
     const py = geo.y + geo.passage.dy;
     const additive = (w: number, h: number) =>

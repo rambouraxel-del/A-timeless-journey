@@ -1,6 +1,6 @@
 import { GAME_VIEW, HERO_PIXEL_SCALE, RENDER_SCALE } from '@/config/Layout';
 import type { InteractableDef, RoomDefinition } from '@/world/RoomDefinition';
-import { doorGeometry } from './portes';
+import { doorGeometry, doorTextureKey, isMirrored } from './portes';
 import positions from './musee/positions-tableaux.json';
 import scene from './musee/scene.json';
 
@@ -100,10 +100,11 @@ export const SACRE_MUSIC_AFTER = 400;
 
 // --- Porte d'entree ----------------------------------------------------------------
 
-// Meme porte que le vaisseau, dans son orientation d'origine, contre le mur a gauche du premier tableau.
+// Meme porte que le vaisseau, en miroir comme toute porte de la moitie gauche (portes.ts), contre le mur a gauche du premier tableau.
 // Position en pixels d'origine : centre x, sol de la porte (y) et hauteur visible.
 export const DOOR = { id: 'porte_entree', x: 100, y: 600, height: 200 };
-export const doorGeo = doorGeometry(DOOR.x * S, DOOR.y * S, DOOR.height * S, false);
+export const doorMirrored = isMirrored(DOOR.x * S, roomWidth);
+export const doorGeo = doorGeometry(DOOR.x * S, DOOR.y * S, DOOR.height * S, doorMirrored);
 
 const interactables: InteractableDef[] = [
   {
@@ -114,7 +115,7 @@ const interactables: InteractableDef[] = [
     y: doorGeo.y,
     width: doorGeo.width,
     height: doorGeo.height,
-    textureKey: 'porte:closed',
+    textureKey: doorTextureKey('closed', doorMirrored),
     standY: groundY,
     reachX: doorGeo.visibleWidth / 2 + 24,
   },
