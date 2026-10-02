@@ -64,6 +64,19 @@ Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack
 - Ambiance (`vaisseauEffects.ts`) : halo cyan pulsant et particules autour du réacteur, voyants et lumières qui pulsent ou clignotent. Les images restent statiques.
 - Le héros est affiché ×1,3 dans cette salle (`heroScale` dans `vaisseau.ts`) pour rester proportionné aux équipements.
 
+## Le musée
+
+- `src/data/rooms/musee.ts` : galerie 6144 × 704 (4 parties de 1536, `public/assets/rooms/musee/`), échelle unique S = hauteur de la vue / 704, héros à l'échelle de référence. Images préparées par `python tools/preparer-musee.py` (sources : `assets-source/musee/`).
+- Neuf tableaux interactifs : INTERAGIR ouvre l'œuvre en grand (fond opaque) avec nom et texte dans le dialogue. Visite guidée Liberté → Radeau → Sabines → Sacre ; progression et œuvres examinées sauvegardées.
+- Ambiance : 19 personnages immobiles (`assets-source/pnj/`, `python tools/preparer-pnj.py`) : cours (professeur + 10 étudiants) devant l'étape active, visiteurs, agents (`musee-pnj.ts`, `MuseeCrowd.ts`). Ils ne changent de place que hors de la vue ; quelques-uns répondent à INTERAGIR.
+- Portes : `src/data/rooms/connections.ts` (vaisseau ↔ musée provisoire ; sortie de secours du musée ↔ ruelle). La porte du vaisseau (`portes.ts`, `Door.ts`) est en miroir selon sa place dans la salle ; la sortie de secours est une image séparée (`tools/preparer-portes.py`).
+- Musique : déposer `public/assets/audio/musee-galerie.mp3` et `musee-sacre.mp3` (`src/config/Audio.ts`) ; sans fichiers, silence.
+
+## La ruelle du Louvre
+
+- `src/data/rooms/ruelle.ts` + `RuelleScene.ts` : 4 sections (1086 × 1448, `public/assets/rooms/ruelle/`, sources et consignes dans `assets-source/ruelle/`), échelle unique hauteur de vue / 1448, héros à la taille du musée, pieds à Y = 1168, mur de fermeture à droite.
+- Parallaxe réelle (`PARALLAX`) : ciel 0,15 · maisons et toits lointains 0,55 · façades, sol, premier plan 1. Le fond du pack est séparé en `fond/ciel.png` et `fond/maisons.png` par `python tools/preparer-ruelle-fond.py` (zones cachées derrière les piliers refaites par copie de zones voisines, nuages recopiés du panorama) ; `python tools/preparer-ruelle.py` copie les couches et nettoie les facades (trous, restes du fond).
+
 ## Construire une autre salle
 
 Une salle = un fichier dans `src/data/rooms/` + une scène dans `src/scenes/rooms/` qui étend `RoomScene`. Sans surcharge, `RoomScene` utilise les couches génériques ci-dessous ; le vaisseau surcharge `buildScenery()` pour poser ses propres panneaux.
