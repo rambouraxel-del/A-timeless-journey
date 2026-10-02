@@ -1,0 +1,7 @@
+Remplacer uniquement les quatre PNG du sol par sol-01.png à sol-04.png de ce correctif. Ancien sol restauré depuis les quatre sections du premier décor validé, sans nouvelle génération. Source4344px de large adaptée uniformément à5397px, nearest-neighbor ; pas de déformation horizontale seule.
+Images rognées de hauteur280 ; Y=1168 pour toutes ; X=0,1316,2633,3949. Largeurs1316,1317,1316,1448. Parties contiguës sans recouvrement. Garder facteur de parallaxe1 et échelle globale du décor.
+Conserver les maisons à Y=-180 et facteur0,65, le ciel0,15, les façades, le héros, les interactions et les collisions. Aucun changement narratif. Ne pas réutiliser les textures de sol générées dans les deux derniers packs.
+Les aperçus montrent trois positions de caméra, sans HUD ni héros ; ne pas les charger en jeu. Les PNG sol sont les assets à utiliser.
+
+
+Note d'integration : sol-03.png etait tronque dans le ZIP recu (119 lignes lisibles sur 280). Il a ete reconstitue a partir des quatre sections du premier decor (historique git, commit 2b40f56) avec la meme recette : composition des 4 couches, agrandissement nearest 4344 -> 5397 px, lignes source 1130 a 1393. La recette redonne a l'identique sol-01, sol-02, sol-04 et les 119 lignes lisibles de sol-03.
