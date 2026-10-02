@@ -7,7 +7,7 @@ import type { WalkGraph } from '@/world/WalkGraph';
 
 const WALK_SPEED = 80;
 const CLIMB_SPEED = 55;
-const RUN_MULTIPLIER = 1.5; // vitesse de deplacement (la course a sa propre animation)
+const RUN_MULTIPLIER = 1.2; // vitesse de deplacement (la course a sa propre animation)
 const DEAD_ZONE = 0.2;
 // Alignement minimal entre le joystick et un chemin pour l'emprunter.
 const MIN_ALIGN = 0.35;
@@ -178,8 +178,8 @@ function createHeroAnimations(scene: Phaser.Scene): void {
   // Respiration a l'arret ; course (cadence plus rapide que la marche) ; interaction jouee une fois.
   scene.anims.create({ key: 'hero-breathe-left', frames: frames(HeroFrames.breatheLeft), frameRate: 3, repeat: -1 });
   scene.anims.create({ key: 'hero-breathe-right', frames: frames(HeroFrames.breatheRight), frameRate: 3, repeat: -1 });
-  scene.anims.create({ key: 'hero-run-left', frames: frames(HeroFrames.runLeft), frameRate: 15, repeat: -1 });
-  scene.anims.create({ key: 'hero-run-right', frames: frames(HeroFrames.runRight), frameRate: 15, repeat: -1 });
+  scene.anims.create({ key: 'hero-run-left', frames: frames(HeroFrames.runLeft), frameRate: 13.5, repeat: -1 });
+  scene.anims.create({ key: 'hero-run-right', frames: frames(HeroFrames.runRight), frameRate: 13.5, repeat: -1 });
   scene.anims.create({ key: 'hero-interact-left', frames: frames(HeroFrames.interactLeft), frameRate: 10, repeat: 0 });
   scene.anims.create({ key: 'hero-interact-right', frames: frames(HeroFrames.interactRight), frameRate: 10, repeat: 0 });
   scene.anims.create({ key: 'hero-idle-left', frames: frames(HeroFrames.idleLeft), frameRate: 1, repeat: -1 });
