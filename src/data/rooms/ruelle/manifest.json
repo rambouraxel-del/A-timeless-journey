@@ -1,0 +1,117 @@
+{
+  "world": {
+    "width": 5397,
+    "height": 1448,
+    "feetY": 1168
+  },
+  "layers": [
+    {
+      "file": "sol-01.png",
+      "layer": "sol",
+      "x": 0,
+      "y": 1168,
+      "width": 1316,
+      "height": 280,
+      "parallax": 1
+    },
+    {
+      "file": "sol-02.png",
+      "layer": "sol",
+      "x": 1316,
+      "y": 1168,
+      "width": 1317,
+      "height": 280,
+      "parallax": 1
+    },
+    {
+      "file": "sol-03.png",
+      "layer": "sol",
+      "x": 2633,
+      "y": 1168,
+      "width": 1316,
+      "height": 280,
+      "parallax": 1
+    },
+    {
+      "file": "sol-04.png",
+      "layer": "sol",
+      "x": 3949,
+      "y": 1168,
+      "width": 1448,
+      "height": 280,
+      "parallax": 1
+    },
+    {
+      "file": "facades-01.png",
+      "layer": "facades",
+      "x": 0,
+      "y": 0,
+      "width": 1448,
+      "height": 1448,
+      "parallax": 1
+    },
+    {
+      "file": "facades-02.png",
+      "layer": "facades",
+      "x": 1316,
+      "y": 0,
+      "width": 1448,
+      "height": 1448,
+      "parallax": 1
+    },
+    {
+      "file": "facades-03.png",
+      "layer": "facades",
+      "x": 2633,
+      "y": 0,
+      "width": 1448,
+      "height": 1448,
+      "parallax": 1
+    },
+    {
+      "file": "facades-04.png",
+      "layer": "facades",
+      "x": 3949,
+      "y": 0,
+      "width": 1448,
+      "height": 1448,
+      "parallax": 1
+    },
+    {
+      "file": "batiments-01.png",
+      "layer": "batiments",
+      "x": 0,
+      "y": 0,
+      "width": 1448,
+      "height": 1448,
+      "parallax": 0.65
+    },
+    {
+      "file": "batiments-02.png",
+      "layer": "batiments",
+      "x": 1408,
+      "y": 0,
+      "width": 1447,
+      "height": 1448,
+      "parallax": 0.65
+    },
+    {
+      "file": "batiments-03.png",
+      "layer": "batiments",
+      "x": 2815,
+      "y": 0,
+      "width": 1448,
+      "height": 1448,
+      "parallax": 0.65
+    },
+    {
+      "file": "ciel.png",
+      "layer": "ciel",
+      "x": 0,
+      "y": 0,
+      "width": 2855,
+      "height": 1448,
+      "parallax": 0.15
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+Remplacer les anciens assets de ruelle par ce pack après validation visuelle du propriétaire. Lire manifest.json.
+Canvas logique 5397x1448. Pieds du héros et base des façades Y=1168. Échelle globale unique = hauteur de vue /1448. Conserver proportions ; nearest-neighbor.
+Ordre : fond bleu #52ADF2 ; ciel ; bâtiments ; sol ; façades ; héros. Sol : 4 rectangles rognés de hauteur280 à Y=1168, pas des images1448x1448. Sol contigu SANS recouvrement. Façades : recouvrement architectural, conserver les X du manifeste et composition1→4.
+Parallaxe : ciel0,15 ; bâtiments0,65 ; sol/façades1. X écran = (X asset - cameraX*facteur)*échelle. Un repère unique par couche. Vérifier couverture pour la largeur réelle de caméra : aperçus calculés pour viewport logique1100px. Un écran plus large peut nécessiter davantage de marge.
+Fond bleu obligatoire derrière ciel transparent. Bas transparent des bâtiments masqué par façades. Aucune toiture à recopier, mirrorer ou étirer. Sol tiré d’une bande continue, découpe reconstituée à l’identique et contrôlée.
+Conserver histoire, interactions, héros et aller-retour musée↔ruelle. Recaler interaction sur porte à gauche et collision finale sur angle du mur de retour à droite. Porte statique, aucune animation d’ouverture fournie. Visuels sans règles narratives.
+Les aperçus ne sont pas des assets de jeu. Origine : images générées par IA dans ChatGPT, découpées et assemblées pour ce projet.

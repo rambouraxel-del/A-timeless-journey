@@ -1,3 +1,0 @@
-Visuels : générés avec OpenAI à partir des références du projet A Timeless Journey.
-Source : https://openai.com/
-Usage : selon les conditions du service et les droits sur les références fournies.

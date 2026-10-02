@@ -1,17 +1,16 @@
 import { GAME_VIEW, HERO_PIXEL_SCALE, RENDER_SCALE } from '@/config/Layout';
 import type { InteractableDef, RoomDefinition } from '@/world/RoomDefinition';
-import manifest from './ruelle/scene-manifest.json';
+import manifest from './ruelle/manifest.json';
 
-// Ruelle du Louvre : 4 sections de 1086 x 1448 px (panorama 4344 x 1448), de gauche a droite, 4 couches
-// chacune. Echelle unique S = hauteur de la vue / 1448 : aucune deformation. Les coordonnees du
-// manifeste sont en pixels d'asset.
-export const SECTION_WIDTH = manifest.sectionWidth; // 1086
-export const WORLD_WIDTH = manifest.worldWidth; // 4344
-export const WORLD_HEIGHT = manifest.worldHeight; // 1448
+// Ruelle du Louvre (pack Ruelle-pack-complet) : monde de 5397 x 1448 px d'asset, 12 images. Echelle unique
+// S = hauteur de la vue / 1448 : aucune deformation. Les coordonnees du manifeste sont en pixels d'asset ;
+// position ecran = (X asset - camera X x facteur) x S.
+export const WORLD_WIDTH = manifest.world.width; // 5397
+export const WORLD_HEIGHT = manifest.world.height; // 1448
 export const S = GAME_VIEW.height / WORLD_HEIGHT;
 export const roomWidth = WORLD_WIDTH * S;
-// Pieds du heros sur les paves : ligne de separation du sol.
-export const groundY = manifest.recommendedFootY * S; // 1168
+// Pieds du heros et base des facades : Y = 1168.
+export const groundY = manifest.world.feetY * S;
 
 // Heros a la meme taille que dans le musee (116 px de galerie sur 704 de haut).
 const HERO_VISIBLE_SHEET_PX = 105;
@@ -20,36 +19,37 @@ export const heroScale = (HERO_VISIBLE_LOGICAL * RENDER_SCALE) / (HERO_VISIBLE_S
 
 // --- Couches ----------------------------------------------------------------------
 
-// Profondeurs du moteur : le heros est a 50, le premier plan (paves proches) passe devant lui.
-// Facades, sol et premier plan : 4 sections, solidaires du monde (facteur 1). Ciel et maisons : images
-// uniques, produites par tools/preparer-ruelle-fond.py a partir du fond du pack, qui defilent plus lentement.
-export const SECTION_LAYERS = [
-  { id: '01-facades', depth: 10 },
-  { id: '02-sol', depth: 20 },
-  { id: '03-premier-plan', depth: 60 },
-] as const;
-export const SECTIONS = manifest.sections; // { folder, x, y, width, height }
-export const layerKey = (folder: string, layer: string) => `ruelle:${folder}:${layer}`;
-export const layerUrl = (folder: string, layer: string) => `assets/rooms/ruelle/${folder}/${layer}.png`;
+// Ordre : fond bleu, ciel, batiments lointains, sol, facades, puis heros (50). Les profondeurs sont reprises du
+// manifeste par couche ; les facteurs de defilement aussi (ciel 0,15 ; batiments 0,65 ; sol et facades 1).
+export const SKY_COLOR = 0x52adf2;
+export const LAYER_DEPTH: Record<string, number> = { ciel: 0, batiments: 5, sol: 15, facades: 20 };
+export interface RuelleImage {
+  key: string;
+  url: string;
+  layer: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  parallax: number;
+}
+export const IMAGES: RuelleImage[] = manifest.layers.map((l) => ({
+  key: `ruelle:${l.file}`,
+  url: `assets/rooms/ruelle/${l.file}`,
+  layer: l.layer,
+  x: l.x,
+  y: l.y,
+  width: l.width,
+  height: l.height,
+  parallax: l.parallax,
+}));
 
-// Parallaxe reelle : facteur de defilement par rapport a la camera (1 = solidaire du monde).
-export const PARALLAX = { ciel: 0.15, maisons: 0.65, facades: 1, sol: 1, premierPlan: 1 };
-// Images de fond (pixels d'asset), posees a X = 0 : a l'origine de la camera elles commencent a leur premiere
-// colonne ; au facteur 0,65 les maisons couvrent toute la course de la camera (3300 >= 0,65 x 3374 + 970).
-export const SKY = { key: 'ruelle:ciel', url: 'assets/rooms/ruelle/fond/ciel.png', width: 1700, height: 440, depth: 0, x: 0 };
-export const HOUSES = { key: 'ruelle:maisons', url: 'assets/rooms/ruelle/fond/maisons.png', width: 3300, height: 440, depth: 5, x: 0 };
+// --- Sortie de secours : dessinee dans le decor (facades-01), porte statique -----------
 
-export const LAYER_TEXTURES = [
-  ...SECTIONS.flatMap((s) => SECTION_LAYERS.map((l) => ({ key: layerKey(s.folder, l.id), url: layerUrl(s.folder, l.id) }))),
-  { key: SKY.key, url: SKY.url },
-  { key: HOUSES.key, url: HOUSES.url },
-];
-
-// --- Sortie de secours (dessinee dans le decor, aucune image separee) -----------------
-
-export const EXIT = { id: 'sortie_secours', x: 415, base: 1105, width: 110, height: 350 };
-// Limites de marche : un peu a droite de la porte, devant le mur de fermeture (X ~ 4100).
-export const WALK = { left: 330, right: 4040 };
+// Zone d'interaction calee sur la porte : centre x, pied (Y = 1168), taille.
+export const EXIT = { id: 'sortie_secours', x: 380, base: 1168, width: 120, height: 330 };
+// Limites de marche : angle du mur de retour a droite (X ~ 5105 dans le decor), moins le volume du heros.
+export const WALK = { left: 130, right: 5000 };
 
 const interactables: InteractableDef[] = [
   {
@@ -71,7 +71,7 @@ export const ruelle: RoomDefinition = {
   width: roomWidth,
   height: GAME_VIEW.height,
   // Apparition par defaut (nouvelle partie directe) : devant la sortie de secours.
-  spawn: { x: 640 * S, y: groundY },
+  spawn: { x: 620 * S, y: groundY },
   paths: [{ kind: 'floor', from: { x: WALK.left * S, y: groundY }, to: { x: WALK.right * S, y: groundY } }],
   interactables,
   heroScale,

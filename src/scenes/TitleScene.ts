@@ -6,7 +6,6 @@ import { layers, props, textureKey, textureUrl } from '@/data/rooms/vaisseau';
 import { roomSceneKey } from '@/data/rooms/registry';
 import { NPCS } from '@/data/rooms/musee-pnj';
 import { ARTWORKS, MYSTERIOUS, npcKey, npcUrl, partKey, partUrl, PARTS, thumbKey, thumbUrl } from '@/data/rooms/musee';
-import { LAYER_TEXTURES } from '@/data/rooms/ruelle';
 import { DOOR_TEXTURES } from '@/data/rooms/portes';
 import { gameState, startGameState } from '@/systems/GameState';
 import { hasAnySave, loadSlot, setActiveSlot } from '@/systems/SaveGame';
@@ -106,7 +105,6 @@ export class TitleScene extends Phaser.Scene {
     this.load.spritesheet(hero.key, hero.url, { frameWidth: hero.frameWidth, frameHeight: hero.frameHeight });
     for (const key of UiTextureKeys) this.load.image(key, `assets/ui/x${UI_DENSITY}/${key}.png`);
     this.load.font(UiFont.family, UiFont.url);
-    for (const t of LAYER_TEXTURES) this.load.image(t.key, t.url);
     for (const t of DOOR_TEXTURES) this.load.image(t.key, t.url);
     for (const part of PARTS) this.load.image(partKey(part.file), partUrl(part.file));
     for (const npc of NPCS) this.load.image(npcKey(npc), npcUrl(npc));

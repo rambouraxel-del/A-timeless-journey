@@ -1,11 +1,13 @@
+import Phaser from 'phaser';
 import { LOGICAL_WIDTH, RENDER_SCALE } from '@/config/Layout';
 import { SceneKeys } from '@/config/SceneKeys';
-import { HOUSES, layerKey, PARALLAX, roomWidth, ruelle, S, SECTION_LAYERS, SECTIONS, SKY, WORLD_WIDTH } from '@/data/rooms/ruelle';
+import { IMAGES, LAYER_DEPTH, ruelle, S, SKY_COLOR, WORLD_WIDTH } from '@/data/rooms/ruelle';
 import { RoomScene } from './RoomScene';
 
-// Ruelle du Louvre : quatre sections assemblees de gauche a droite (facades, sol, premier plan) et, derriere,
-// deux plans de fond qui defilent a des vitesses differentes : le ciel (lent) et les maisons / toits lointains.
-// Tous les morceaux d'une couche partagent le meme facteur ; collisions et interactions restent dans le monde.
+// Ruelle du Louvre : 12 images aux coordonnees du manifeste, sur fond bleu. Chaque couche a un facteur de
+// defilement unique et un repere commun a toutes ses sections : ciel 0,15 ; batiments lointains 0,65 ; sol et
+// facades 1 (collisions et interactions dans le repere du monde). Les images sont chargees a l'entree de la
+// scene et liberees a sa sortie pour menager la memoire du telephone.
 export class RuelleScene extends RoomScene {
   protected readonly room = ruelle;
 
@@ -13,34 +15,38 @@ export class RuelleScene extends RoomScene {
     super(SceneKeys.Ruelle);
   }
 
+  preload(): void {
+    for (const img of IMAGES) if (!this.textures.exists(img.key)) this.load.image(img.key, img.url);
+  }
+
   protected buildScenery(): void {
-    for (const layer of SECTION_LAYERS) {
-      SECTIONS.forEach((section, i) => {
-        // Chaque section s'arrete la ou commence la suivante (arrondi au pixel d'ecran), sans raccord visible.
-        const left = Math.round(section.x * S * RENDER_SCALE) / RENDER_SCALE;
-        const next = i + 1 < SECTIONS.length ? Math.round(SECTIONS[i + 1].x * S * RENDER_SCALE) / RENDER_SCALE : roomWidth;
-        this.add
-          .image(left, 0, layerKey(section.folder, layer.id))
-          .setOrigin(0, 0)
-          .setDisplaySize(next - left + (i + 1 < SECTIONS.length ? 1 / RENDER_SCALE : 0), section.height * S)
-          .setDepth(layer.depth)
-          .setScrollFactor(1);
-      });
+    this.cameras.main.setBackgroundColor(SKY_COLOR);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      for (const img of IMAGES) if (this.textures.exists(img.key)) this.textures.remove(img.key);
+    });
+
+    // Arrondi au pixel d'ecran, identique pour le debut et la fin de chaque image : les recouvrements du
+    // manifeste (facades, batiments) et la contiguite du sol sont conserves exactement.
+    const snap = (v: number) => Math.round(v * S * RENDER_SCALE) / RENDER_SCALE;
+    for (const img of IMAGES) {
+      const left = snap(img.x);
+      this.add
+        .image(left, snap(img.y), img.key)
+        .setOrigin(0, 0)
+        .setDisplaySize(snap(img.x + img.width) - left, snap(img.y + img.height) - snap(img.y))
+        .setDepth(LAYER_DEPTH[img.layer])
+        .setScrollFactor(img.parallax);
     }
 
-    // Fond : un seul morceau par couche. La largeur visible (en pixels d'asset) depend du telephone ; le facteur des
-    // maisons est reduit si besoin pour que l'image couvre toute la course de la camera.
+    // Couverture du fond sur toute la course de la camera (largeur de vue en pixels d'asset).
     const view = LOGICAL_WIDTH / S;
-    const housesFactor = Math.min(PARALLAX.maisons, (HOUSES.x + HOUSES.width - view) / (WORLD_WIDTH - view));
-    const place = (def: { key: string; width: number; height: number; depth: number; x: number }, factor: number) =>
-      this.add
-        .image(Math.round(def.x * S * RENDER_SCALE) / RENDER_SCALE, 0, def.key)
-        .setOrigin(0, 0)
-        .setDisplaySize(def.width * S, def.height * S)
-        .setDepth(def.depth)
-        .setScrollFactor(factor);
-    place(SKY, PARALLAX.ciel);
-    place(HOUSES, housesFactor);
-    if (housesFactor < PARALLAX.maisons) console.warn('Ruelle : facteur des maisons reduit a', housesFactor);
+    const camMax = WORLD_WIDTH - view;
+    for (const layer of Object.keys(LAYER_DEPTH)) {
+      const parts = IMAGES.filter((i) => i.layer === layer && i.parallax < 1);
+      if (parts.length === 0) continue;
+      const start = Math.min(...parts.map((i) => i.x));
+      const end = Math.max(...parts.map((i) => i.x + i.width));
+      if (start > 0 || end < parts[0].parallax * camMax + view) console.warn(`Ruelle : couverture insuffisante de la couche ${layer}`);
+    }
   }
 }
