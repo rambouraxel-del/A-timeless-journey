@@ -84,6 +84,7 @@ Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack
 - Échelle unique hauteur de vue / 1448, héros à la taille du musée, pieds à Y = 1168. Ordre : fond bleu #52ADF2, ciel, bâtiments, sol, façades, héros.
 - Parallaxe : ciel 0,15 · bâtiments lointains 0,65 · sol et façades 1 (collisions, porte et interactions dans le repère du monde). Un facteur et un repère communs par couche ; la couverture est vérifiée au chargement (avertissement en console).
 - Les images sont chargées à l'entrée de la scène et libérées à sa sortie (mémoire).
+- Pied des façades : les 8 dernières lignes au-dessus de Y = 1168 sont rendues opaques au chargement (elles étaient semi-transparentes dans `facades-01` et `-02` et laissaient voir un trait de ciel au ras du sol ; quelques trous sous la porte prennent la couleur du pixel du dessus). Les fichiers du pack ne sont pas modifiés (`FACADE_OPAQUE_ROWS` dans `ruelle.ts`).
 - Sortie de secours dessinée dans les façades (X ≈ 380), statique : interaction `sortie_secours` → musée (`connections.ts`). Limite de marche à droite devant l'angle du mur de retour (X ≈ 5000).
 
 ## Construire une autre salle

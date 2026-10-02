@@ -10,7 +10,8 @@ export const WORLD_HEIGHT = manifest.world.height; // 1448
 export const S = GAME_VIEW.height / WORLD_HEIGHT;
 export const roomWidth = WORLD_WIDTH * S;
 // Pieds du heros et base des facades : Y = 1168.
-export const groundY = manifest.world.feetY * S;
+export const FEET_Y = manifest.world.feetY; // 1168
+export const groundY = FEET_Y * S;
 
 // Heros a la meme taille que dans le musee (116 px de galerie sur 704 de haut).
 const HERO_VISIBLE_SHEET_PX = 105;
@@ -22,6 +23,10 @@ export const heroScale = (HERO_VISIBLE_LOGICAL * RENDER_SCALE) / (HERO_VISIBLE_S
 // Ordre : fond bleu, ciel, batiments lointains, sol, facades, puis heros (50). Les profondeurs sont reprises du
 // manifeste par couche ; les facteurs de defilement aussi (ciel 0,15 ; batiments 0,65 ; sol et facades 1).
 export const SKY_COLOR = 0x52adf2;
+// Pied des facades : dans les images du pack, les dernieres lignes au-dessus de Y = 1168 sont semi-transparentes
+// (facades-01 et -02 surtout) et laissaient voir le ciel en un fin trait bleu au ras du sol. Le jeu rend opaques
+// ces lignes au chargement (les pixels deja transparents le restent) ; les fichiers ne sont pas modifies.
+export const FACADE_OPAQUE_ROWS = 8;
 export const LAYER_DEPTH: Record<string, number> = { ciel: 0, batiments: 5, sol: 15, facades: 20 };
 export interface RuelleImage {
   key: string;
