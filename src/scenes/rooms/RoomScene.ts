@@ -4,6 +4,9 @@ import { Player } from '@/entities/Player';
 import { controls } from '@/systems/Controls';
 import { EventBus, GameEvents } from '@/systems/EventBus';
 import { InteractionSystem } from '@/systems/InteractionSystem';
+import { destinationOf } from '@/data/rooms/connections';
+import { roomSceneKey } from '@/data/rooms/registry';
+import { gameState } from '@/systems/GameState';
 import { getActiveSlot, loadSlot, saveSlot } from '@/systems/SaveGame';
 import { LAYERS, type LayerId, layerWidth } from '@/world/Layers';
 import type { InteractableDef, RoomDefinition } from '@/world/RoomDefinition';
@@ -13,6 +16,8 @@ import { WalkGraph } from '@/world/WalkGraph';
 const STAMINA_DRAIN_RUN = 0.05;
 const STAMINA_REGEN_WALK = 0.05;
 const STAMINA_REGEN_IDLE = 0.1;
+// Distance (px) entre le bord d'une porte et le heros qui en sort : hors de portee de la porte.
+const ARRIVAL_GAP = 36;
 
 // Base commune a toutes les salles : couches de profondeur, camera, joueur, interactions.
 // Une salle concrete fournit sa definition et, si besoin, dessine ses couches sans image.
@@ -21,11 +26,15 @@ export abstract class RoomScene extends Phaser.Scene {
   protected player!: Player;
   private interactions!: InteractionSystem;
   private resume = false;
-  private playTime = 0;
+  private arrivalDoor: string | null = null;
+  private travelling = false;
 
-  // data.resume : reprendre la sauvegarde (Continuer) ; sinon nouvelle partie.
-  init(data?: { resume?: boolean }): void {
+  // data.resume : reprendre la sauvegarde (Continuer) ; data.arrivalDoor : arrivee par une porte
+  // d'une autre salle ; sinon nouvelle partie.
+  init(data?: { resume?: boolean; arrivalDoor?: string }): void {
     this.resume = data?.resume === true;
+    this.arrivalDoor = data?.arrivalDoor ?? null;
+    this.travelling = false;
   }
 
   create(): void {
@@ -38,9 +47,15 @@ export abstract class RoomScene extends Phaser.Scene {
     this.buildScenery();
     cam.fadeIn(300, 0, 0, 0);
 
+    gameState.room = this.room.id;
+    gameState.sceneKey = this.scene.key;
     const save = this.resume ? loadSlot(getActiveSlot()) : null;
-    this.playTime = save?.playTime ?? 0;
-    const spawn = save ? { x: save.x * this.room.width, y: this.room.spawn.y } : this.room.spawn;
+    // Arrivee par une porte : a cote de la porte correspondante, cote interieur de la salle.
+    const door = this.arrivalDoor ? this.room.interactables.find((d) => d.id === this.arrivalDoor) : undefined;
+    const doorSide: -1 | 1 = door && door.x > this.room.width / 2 ? -1 : 1;
+    let spawn = this.room.spawn;
+    if (save) spawn = { x: save.x * this.room.width, y: this.room.spawn.y };
+    else if (door) spawn = { x: door.x + doorSide * (door.width / 2 + ARRIVAL_GAP), y: door.standY ?? this.room.spawn.y };
     controls.health = save ? Math.min(controls.maxHealth, save.health) : controls.maxHealth;
     controls.stamina = save ? save.stamina : 1;
     controls.locked = false;
@@ -49,14 +64,15 @@ export abstract class RoomScene extends Phaser.Scene {
     controls.move.y = 0;
     this.player = new Player(this, new WalkGraph(this.room.paths), spawn, this.room.heroScale ?? 1);
     if (save) this.player.setFacing(save.facing);
+    else if (door) this.player.setFacing(doorSide);
     this.interactions = new InteractionSystem(this, this.room.interactables, this.player);
     cam.scrollX = this.followTarget();
     cam.scrollY = 0;
 
     // Sauvegarde manuelle (menu Pause) dans l'emplacement actif. Une nouvelle partie reserve
     // son emplacement des le depart.
-    if (!save) this.writeSave();
-    controls.dirty = false;
+    if (!save && !door) this.writeSave();
+    if (!door) controls.dirty = false;
     EventBus.on(GameEvents.SaveRequest, this.writeSave, this);
 
     EventBus.on(GameEvents.Interact, this.onInteract, this);
@@ -71,7 +87,8 @@ export abstract class RoomScene extends Phaser.Scene {
     const ok = saveSlot(getActiveSlot(), {
       room: this.room.id,
       place: this.room.name,
-      playTime: Math.floor(this.playTime),
+      playTime: Math.floor(gameState.playTime),
+      visit: { step: gameState.visit.step, examined: [...gameState.visit.examined] },
       x: this.player.position.x / this.room.width,
       facing: this.player.facingDirection,
       health: controls.health,
@@ -82,7 +99,7 @@ export abstract class RoomScene extends Phaser.Scene {
 
   update(_time: number, delta: number): void {
     const dt = delta / 1000;
-    this.playTime += dt;
+    gameState.playTime += dt;
     const canRun = controls.run && controls.stamina > 0;
     this.player.update(dt, controls.locked ? { x: 0, y: 0 } : controls.move, canRun);
     const rate = this.player.running ? -STAMINA_DRAIN_RUN : this.player.moving ? STAMINA_REGEN_WALK : STAMINA_REGEN_IDLE;
@@ -116,9 +133,27 @@ export abstract class RoomScene extends Phaser.Scene {
 
   protected drawInteractable(_def: InteractableDef): void {}
 
-  // Reaction par defaut : a remplacer par les vrais dialogues / ouvertures / changements de salle.
+  // Reaction par defaut : une porte reliee (connections.ts) change de salle ; le reste est a
+  // remplacer par les vrais dialogues.
   protected onInteract(def: InteractableDef): void {
     controls.dirty = true;
+    const link = def.kind === 'door' ? destinationOf(this.room.id, def.id) : null;
+    if (link) {
+      this.travel(link.room, link.door);
+      return;
+    }
     EventBus.emit(GameEvents.DialogueOpen, [{ speaker: def.label, text: 'Interaction à définir.' }]);
+  }
+
+  // Changement de salle, declenche uniquement par une interaction explicite : fondu puis arrivee
+  // a cote de la porte correspondante.
+  protected travel(room: string, door: string): void {
+    if (this.travelling) return;
+    this.travelling = true;
+    controls.locked = true;
+    this.cameras.main.fadeOut(250, 0, 0, 0);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.start(roomSceneKey(room), { arrivalDoor: door });
+    });
   }
 }

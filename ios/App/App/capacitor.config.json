@@ -1,0 +1,7 @@
+{
+	"appId": "com.atimelessjourney.game",
+	"appName": "A Timeless Journey",
+	"webDir": "dist",
+	"backgroundColor": "#101014",
+	"packageClassList": []
+}

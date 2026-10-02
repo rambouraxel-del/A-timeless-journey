@@ -1,0 +1,49 @@
+{
+  "world": {
+    "width": 6144,
+    "height": 704
+  },
+  "portrait": {
+    "width": 512,
+    "height": 1024,
+    "scene_height": 704,
+    "controls_height": 320
+  },
+  "screens": 12,
+  "hero_reference": {
+    "width": 128,
+    "height": 128,
+    "feet_y": 607
+  },
+  "parts": [
+    {
+      "file": "partie-1.png",
+      "x": 0,
+      "y": 0,
+      "width": 1536,
+      "height": 704
+    },
+    {
+      "file": "partie-2.png",
+      "x": 1536,
+      "y": 0,
+      "width": 1536,
+      "height": 704
+    },
+    {
+      "file": "partie-3.png",
+      "x": 3072,
+      "y": 0,
+      "width": 1536,
+      "height": 704
+    },
+    {
+      "file": "partie-4.png",
+      "x": 4608,
+      "y": 0,
+      "width": 1536,
+      "height": 704
+    }
+  ],
+  "notes": "Fond exact du décor validé, sans tableaux. Les positions proposées sont dans positions-tableaux.json. Ajouter les œuvres comme objets interactifs indépendants."
+}

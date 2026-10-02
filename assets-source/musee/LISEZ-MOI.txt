@@ -1,0 +1,9 @@
+MUSÉE — SANS TABLEAUX
+
+Fond exact du décor validé : 6144 × 704 px, soit 12 largeurs de 512 px.
+4 parties de 1536 × 704 px, à placer à x=0,1536,3072,4608 et y=0, sans marge.
+Utiliser soit galerie-fond.png, soit les quatre parties ; ne pas superposer les deux.
+
+Les tableaux ne sont pas inclus dans le décor. Ajouter les PNG du précédent pack comme objets interactifs indépendants, en utilisant positions-tableaux.json.
+Les rectangles sont [x,y,largeur,hauteur] dans le repère global de la galerie.
+Ouvrir visite-portrait.html pour parcourir le fond. L’interface de la capture n’est visible que dans cet aperçu ; les PNG de décor en sont dépourvus.

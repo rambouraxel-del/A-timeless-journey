@@ -9,5 +9,13 @@ export const GameEvents = {
   InteractRequest: 'interact:request', // bouton INTERAGIR : objet a portee le plus proche
   Hint: 'hint', // (texte court affiche brievement)
   DialogueOpen: 'dialogue:open', // (lines: DialogueLine[])
+  ArtworkOpen: 'artwork:open', // (artwork: ArtworkView) : oeuvre en grand + dialogue
   DialogueClosed: 'dialogue:closed',
 } as const;
+
+// Oeuvre a examiner en grand : image (chargee a la demande) et textes affiches dans le dialogue.
+export interface ArtworkView {
+  key: string; // cle de texture
+  url: string; // chemin dans public/
+  lines: { speaker?: string; text: string }[];
+}

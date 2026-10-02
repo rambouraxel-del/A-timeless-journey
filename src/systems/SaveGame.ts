@@ -7,6 +7,12 @@ const SETTINGS_KEY = 'a-timeless-journey:settings';
 const SAVE_VERSION = 2;
 export const SLOT_COUNT = 3;
 
+// Progression de la visite du musee : etape guidee en cours et oeuvres deja examinees.
+export interface VisitData {
+  step: number;
+  examined: string[];
+}
+
 export interface SaveData {
   version: number;
   room: string;
@@ -19,6 +25,7 @@ export interface SaveData {
   stamina: number;
   // Temps de jeu cumule, en secondes.
   playTime: number;
+  visit: VisitData;
   savedAt: number;
 }
 
@@ -49,6 +56,13 @@ function write(key: string, value: unknown): boolean {
 
 const isNumber = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 
+function validVisit(raw: unknown): VisitData {
+  const v = raw as Partial<VisitData> | null | undefined;
+  const step = isNumber(v?.step) ? Math.max(0, Math.floor(v.step)) : 0;
+  const examined = Array.isArray(v?.examined) ? v.examined.filter((e): e is string => typeof e === 'string') : [];
+  return { step, examined };
+}
+
 function validate(raw: unknown): SaveData | null {
   const data = raw as Partial<SaveData> | null;
   if (!data || typeof data.room !== 'string') return null;
@@ -62,6 +76,7 @@ function validate(raw: unknown): SaveData | null {
     health: data.health,
     stamina: data.stamina,
     playTime: isNumber(data.playTime) ? Math.max(0, data.playTime) : 0,
+    visit: validVisit(data.visit),
     savedAt: isNumber(data.savedAt) ? data.savedAt : 0,
   };
 }

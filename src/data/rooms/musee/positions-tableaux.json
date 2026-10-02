@@ -1,0 +1,119 @@
+[
+  {
+    "id": "officier",
+    "title": "Officier de chasseurs à cheval",
+    "sprite_file_from_previous_pack": "tableaux/officier.png",
+    "render_rect": [
+      192,
+      195,
+      128,
+      160
+    ],
+    "screen": 1,
+    "guided": false
+  },
+  {
+    "id": "liberte",
+    "title": "Drapeau tricolore au musée",
+    "sprite_file_from_previous_pack": "tableaux/liberte.png",
+    "render_rect": [
+      624,
+      149,
+      288,
+      252
+    ],
+    "screen": 2,
+    "guided": true
+  },
+  {
+    "id": "sardanapale",
+    "title": "Le roi sur le lit rouge",
+    "sprite_file_from_previous_pack": "tableaux/sardanapale.png",
+    "render_rect": [
+      1184,
+      192.5,
+      192,
+      165
+    ],
+    "screen": 3,
+    "guided": false
+  },
+  {
+    "id": "odalisque",
+    "title": "La Grande Odalisque pixelisée",
+    "sprite_file_from_previous_pack": "tableaux/odalisque.png",
+    "render_rect": [
+      1696,
+      211,
+      192,
+      128
+    ],
+    "screen": 4,
+    "guided": false
+  },
+  {
+    "id": "radeau",
+    "title": "Le Radeau de la Méduse pixelisé",
+    "sprite_file_from_previous_pack": "tableaux/radeau.png",
+    "render_rect": [
+      2124,
+      149,
+      360,
+      252
+    ],
+    "screen": 5,
+    "guided": true
+  },
+  {
+    "id": "oedipe",
+    "title": "Œdipe face à l’énigme du sphinx",
+    "sprite_file_from_previous_pack": "tableaux/oedipe.png",
+    "render_rect": [
+      2752,
+      195,
+      128,
+      160
+    ],
+    "screen": 6,
+    "guided": false
+  },
+  {
+    "id": "sabines",
+    "title": "Hersilia entre les guerriers romains",
+    "sprite_file_from_previous_pack": "tableaux/sabines.png",
+    "render_rect": [
+      3660,
+      149,
+      360,
+      252
+    ],
+    "screen": 8,
+    "guided": true
+  },
+  {
+    "id": "atala",
+    "title": "Atala au tombeau, sous la croix",
+    "sprite_file_from_previous_pack": "tableaux/atala.png",
+    "render_rect": [
+      4256,
+      195,
+      192,
+      160
+    ],
+    "screen": 9,
+    "guided": false
+  },
+  {
+    "id": "sacre",
+    "title": "Couronnement de Napoléon, sans Joséphine",
+    "sprite_file_from_previous_pack": "tableaux/sacre.png",
+    "render_rect": [
+      5160,
+      131,
+      432,
+      288
+    ],
+    "screen": 11,
+    "guided": true
+  }
+]

@@ -3,7 +3,10 @@ import { GAME_VIEW, LOGICAL_HEIGHT, LOGICAL_WIDTH, RENDER_SCALE, UI_ZONE } from 
 import { SceneKeys } from '@/config/SceneKeys';
 import { controls } from '@/systems/Controls';
 import type { DialogueLine } from '@/systems/Dialogue';
-import { EventBus, GameEvents } from '@/systems/EventBus';
+import { type ArtworkView, EventBus, GameEvents } from '@/systems/EventBus';
+import { gameState } from '@/systems/GameState';
+import { Music } from '@/systems/Music';
+import { ArtworkViewer } from '@/ui/ArtworkViewer';
 import { Modal } from '@/ui/Modal';
 import { openConfirm, openSettings } from '@/ui/SaveMenus';
 import { DialogueBox } from '@/ui/DialogueBox';
@@ -22,6 +25,7 @@ export class UIScene extends Phaser.Scene {
   // Commandes masquees pendant un dialogue.
   private controlsGroup: Phaser.GameObjects.GameObject[] = [];
   private hud!: Hud;
+  private viewer!: ArtworkViewer;
   private hint!: Phaser.GameObjects.Text;
   private runHeld = false;
   private keys!: Record<'left' | 'right' | 'up' | 'down' | 'run' | 'interact', Phaser.Input.Keyboard.Key[]>;
@@ -58,7 +62,12 @@ export class UIScene extends Phaser.Scene {
 
     // Les dialogues s'affichent dans le panneau bas, a la place des commandes.
     const dialogueArea = new Phaser.Geom.Rectangle(8, top + 12, W - 16, LOGICAL_HEIGHT - 10 - (top + 12));
-    this.dialogue = new DialogueBox(this, dialogueArea, () => this.setDialogueMode(false));
+    this.dialogue = new DialogueBox(this, dialogueArea, () => {
+      this.viewer.hide();
+      this.setDialogueMode(false);
+      EventBus.emit(GameEvents.DialogueClosed);
+    });
+    this.viewer = new ArtworkViewer(this, () => this.dialogue.close());
 
     this.hint = this.add
       .text(W / 2, GAME_VIEW.height - 8, '', { ...textStyle(14, UiColors.gold), backgroundColor: '#10121cdd', padding: { x: 6, y: 2 } })
@@ -73,15 +82,23 @@ export class UIScene extends Phaser.Scene {
       this.setDialogueMode(true);
       this.dialogue.open(lines);
     };
+    const onArtwork = (view: ArtworkView) => {
+      this.viewer.show(view);
+      onDialogue(view.lines);
+    };
     EventBus.on(GameEvents.DialogueOpen, onDialogue);
+    EventBus.on(GameEvents.ArtworkOpen, onArtwork);
     EventBus.on(GameEvents.Hint, this.showHint, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       EventBus.off(GameEvents.DialogueOpen, onDialogue);
+      EventBus.off(GameEvents.ArtworkOpen, onArtwork);
+      this.viewer.hide();
       EventBus.off(GameEvents.Hint, this.showHint, this);
     });
   }
 
-  update(): void {
+  update(_time: number, delta: number): void {
+    Music.update(delta / 1000);
     const down = (keys: Phaser.Input.Keyboard.Key[]) => (keys.some((k) => k.isDown) ? 1 : 0);
     const kx = down(this.keys.right) - down(this.keys.left);
     const ky = down(this.keys.down) - down(this.keys.up);
@@ -141,7 +158,7 @@ export class UIScene extends Phaser.Scene {
     if (this.paused || Modal.isOpen() || controls.locked) return;
     this.paused = true;
     this.runHeld = false;
-    this.scene.pause(SceneKeys.Vaisseau);
+    this.scene.pause(gameState.sceneKey);
     this.showPauseMenu();
   }
 
@@ -182,7 +199,7 @@ export class UIScene extends Phaser.Scene {
     this.pauseModal?.close();
     this.pauseModal = null;
     this.paused = false;
-    this.scene.resume(SceneKeys.Vaisseau);
+    this.scene.resume(gameState.sceneKey);
   }
 
   // Retour a l'accueil : demande confirmation si la progression n'est pas sauvegardee.
@@ -206,7 +223,8 @@ export class UIScene extends Phaser.Scene {
     this.pauseModal?.close();
     this.pauseModal = null;
     this.paused = false;
-    this.scene.stop(SceneKeys.Vaisseau);
+    this.scene.stop(gameState.sceneKey);
+    Music.play(null);
     this.scene.start(SceneKeys.Title, { loaded: true });
   }
 

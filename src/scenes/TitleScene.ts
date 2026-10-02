@@ -3,7 +3,10 @@ import { Assets, UiFont, UiTextureKeys } from '@/config/Assets';
 import { LOGICAL_HEIGHT, LOGICAL_WIDTH, RENDER_SCALE, UI_DENSITY } from '@/config/Layout';
 import { SceneKeys } from '@/config/SceneKeys';
 import { layers, props, textureKey, textureUrl } from '@/data/rooms/vaisseau';
-import { hasAnySave, setActiveSlot } from '@/systems/SaveGame';
+import { roomSceneKey } from '@/data/rooms/registry';
+import { partKey, partUrl, PARTS, thumbKey, thumbUrl, ARTWORKS } from '@/data/rooms/musee';
+import { gameState, startGameState } from '@/systems/GameState';
+import { hasAnySave, loadSlot, setActiveSlot } from '@/systems/SaveGame';
 import { Modal } from '@/ui/Modal';
 import { openSettings, openSlotPicker } from '@/ui/SaveMenus';
 import { useLogicalCamera } from '@/ui/UiImage';
@@ -100,6 +103,8 @@ export class TitleScene extends Phaser.Scene {
     this.load.spritesheet(hero.key, hero.url, { frameWidth: hero.frameWidth, frameHeight: hero.frameHeight });
     for (const key of UiTextureKeys) this.load.image(key, `assets/ui/x${UI_DENSITY}/${key}.png`);
     this.load.font(UiFont.family, UiFont.url);
+    for (const part of PARTS) this.load.image(partKey(part.file), partUrl(part.file));
+    for (const art of ARTWORKS) this.load.image(thumbKey(art.id), thumbUrl(art.id));
     for (const item of [...layers, ...props]) this.load.image(textureKey(item.file), textureUrl(item.file));
     this.load.once('complete', () => {
       if (failed.length > 0) {
@@ -201,9 +206,10 @@ export class TitleScene extends Phaser.Scene {
     if (this.starting) return;
     this.starting = true;
     setActiveSlot(slot);
+    startGameState(resume ? loadSlot(slot) : null);
     this.cameras.main.fadeOut(250, 0, 0, 0);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      this.scene.start(SceneKeys.Vaisseau, { resume });
+      this.scene.start(roomSceneKey(gameState.room), { resume });
       this.scene.launch(SceneKeys.UI);
     });
   }

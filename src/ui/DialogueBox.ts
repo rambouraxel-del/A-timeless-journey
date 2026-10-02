@@ -76,6 +76,13 @@ export class DialogueBox {
     this.showLine();
   }
 
+  // Ferme la boite d'un coup (bouton de fermeture de l'examen d'une oeuvre).
+  close(): void {
+    if (!this.isOpen) return;
+    this.root.setVisible(false);
+    this.onClose();
+  }
+
   advance(): void {
     // Ignore le tap qui vient d'ouvrir la boite.
     if (!this.isOpen || this.scene.time.now - this.openedAt < 150) return;
