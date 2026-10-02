@@ -80,7 +80,7 @@ Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack
 
 ## La ruelle du Louvre
 
-- `src/data/rooms/ruelle.ts` + `RuelleScene.ts` : pack « Ruelle-pack-complet » — monde de 5397 × 1448, 12 images (ciel, 3 sections de bâtiments lointains, 4 de façades, 4 de sol) placées aux coordonnées de `src/data/rooms/ruelle/manifest.json`. Sources et consignes : `assets-source/ruelle/` ; copie vers le jeu : `python tools/preparer-ruelle.py` (aucune retouche d'image).
+- `src/data/rooms/ruelle.ts` + `RuelleScene.ts` : pack « Ruelle-pack-complet » — monde de 5397 × 1448, 12 images (ciel, 3 sections de bâtiments lointains, 4 de façades, 4 de sol) placées aux coordonnées de `src/data/rooms/ruelle/manifest.json`. Correctif appliqué : bâtiments lointains remontés à Y = −180 (les trois ensemble, X et parallaxe inchangés) ; sol remplacé par la version à pavés fins (`sol-01` à `sol-04`, 280 px à Y = 1168, X = 0 / 1316 / 2633 / 3949, sans recouvrement). Sources et consignes : `assets-source/ruelle/` ; copie vers le jeu : `python tools/preparer-ruelle.py` (aucune retouche d'image).
 - Échelle unique hauteur de vue / 1448, héros à la taille du musée, pieds à Y = 1168. Ordre : fond bleu #52ADF2, ciel, bâtiments, sol, façades, héros.
 - Parallaxe : ciel 0,15 · bâtiments lointains 0,65 · sol et façades 1 (collisions, porte et interactions dans le repère du monde). Un facteur et un repère communs par couche ; la couverture est vérifiée au chargement (avertissement en console).
 - Les images sont chargées à l'entrée de la scène et libérées à sa sortie (mémoire).

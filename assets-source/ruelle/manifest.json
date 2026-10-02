@@ -81,7 +81,7 @@
       "file": "batiments-01.png",
       "layer": "batiments",
       "x": 0,
-      "y": 0,
+      "y": -180,
       "width": 1448,
       "height": 1448,
       "parallax": 0.65
@@ -90,7 +90,7 @@
       "file": "batiments-02.png",
       "layer": "batiments",
       "x": 1408,
-      "y": 0,
+      "y": -180,
       "width": 1447,
       "height": 1448,
       "parallax": 0.65
@@ -99,7 +99,7 @@
       "file": "batiments-03.png",
       "layer": "batiments",
       "x": 2815,
-      "y": 0,
+      "y": -180,
       "width": 1448,
       "height": 1448,
       "parallax": 0.65
