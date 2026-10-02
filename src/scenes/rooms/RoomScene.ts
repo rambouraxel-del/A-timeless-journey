@@ -145,6 +145,9 @@ export abstract class RoomScene extends Phaser.Scene {
       const door = this.doors.get(def.id);
       if (door) {
         controls.locked = true;
+        // Le heros se tourne vers la porte et joue son animation d'interaction pendant l'ouverture.
+        const toward = Math.sign(def.x - this.player.position.x);
+        this.player.interact(toward === 0 ? this.player.facingDirection : (toward as -1 | 1));
         door.play(() => this.travel(link.room, link.door));
       } else this.travel(link.room, link.door);
       return;

@@ -17,6 +17,12 @@ export const HeroFrames = {
   walkRight: { start: 1 * COLS, end: 1 * COLS + 7 },
   idleLeft: { start: 2 * COLS, end: 2 * COLS },
   idleRight: { start: 3 * COLS, end: 3 * COLS },
+  breatheLeft: { start: 4 * COLS, end: 4 * COLS + 3 },
+  breatheRight: { start: 5 * COLS, end: 5 * COLS + 3 },
+  runLeft: { start: 6 * COLS, end: 6 * COLS + 7 },
+  runRight: { start: 7 * COLS, end: 7 * COLS + 7 },
+  interactLeft: { start: 8 * COLS, end: 8 * COLS + 6 },
+  interactRight: { start: 9 * COLS, end: 9 * COLS + 6 },
 } as const;
 
 // Elements d'interface (tailles dans UiSizes.generated.ts), decoupes par tools/decouper-ui.py

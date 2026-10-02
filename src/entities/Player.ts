@@ -7,7 +7,7 @@ import type { WalkGraph } from '@/world/WalkGraph';
 
 const WALK_SPEED = 80;
 const CLIMB_SPEED = 55;
-const RUN_MULTIPLIER = 1.5; // vitesse de deplacement ET d'animation
+const RUN_MULTIPLIER = 1.5; // vitesse de deplacement (la course a sa propre animation)
 const DEAD_ZONE = 0.2;
 // Alignement minimal entre le joystick et un chemin pour l'emprunter.
 const MIN_ALIGN = 0.35;
@@ -22,6 +22,7 @@ export class Player {
   private edge: number;
   private s: number;
   private facing: Facing = 'right';
+  private interacting = false;
 
   // Direction du regard : -1 (gauche) ou 1 (droite).
   get facingDirection(): -1 | 1 {
@@ -46,13 +47,26 @@ export class Player {
       .setScale((HERO_PIXEL_SCALE * heroScale) / RENDER_SCALE)
       .setDepth(DEPTH.player);
     this.syncSprite();
-    this.sprite.play('hero-idle-right');
+    this.sprite.play('hero-breathe-right');
   }
 
   // Tourne le heros (reprise de sauvegarde).
   setFacing(direction: -1 | 1): void {
     this.facing = direction < 0 ? 'left' : 'right';
-    this.sprite.play(`hero-idle-${this.facing}`);
+    this.sprite.play(`hero-breathe-${this.facing}`);
+  }
+
+  // Animation d'interaction (ouverture d'une porte), jouee une fois vers la direction donnee ; le
+  // heros reprend ensuite sa respiration.
+  interact(direction: -1 | 1): void {
+    this.facing = direction < 0 ? 'left' : 'right';
+    this.interacting = true;
+    this.sprite.anims.timeScale = 1;
+    this.sprite.play(`hero-interact-${this.facing}`);
+    this.sprite.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+      this.interacting = false;
+      this.sprite.play(`hero-breathe-${this.facing}`);
+    });
   }
 
   get position(): Vec2 {
@@ -62,6 +76,7 @@ export class Player {
   update(dt: number, input: Vec2, run = false): void {
     this.running = false;
     this.moving = false;
+    if (this.interacting) return;
     const magnitude = Math.min(1, Math.hypot(input.x, input.y));
     if (magnitude < DEAD_ZONE) {
       this.sprite.anims.timeScale = 1;
@@ -103,9 +118,9 @@ export class Player {
 
     this.moving = moved;
     this.running = run && moved;
-    this.sprite.anims.timeScale = speedFactor;
+    this.sprite.anims.timeScale = 1;
     this.syncSprite();
-    this.animate(moved, moveX);
+    this.animate(moved, moveX, this.running);
   }
 
   private bestExit(node: number, want: Vec2): { edge: number; sign: number } | null {
@@ -142,11 +157,11 @@ export class Player {
     this.sprite.setPosition(p.x, p.y);
   }
 
-  private animate(moved: boolean, moveX: number): void {
+  private animate(moved: boolean, moveX: number, run = false): void {
     // Pas d'animation d'escalade fournie : sur une echelle, le heros garde son animation de
     // marche tant qu'il monte ou descend, et reprend la pose de repos a l'arret.
     if (Math.abs(moveX) > 0.01) this.facing = moveX < 0 ? 'left' : 'right';
-    this.sprite.play(`hero-${moved ? 'walk' : 'idle'}-${this.facing}`, true);
+    this.sprite.play(`hero-${moved ? (run ? 'run' : 'walk') : 'breathe'}-${this.facing}`, true);
   }
 }
 
@@ -160,6 +175,13 @@ function createHeroAnimations(scene: Phaser.Scene): void {
   const frames = (range: { start: number; end: number }) => scene.anims.generateFrameNumbers(key, range);
   scene.anims.create({ key: 'hero-walk-left', frames: frames(HeroFrames.walkLeft), frameRate: 10, repeat: -1 });
   scene.anims.create({ key: 'hero-walk-right', frames: frames(HeroFrames.walkRight), frameRate: 10, repeat: -1 });
+  // Respiration a l'arret ; course (cadence plus rapide que la marche) ; interaction jouee une fois.
+  scene.anims.create({ key: 'hero-breathe-left', frames: frames(HeroFrames.breatheLeft), frameRate: 3, repeat: -1 });
+  scene.anims.create({ key: 'hero-breathe-right', frames: frames(HeroFrames.breatheRight), frameRate: 3, repeat: -1 });
+  scene.anims.create({ key: 'hero-run-left', frames: frames(HeroFrames.runLeft), frameRate: 15, repeat: -1 });
+  scene.anims.create({ key: 'hero-run-right', frames: frames(HeroFrames.runRight), frameRate: 15, repeat: -1 });
+  scene.anims.create({ key: 'hero-interact-left', frames: frames(HeroFrames.interactLeft), frameRate: 10, repeat: 0 });
+  scene.anims.create({ key: 'hero-interact-right', frames: frames(HeroFrames.interactRight), frameRate: 10, repeat: 0 });
   scene.anims.create({ key: 'hero-idle-left', frames: frames(HeroFrames.idleLeft), frameRate: 1, repeat: -1 });
   scene.anims.create({ key: 'hero-idle-right', frames: frames(HeroFrames.idleRight), frameRate: 1, repeat: -1 });
 }

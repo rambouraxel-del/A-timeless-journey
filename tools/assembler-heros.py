@@ -5,8 +5,13 @@ repos_droite.png (128 x 128 px, pose de repos, la version gauche est son miroir)
 Aucun pixel n'est dessine : les images sont seulement recadrees dans des cases communes
 de 152 x 152 px, pieds sur la meme ligne (y = 129) et personnage centre (x = 76).
 
-Planche (8 colonnes) : ligne 0 marche gauche, ligne 1 marche droite, ligne 2 repos gauche,
-ligne 3 repos droite (une seule image chacune).
+Animations supplementaires (152 x 152 px, tournees vers la droite ; la version gauche est leur miroir) :
+respiration_droite.gif (4 images, a l'arret), course_droite.gif (8 images), interaction_droite.gif (7 images,
+ouverture d'une porte).
+
+Planche (8 colonnes) : ligne 0 marche gauche, 1 marche droite, 2 repos gauche, 3 repos droite (une seule
+image chacune), 4 respiration gauche, 5 respiration droite, 6 course gauche, 7 course droite,
+8 interaction gauche, 9 interaction droite.
 
 Usage : pip install pillow && python tools/assembler-heros.py
 """
@@ -50,6 +55,10 @@ def main():
     repos = repos_droite()
     lignes.append([ImageOps.mirror(repos)])
     lignes.append([repos])
+    for nom in ("respiration", "course", "interaction"):
+        droite = images_gif(f"{nom}_droite.gif")
+        lignes.append([ImageOps.mirror(img) for img in droite])
+        lignes.append(droite)
 
     planche = Image.new("RGBA", (COLONNES * CASE, len(lignes) * CASE))
     for ligne, images in enumerate(lignes):
