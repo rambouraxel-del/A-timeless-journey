@@ -9,7 +9,7 @@ export interface DoorRef {
 
 export const DOOR_LINKS: [DoorRef, DoorRef][] = [
   [
-    { room: 'vaisseau', door: 'porte_droite' },
+    { room: 'vaisseau', door: 'porte_gauche' },
     { room: 'musee', door: 'porte_entree' },
   ],
 ];

@@ -46,15 +46,9 @@ const LIGHTS: Light[] = [
   // Ecran mural et voyant chaud a cote.
   { x: 640, y: 570, w: 90, h: 190, color: CYAN, kind: 'pulse', period: 3000, low: 0.15, high: 0.45, phase: 0.4 },
   { x: 717, y: 662, w: 30, h: 110, color: WARM, kind: 'pulse', period: 4400, low: 0.25, high: 0.55, phase: 0.1 },
-
-  // Portes : voyants blancs verticaux et barre cyan du linteau.
-  { x: 2647, y: 795, w: 24, h: 70, color: WARM, kind: 'pulse', period: 3400, low: 0.25, high: 0.6, phase: 0.2 },
-  { x: 2687, y: 842, w: 24, h: 90, color: WARM, kind: 'pulse', period: 3400, low: 0.25, high: 0.6, phase: 0.6 },
-  { x: 2690, y: 706, w: 80, h: 14, color: CYAN, kind: 'blink', period: 2600, low: 0.25, high: 0.7, phase: 0.1 },
-  { x: 144, y: 706, w: 80, h: 14, color: CYAN, kind: 'blink', period: 2900, low: 0.25, high: 0.7, phase: 0.6 },
 ];
 
-function makeGlowTexture(scene: Phaser.Scene, key: string, size: number): void {
+export function makeGlowTexture(scene: Phaser.Scene, key: string, size: number): void {
   if (scene.textures.exists(key)) return;
   const texture = scene.textures.createCanvas(key, size, size)!;
   const ctx = texture.getContext();
@@ -67,7 +61,7 @@ function makeGlowTexture(scene: Phaser.Scene, key: string, size: number): void {
   texture.refresh();
 }
 
-function makeMoteTexture(scene: Phaser.Scene, key: string): void {
+export function makeMoteTexture(scene: Phaser.Scene, key: string): void {
   if (scene.textures.exists(key)) return;
   const texture = scene.textures.createCanvas(key, 8, 8)!;
   const ctx = texture.getContext();

@@ -1,5 +1,6 @@
 import { SceneKeys } from '@/config/SceneKeys';
-import { layers, propScale, props, sx, sy, textureKey, vaisseau } from '@/data/rooms/vaisseau';
+import { layers, porteGeo, propScale, props, sx, sy, textureKey, vaisseau, DOOR_ID } from '@/data/rooms/vaisseau';
+import { Door } from '@/entities/Door';
 import { getSettings } from '@/systems/SaveGame';
 import { addVaisseauEffects } from './vaisseauEffects';
 import { RoomScene } from './RoomScene';
@@ -36,6 +37,8 @@ export class VaisseauScene extends RoomScene {
         .setDepth(prop.depth)
         .setScrollFactor(prop.scrollFactor);
     }
+
+    this.doors.set(DOOR_ID, new Door(this, porteGeo, true));
 
     if (getSettings().ambient) addVaisseauEffects(this);
   }

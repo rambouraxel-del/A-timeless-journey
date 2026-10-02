@@ -1,5 +1,6 @@
 import { GAME_VIEW, HERO_PIXEL_SCALE, RENDER_SCALE } from '@/config/Layout';
 import type { InteractableDef, RoomDefinition } from '@/world/RoomDefinition';
+import { doorGeometry } from './portes';
 import positions from './musee/positions-tableaux.json';
 import scene from './musee/scene.json';
 
@@ -99,30 +100,23 @@ export const SACRE_MUSIC_AFTER = 400;
 
 // --- Porte d'entree ----------------------------------------------------------------
 
-// Meme dessin que la porte du vaisseau, a l'echelle du heros de la galerie.
-export const DOOR = {
-  id: 'porte_entree',
-  textureKey: 'vaisseau:assets/props/porte_gauche.png',
-  // Centre x et base y, taille d'affichage, en pixels d'origine : contre le mur, a gauche du premier tableau.
-  x: 100,
-  y: 600,
-  width: 125,
-  height: 200,
-  tint: 0xdcc9ac, // teinte chaude pour s'integrer au decor du musee
-};
+// Meme porte que le vaisseau, dans son orientation d'origine, contre le mur a gauche du premier tableau.
+// Position en pixels d'origine : centre x, sol de la porte (y) et hauteur visible.
+export const DOOR = { id: 'porte_entree', x: 100, y: 600, height: 200 };
+export const doorGeo = doorGeometry(DOOR.x * S, DOOR.y * S, DOOR.height * S, false);
 
 const interactables: InteractableDef[] = [
   {
     id: DOOR.id,
     kind: 'door',
     label: 'Porte du musée',
-    x: DOOR.x * S,
-    y: DOOR.y * S,
-    width: DOOR.width * S,
-    height: DOOR.height * S,
-    textureKey: DOOR.textureKey,
+    x: doorGeo.x,
+    y: doorGeo.y,
+    width: doorGeo.width,
+    height: doorGeo.height,
+    textureKey: 'porte:closed',
     standY: groundY,
-    reachX: (DOOR.width / 2) * S + 24,
+    reachX: doorGeo.visibleWidth / 2 + 24,
   },
   ...ARTWORKS.map((a): InteractableDef => {
     const [x, y, w, h] = a.rect;

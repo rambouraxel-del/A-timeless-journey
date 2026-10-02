@@ -4,6 +4,7 @@ import { Player } from '@/entities/Player';
 import { controls } from '@/systems/Controls';
 import { EventBus, GameEvents } from '@/systems/EventBus';
 import { InteractionSystem } from '@/systems/InteractionSystem';
+import type { Door } from '@/entities/Door';
 import { destinationOf } from '@/data/rooms/connections';
 import { roomSceneKey } from '@/data/rooms/registry';
 import { gameState } from '@/systems/GameState';
@@ -16,7 +17,7 @@ import { WalkGraph } from '@/world/WalkGraph';
 const STAMINA_DRAIN_RUN = 0.05;
 const STAMINA_REGEN_WALK = 0.05;
 const STAMINA_REGEN_IDLE = 0.1;
-// Distance (px) entre le bord d'une porte et le heros qui en sort : hors de portee de la porte.
+// Distance (px) entre le bord d'une porte et le heros qui en sort (hors de portee de la porte, qui s'arrete 24 px apres son bord).
 const ARRIVAL_GAP = 36;
 
 // Base commune a toutes les salles : couches de profondeur, camera, joueur, interactions.
@@ -28,6 +29,8 @@ export abstract class RoomScene extends Phaser.Scene {
   private resume = false;
   private arrivalDoor: string | null = null;
   private travelling = false;
+  // Portes animees de la salle (par id d'objet) : elles s'ouvrent avant le changement de salle.
+  protected readonly doors = new Map<string, Door>();
 
   // data.resume : reprendre la sauvegarde (Continuer) ; data.arrivalDoor : arrivee par une porte
   // d'une autre salle ; sinon nouvelle partie.
@@ -55,7 +58,7 @@ export abstract class RoomScene extends Phaser.Scene {
     const doorSide: -1 | 1 = door && door.x > this.room.width / 2 ? -1 : 1;
     let spawn = this.room.spawn;
     if (save) spawn = { x: save.x * this.room.width, y: this.room.spawn.y };
-    else if (door) spawn = { x: door.x + doorSide * (door.width / 2 + ARRIVAL_GAP), y: door.standY ?? this.room.spawn.y };
+    else if (door) spawn = { x: door.x + doorSide * ((door.reachX ?? door.width / 2 + 28) + ARRIVAL_GAP - 24), y: door.standY ?? this.room.spawn.y };
     controls.health = save ? Math.min(controls.maxHealth, save.health) : controls.maxHealth;
     controls.stamina = save ? save.stamina : 1;
     controls.locked = false;
@@ -139,7 +142,11 @@ export abstract class RoomScene extends Phaser.Scene {
     controls.dirty = true;
     const link = def.kind === 'door' ? destinationOf(this.room.id, def.id) : null;
     if (link) {
-      this.travel(link.room, link.door);
+      const door = this.doors.get(def.id);
+      if (door) {
+        controls.locked = true;
+        door.play(() => this.travel(link.room, link.door));
+      } else this.travel(link.room, link.door);
       return;
     }
     EventBus.emit(GameEvents.DialogueOpen, [{ speaker: def.label, text: 'Interaction à définir.' }]);

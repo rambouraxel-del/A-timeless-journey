@@ -5,6 +5,7 @@ import { SceneKeys } from '@/config/SceneKeys';
 import { layers, props, textureKey, textureUrl } from '@/data/rooms/vaisseau';
 import { roomSceneKey } from '@/data/rooms/registry';
 import { partKey, partUrl, PARTS, thumbKey, thumbUrl, ARTWORKS } from '@/data/rooms/musee';
+import { DOOR_TEXTURES } from '@/data/rooms/portes';
 import { gameState, startGameState } from '@/systems/GameState';
 import { hasAnySave, loadSlot, setActiveSlot } from '@/systems/SaveGame';
 import { Modal } from '@/ui/Modal';
@@ -103,6 +104,7 @@ export class TitleScene extends Phaser.Scene {
     this.load.spritesheet(hero.key, hero.url, { frameWidth: hero.frameWidth, frameHeight: hero.frameHeight });
     for (const key of UiTextureKeys) this.load.image(key, `assets/ui/x${UI_DENSITY}/${key}.png`);
     this.load.font(UiFont.family, UiFont.url);
+    for (const t of DOOR_TEXTURES) this.load.image(t.key, t.url);
     for (const part of PARTS) this.load.image(partKey(part.file), partUrl(part.file));
     for (const art of ARTWORKS) this.load.image(thumbKey(art.id), thumbUrl(art.id));
     for (const item of [...layers, ...props]) this.load.image(textureKey(item.file), textureUrl(item.file));

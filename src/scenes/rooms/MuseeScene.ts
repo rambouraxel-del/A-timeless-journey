@@ -7,6 +7,7 @@ import {
   artworkById,
   artworkCenterX,
   DOOR,
+  doorGeo,
   GUIDED_STEPS,
   heroScale,
   largeKey,
@@ -19,6 +20,7 @@ import {
   SACRE_MUSIC_BEFORE,
   thumbKey,
 } from '@/data/rooms/musee';
+import { Door } from '@/entities/Door';
 import { controls } from '@/systems/Controls';
 import { EventBus, GameEvents } from '@/systems/EventBus';
 import { gameState } from '@/systems/GameState';
@@ -67,13 +69,8 @@ export class MuseeScene extends RoomScene {
         .setDepth(30);
     });
 
-    // Porte d'entree (dessin de la porte du vaisseau), posee contre le mur.
-    this.add
-      .image(DOOR.x * S, DOOR.y * S, DOOR.textureKey)
-      .setOrigin(0.5, 1)
-      .setDisplaySize(DOOR.width * S, DOOR.height * S)
-      .setTint(DOOR.tint)
-      .setDepth(DEPTH.interactables);
+    // Porte d'entree (voir Door) : au niveau des equipements, le heros passe devant.
+    this.doors.set(DOOR.id, new Door(this, doorGeo, false));
 
     // Tableaux : objets separes du decor, a leur rectangle d'affichage.
     for (const art of ARTWORKS) {
