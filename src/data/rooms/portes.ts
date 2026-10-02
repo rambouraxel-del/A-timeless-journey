@@ -19,6 +19,12 @@ export const DOOR_TEXTURES = [false, true].flatMap((mirrored) =>
   (['closed', 'open'] as const).map((state) => ({ key: doorTextureKey(state, mirrored), url: doorTextureUrl(state, mirrored) })),
 );
 
+// Sortie de secours du musee (image de 512 x 768, panneau fleche vers la droite : jamais en miroir) :
+// la porte visible occupe x 105..407, y 50..712, panneau vert compris.
+export const EXIT_SPRITE = { frame: { width: 512, height: 768 }, visible: { left: 105, right: 407, top: 50, bottom: 712 } };
+export const EXIT_TEXTURE = { key: 'porte:sortie_secours', url: 'assets/rooms/portes/sortie_secours.png' };
+DOOR_TEXTURES.push(EXIT_TEXTURE);
+
 export interface DoorGeometry {
   // Image complete : centre x, bas de l'image, taille d'affichage.
   x: number;
@@ -34,18 +40,25 @@ export interface DoorGeometry {
 }
 
 // Pose une porte : centre x, sol (y des pieds) et hauteur visible souhaitee, en pixels du monde.
-export function doorGeometry(centerX: number, floorY: number, visibleHeight: number, mirrored: boolean): DoorGeometry {
-  const k = visibleHeight / (VISIBLE.bottom - VISIBLE.top);
-  const left = mirrored ? FRAME.width - VISIBLE.right : VISIBLE.left;
-  const right = mirrored ? FRAME.width - VISIBLE.left : VISIBLE.right;
-  const centerOffset = ((left + right) / 2 - FRAME.width / 2) * k; // decalage du centre visible
+export function doorGeometry(
+  centerX: number,
+  floorY: number,
+  visibleHeight: number,
+  mirrored: boolean,
+  sprite: { frame: { width: number; height: number }; visible: { left: number; right: number; top: number; bottom: number } } = { frame: FRAME, visible: VISIBLE },
+): DoorGeometry {
+  const { frame, visible } = sprite;
+  const k = visibleHeight / (visible.bottom - visible.top);
+  const left = mirrored ? frame.width - visible.right : visible.left;
+  const right = mirrored ? frame.width - visible.left : visible.right;
+  const centerOffset = ((left + right) / 2 - frame.width / 2) * k; // decalage du centre visible
   return {
     x: centerX - centerOffset,
-    y: floorY + (FRAME.height - VISIBLE.bottom) * k,
-    width: FRAME.width * k,
-    height: FRAME.height * k,
+    y: floorY + (frame.height - visible.bottom) * k,
+    width: frame.width * k,
+    height: frame.height * k,
     visibleWidth: (right - left) * k,
     k,
-    passage: { dx: ((mirrored ? FRAME.width - PASSAGE.x : PASSAGE.x) - FRAME.width / 2) * k, dy: -(FRAME.height - PASSAGE.y) * k, width: PASSAGE.width * k, height: PASSAGE.height * k },
+    passage: { dx: ((mirrored ? frame.width - PASSAGE.x : PASSAGE.x) - frame.width / 2) * k, dy: -(frame.height - PASSAGE.y) * k, width: PASSAGE.width * k, height: PASSAGE.height * k },
   };
 }

@@ -6,6 +6,9 @@ Deux etats (fermee, ouverte) en deux orientations : d'origine (musee) et en miro
 (vaisseau, ouverture vers la droite). Le miroir est fait ici pour que le contour d'interaction
 et l'image restent identiques.
 
+La sortie de secours (assets-source/portes/sortie_secours.png, 1024 x 1536) est reduite a 512 x 768 ; une seule
+orientation et un seul etat (le panneau fleche pointe vers la droite : pas de miroir).
+
 Usage : pip install pillow && python tools/preparer-portes.py
 """
 from pathlib import Path
@@ -25,6 +28,9 @@ def main():
         img.save(OUT / f"{nom}.png", optimize=True)
         ImageOps.mirror(img).save(OUT / f"{nom}_miroir.png", optimize=True)
         print(nom, img.size)
+    exit_img = Image.open(SRC / "sortie_secours.png").convert("RGBA").resize((512, 768), Image.LANCZOS)
+    exit_img.save(OUT / "sortie_secours.png", optimize=True)
+    print("sortie_secours", exit_img.size, exit_img.getchannel("A").point(lambda a: 255 if a > 40 else 0).getbbox())
 
 
 if __name__ == "__main__":

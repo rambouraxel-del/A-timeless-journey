@@ -2,7 +2,7 @@ import { GAME_VIEW, HERO_PIXEL_SCALE, RENDER_SCALE } from '@/config/Layout';
 import type { InteractableDef, RoomDefinition } from '@/world/RoomDefinition';
 import pnjSprites from './musee/pnj-sprites.json';
 import { NPCS, type NpcSpec } from './musee-pnj';
-import { doorGeometry, doorTextureKey, isMirrored } from './portes';
+import { doorGeometry, doorTextureKey, EXIT_SPRITE, EXIT_TEXTURE, isMirrored } from './portes';
 import positions from './musee/positions-tableaux.json';
 import scene from './musee/scene.json';
 
@@ -138,10 +138,11 @@ function npcInteractable(spec: NpcSpec): InteractableDef {
 }
 export const npcDefs = new Map<string, InteractableDef>(NPCS.filter((n) => n.lines || n.role === 'professeur').map((n) => [n.id, npcInteractable(n)]));
 
-// Sortie de secours a l'extremite droite du musee (meme porte, orientation d'origine : moitie droite).
-export const EXIT = { id: 'sortie_secours', x: 6010, y: 600, height: 200 };
-export const exitMirrored = isMirrored(EXIT.x * S, roomWidth);
-export const exitGeo = doorGeometry(EXIT.x * S, EXIT.y * S, EXIT.height * S, exitMirrored);
+// Vraie sortie de secours a l'extremite droite du musee : porte metallique contemporaine (image separee,
+// panneau vert compris, jamais en miroir). Seuil au niveau du pied du mur (y = 600, comme l'autre porte).
+export const EXIT = { id: 'sortie_secours', x: 6010, y: 600, height: 215 };
+export const exitGeo = doorGeometry(EXIT.x * S, EXIT.y * S, EXIT.height * S, false, EXIT_SPRITE);
+export const exitTexture = EXIT_TEXTURE.key;
 
 const interactables: InteractableDef[] = [
   {
@@ -164,7 +165,7 @@ const interactables: InteractableDef[] = [
     y: exitGeo.y,
     width: exitGeo.width,
     height: exitGeo.height,
-    textureKey: doorTextureKey('closed', exitMirrored),
+    textureKey: EXIT_TEXTURE.key,
     standY: groundY,
     reachX: exitGeo.visibleWidth / 2 + 24,
   },

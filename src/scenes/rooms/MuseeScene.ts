@@ -7,9 +7,8 @@ import {
   artworkCenterX,
   DOOR,
   doorGeo,
-  EXIT,
   exitGeo,
-  exitMirrored,
+  exitTexture,
   doorMirrored,
   GUIDED_STEPS,
   largeKey,
@@ -67,7 +66,8 @@ export class MuseeScene extends RoomScene {
 
     // Porte d'entree (voir Door) : au niveau des equipements, le heros passe devant.
     this.doors.set(DOOR.id, new Door(this, doorGeo, doorMirrored));
-    this.doors.set(EXIT.id, new Door(this, exitGeo, exitMirrored));
+    // Sortie de secours : image separee, sans animation d'ouverture (le heros joue son interaction, puis fondu).
+    this.add.image(exitGeo.x, exitGeo.y, exitTexture).setOrigin(0.5, 1).setDisplaySize(exitGeo.width, exitGeo.height).setDepth(DEPTH.interactables);
 
     // Tableaux : objets separes du decor, a leur rectangle d'affichage.
     for (const art of ARTWORKS) {

@@ -21,20 +21,30 @@ export const heroScale = (HERO_VISIBLE_LOGICAL * RENDER_SCALE) / (HERO_VISIBLE_S
 // --- Couches ----------------------------------------------------------------------
 
 // Profondeurs du moteur : le heros est a 50, le premier plan (paves proches) passe devant lui.
-export const LAYERS = [
-  { id: '00-arriere-plan', depth: 0, parallax: 'background' },
-  { id: '01-facades', depth: 10, parallax: 'none' },
-  { id: '02-sol', depth: 20, parallax: 'none' },
-  { id: '03-premier-plan', depth: 60, parallax: 'foreground' },
+// Facades, sol et premier plan : 4 sections, solidaires du monde (facteur 1). Ciel et maisons : images
+// uniques, produites par tools/preparer-ruelle-fond.py a partir du fond du pack, qui defilent plus lentement.
+export const SECTION_LAYERS = [
+  { id: '01-facades', depth: 10 },
+  { id: '02-sol', depth: 20 },
+  { id: '03-premier-plan', depth: 60 },
 ] as const;
 export const SECTIONS = manifest.sections; // { folder, x, y, width, height }
 export const layerKey = (folder: string, layer: string) => `ruelle:${folder}:${layer}`;
 export const layerUrl = (folder: string, layer: string) => `assets/rooms/ruelle/${folder}/${layer}.png`;
-export const LAYER_TEXTURES = SECTIONS.flatMap((s) => LAYERS.map((l) => ({ key: layerKey(s.folder, l.id), url: layerUrl(s.folder, l.id) })));
 
-// Parallaxe discrete (pixels d'asset) : fond +-12, premier plan en sens oppose +-4. Meme decalage pour
-// les quatre sections d'une couche ; facades, sol et collisions ne bougent pas.
-export const PARALLAX = { background: { factor: 0.01, max: 12 }, foreground: { factor: -0.004, max: 4 } };
+// Parallaxe reelle : facteur de defilement par rapport a la camera (1 = solidaire du monde).
+export const PARALLAX = { ciel: 0.15, maisons: 0.55, facades: 1, sol: 1, premierPlan: 1 };
+// Images de fond (pixels d'asset). Le ciel part de X = 0 ; les maisons sont la partie propre du panorama
+// (colonnes 1060 a 3412), posees pour couvrir toute la course de la camera sans jamais montrer la zone
+// de l'immeuble de gauche ni le mur du fond (X local de la premiere colonne : 572 = 0,55 x 1040).
+export const SKY = { key: 'ruelle:ciel', url: 'assets/rooms/ruelle/fond/ciel.png', width: 1700, height: 420, depth: 0, x: 0 };
+export const HOUSES = { key: 'ruelle:maisons', url: 'assets/rooms/ruelle/fond/maisons.png', width: 2352, height: 420, depth: 5, x: 572 };
+
+export const LAYER_TEXTURES = [
+  ...SECTIONS.flatMap((s) => SECTION_LAYERS.map((l) => ({ key: layerKey(s.folder, l.id), url: layerUrl(s.folder, l.id) }))),
+  { key: SKY.key, url: SKY.url },
+  { key: HOUSES.key, url: HOUSES.url },
+];
 
 // --- Sortie de secours (dessinee dans le decor, aucune image separee) -----------------
 
