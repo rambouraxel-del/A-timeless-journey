@@ -1,117 +1,15 @@
 {
   "world": {
-    "width": 5397,
-    "height": 1448,
-    "feetY": 1168
+    "width": 2172,
+    "height": 724,
+    "feetY": 558,
+    "note": "Unite du monde = pixel du panorama (2172 x 724). Chaque couche a son propre pixel d'asset ; position ecran = x * scale * S, S = hauteur de la vue / 724."
   },
   "layers": [
-    {
-      "file": "sol-01.png",
-      "layer": "sol",
-      "x": 0,
-      "y": 1168,
-      "width": 1316,
-      "height": 280,
-      "parallax": 1
-    },
-    {
-      "file": "sol-02.png",
-      "layer": "sol",
-      "x": 1316,
-      "y": 1168,
-      "width": 1317,
-      "height": 280,
-      "parallax": 1
-    },
-    {
-      "file": "sol-03.png",
-      "layer": "sol",
-      "x": 2633,
-      "y": 1168,
-      "width": 1316,
-      "height": 280,
-      "parallax": 1
-    },
-    {
-      "file": "sol-04.png",
-      "layer": "sol",
-      "x": 3949,
-      "y": 1168,
-      "width": 1448,
-      "height": 280,
-      "parallax": 1
-    },
-    {
-      "file": "facades-01.png",
-      "layer": "facades",
-      "x": 0,
-      "y": 0,
-      "width": 1448,
-      "height": 1448,
-      "parallax": 1
-    },
-    {
-      "file": "facades-02.png",
-      "layer": "facades",
-      "x": 1316,
-      "y": 0,
-      "width": 1448,
-      "height": 1448,
-      "parallax": 1
-    },
-    {
-      "file": "facades-03.png",
-      "layer": "facades",
-      "x": 2633,
-      "y": 0,
-      "width": 1448,
-      "height": 1448,
-      "parallax": 1
-    },
-    {
-      "file": "facades-04.png",
-      "layer": "facades",
-      "x": 3949,
-      "y": 0,
-      "width": 1448,
-      "height": 1448,
-      "parallax": 1
-    },
-    {
-      "file": "batiments-01.png",
-      "layer": "batiments",
-      "x": 0,
-      "y": -180,
-      "width": 1448,
-      "height": 1448,
-      "parallax": 0.65
-    },
-    {
-      "file": "batiments-02.png",
-      "layer": "batiments",
-      "x": 1408,
-      "y": -180,
-      "width": 1447,
-      "height": 1448,
-      "parallax": 0.65
-    },
-    {
-      "file": "batiments-03.png",
-      "layer": "batiments",
-      "x": 2815,
-      "y": -180,
-      "width": 1448,
-      "height": 1448,
-      "parallax": 0.65
-    },
-    {
-      "file": "ciel.png",
-      "layer": "ciel",
-      "x": 0,
-      "y": 0,
-      "width": 2855,
-      "height": 1448,
-      "parallax": 0.15
-    }
+    { "file": "ciel.png", "layer": "ciel", "x": 0, "y": 0, "width": 2855, "height": 1448, "scale": 0.5, "parallax": 0.15 },
+    { "file": "batiments-01.png", "layer": "batiments", "x": 0, "y": -180, "width": 1448, "height": 1448, "scale": 0.5, "parallax": 0.65 },
+    { "file": "batiments-02.png", "layer": "batiments", "x": 1408, "y": -180, "width": 1447, "height": 1448, "scale": 0.5, "parallax": 0.65 },
+    { "file": "batiments-03.png", "layer": "batiments", "x": 2815, "y": -180, "width": 1448, "height": 1448, "scale": 0.5, "parallax": 0.65 },
+    { "file": "panorama.png", "layer": "panorama", "x": 0, "y": 0, "width": 2172, "height": 724, "scale": 1, "parallax": 1 }
   ]
 }

@@ -2,15 +2,16 @@ import { GAME_VIEW, HERO_PIXEL_SCALE, RENDER_SCALE } from '@/config/Layout';
 import type { InteractableDef, RoomDefinition } from '@/world/RoomDefinition';
 import manifest from './ruelle/manifest.json';
 
-// Ruelle du Louvre (pack Ruelle-pack-complet) : monde de 5397 x 1448 px d'asset, 12 images. Echelle unique
-// S = hauteur de la vue / 1448 : aucune deformation. Les coordonnees du manifeste sont en pixels d'asset ;
-// position ecran = (X asset - camera X x facteur) x S.
-export const WORLD_WIDTH = manifest.world.width; // 5397
-export const WORLD_HEIGHT = manifest.world.height; // 1448
+// Ruelle du Louvre : une cour finie, representee par un seul panorama transparent (facade + sol, 2172 x 724 px,
+// jamais repete) devant deux plans de fond (batiments lointains et ciel, des images de l'ancien pack gardees telles
+// quelles). Echelle unique S = hauteur de la vue / 724 : le panorama garde ses proportions, sans etirement ni
+// recadrage. Position ecran = x asset x scale de la couche x S - camera x facteur.
+export const WORLD_WIDTH = manifest.world.width; // 2172
+export const WORLD_HEIGHT = manifest.world.height; // 724
 export const S = GAME_VIEW.height / WORLD_HEIGHT;
 export const roomWidth = WORLD_WIDTH * S;
-// Pieds du heros et base des facades : Y = 1168.
-export const FEET_Y = manifest.world.feetY; // 1168
+// Pieds du heros : sur les paves, juste sous la base des murs (Y = 549 dans le panorama).
+export const FEET_Y = manifest.world.feetY; // 558
 export const groundY = FEET_Y * S;
 
 // Heros a la meme taille que dans le musee (116 px de galerie sur 704 de haut).
@@ -20,14 +21,10 @@ export const heroScale = (HERO_VISIBLE_LOGICAL * RENDER_SCALE) / (HERO_VISIBLE_S
 
 // --- Couches ----------------------------------------------------------------------
 
-// Ordre : fond bleu, ciel, batiments lointains, sol, facades, puis heros (50). Les profondeurs sont reprises du
-// manifeste par couche ; les facteurs de defilement aussi (ciel 0,15 ; batiments 0,65 ; sol et facades 1).
+// Ordre : fond bleu #52ADF2, ciel (0,15), batiments lointains (0,65), panorama facade + sol (1), puis heros (50).
+// Le panorama est un seul plan : facade et sol ne peuvent pas glisser l'un par rapport a l'autre.
 export const SKY_COLOR = 0x52adf2;
-// Pied des facades : dans les images du pack, les dernieres lignes au-dessus de Y = 1168 sont semi-transparentes
-// (facades-01 et -02 surtout) et laissaient voir le ciel en un fin trait bleu au ras du sol. Le jeu rend opaques
-// ces lignes au chargement (les pixels deja transparents le restent) ; les fichiers ne sont pas modifies.
-export const FACADE_OPAQUE_ROWS = 8;
-export const LAYER_DEPTH: Record<string, number> = { ciel: 0, batiments: 5, sol: 15, facades: 20 };
+export const LAYER_DEPTH: Record<string, number> = { ciel: 0, batiments: 5, panorama: 20 };
 export interface RuelleImage {
   key: string;
   url: string;
@@ -36,6 +33,7 @@ export interface RuelleImage {
   y: number;
   width: number;
   height: number;
+  scale: number; // taille d'affichage d'un pixel de l'image, relativement a S
   parallax: number;
 }
 export const IMAGES: RuelleImage[] = manifest.layers.map((l) => ({
@@ -46,15 +44,16 @@ export const IMAGES: RuelleImage[] = manifest.layers.map((l) => ({
   y: l.y,
   width: l.width,
   height: l.height,
+  scale: l.scale,
   parallax: l.parallax,
 }));
 
-// --- Sortie de secours : dessinee dans le decor (facades-01), porte statique -----------
+// --- Sortie de secours : dessinee dans le panorama, porte statique --------------------
 
-// Zone d'interaction calee sur la porte : centre x, pied (Y = 1168), taille.
-export const EXIT = { id: 'sortie_secours', x: 380, base: 1168, width: 120, height: 330 };
-// Limites de marche : angle du mur de retour a droite (X ~ 5105 dans le decor), moins le volume du heros.
-export const WALK = { left: 130, right: 5000 };
+// Zone d'interaction calee sur la porte (cadre X 180 a 235, base Y 548, hauteur ~175).
+export const EXIT = { id: 'sortie_secours', x: 207, base: 548, width: 62, height: 176 };
+// Limites de marche : a gauche, devant le batiment d'angle ; a droite, avant l'angle du mur de retour (X ~ 2027).
+export const WALK = { left: 85, right: 1975 };
 
 const interactables: InteractableDef[] = [
   {
@@ -66,7 +65,7 @@ const interactables: InteractableDef[] = [
     width: EXIT.width * S,
     height: EXIT.height * S,
     standY: groundY,
-    reachX: (EXIT.width / 2 + 120) * S,
+    reachX: (EXIT.width / 2 + 60) * S,
   },
 ];
 
@@ -76,7 +75,7 @@ export const ruelle: RoomDefinition = {
   width: roomWidth,
   height: GAME_VIEW.height,
   // Apparition par defaut (nouvelle partie directe) : devant la sortie de secours.
-  spawn: { x: 620 * S, y: groundY },
+  spawn: { x: 330 * S, y: groundY },
   paths: [{ kind: 'floor', from: { x: WALK.left * S, y: groundY }, to: { x: WALK.right * S, y: groundY } }],
   interactables,
   heroScale,

@@ -80,12 +80,11 @@ Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack
 
 ## La ruelle du Louvre
 
-- `src/data/rooms/ruelle.ts` + `RuelleScene.ts` : pack « Ruelle-pack-complet » — monde de 5397 × 1448, 12 images (ciel, 3 sections de bâtiments lointains, 4 de façades, 4 de sol) placées aux coordonnées de `src/data/rooms/ruelle/manifest.json`. Correctifs appliqués : bâtiments lointains remontés à Y = −180 (les trois ensemble, X et parallaxe inchangés) ; sol restauré depuis le premier décor validé (pack « Ruelle-premier-sol-restaure » : `sol-01` à `sol-04`, 280 px à Y = 1168, X = 0 / 1316 / 2633 / 3949, sans recouvrement). Le `sol-03.png` reçu était tronqué : il a été reconstitué avec la recette exacte du pack (ancien décor 4344 px agrandi uniformément en nearest à 5397 px), vérifiée pixel pour pixel sur les trois autres sols et sur les 119 lignes lisibles du fichier reçu. Sources et consignes : `assets-source/ruelle/` ; copie vers le jeu : `python tools/preparer-ruelle.py` (aucune retouche d'image).
-- Échelle unique hauteur de vue / 1448, héros à la taille du musée, pieds à Y = 1168. Ordre : fond bleu #52ADF2, ciel, bâtiments, sol, façades, héros.
-- Parallaxe : ciel 0,15 · bâtiments lointains 0,65 · sol et façades 1 (collisions, porte et interactions dans le repère du monde). Un facteur et un repère communs par couche ; la couverture est vérifiée au chargement (avertissement en console).
+- `src/data/rooms/ruelle.ts` + `RuelleScene.ts` : une cour finie, jamais répétée. Un seul panorama transparent (façade + sol, `assets-source/ruelle/assets/panorama.png`, 2172 × 724) devant deux plans de fond gardés de l'ancien pack (`batiments-01` à `03` à Y = −180, `ciel.png`), sur fond bleu #52ADF2. Copie vers le jeu : `python tools/preparer-ruelle.py` (aucune retouche d'image).
+- Échelle unique S = hauteur de la vue / 724 : le panorama n'est ni étiré, ni recadré, ni agrandi artificiellement (ses deux couches de fond ont leur pixel propre, réglé par `scale` dans `src/data/rooms/ruelle/manifest.json`). Pieds du héros à Y = 558 (paves), taille du héros identique au musée.
+- Parallaxe : ciel 0,15 · bâtiments lointains 0,65 · panorama 1 (collisions, porte et interactions dans le repère du monde). Facade et sol sont un seul plan : aucun glissement possible. La caméra s'arrête aux deux extrémités du panorama ; la couverture des fonds est vérifiée au chargement (avertissement en console).
 - Les images sont chargées à l'entrée de la scène et libérées à sa sortie (mémoire).
-- Pied des façades : les 8 dernières lignes au-dessus de Y = 1168 sont rendues opaques au chargement (elles étaient semi-transparentes dans `facades-01` et `-02` et laissaient voir un trait de ciel au ras du sol ; quelques trous sous la porte prennent la couleur du pixel du dessus). Les fichiers du pack ne sont pas modifiés (`FACADE_OPAQUE_ROWS` dans `ruelle.ts`).
-- Sortie de secours dessinée dans les façades (X ≈ 380), statique : interaction `sortie_secours` → musée (`connections.ts`). Limite de marche à droite devant l'angle du mur de retour (X ≈ 5000).
+- Sortie de secours dessinée dans le panorama (X ≈ 207), statique : interaction `sortie_secours` → musée (`connections.ts`). Limites de marche : X 85 à 1975 (devant l'angle du mur de retour à droite).
 
 ## Construire une autre salle
 

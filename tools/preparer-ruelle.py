@@ -1,7 +1,8 @@
-"""Copie les 12 images de la ruelle (assets-source/ruelle/assets/) vers public/assets/rooms/ruelle/.
+"""Copie les images de la ruelle (assets-source/ruelle/assets/) vers public/assets/rooms/ruelle/.
 
-Les PNG sont conserves tels quels : le pack est deja decoupe (ciel, 3 sections de batiments lointains,
-4 de facades, 4 de sol). Positions et facteurs de defilement : src/data/rooms/ruelle/manifest.json.
+- panorama.png : facade + sol, un seul PNG transparent de 2172 x 724 px (cour finie, jamais repetee) ;
+- batiments-01 a 03 et ciel.png : plans de fond de l'ancien pack, gardes tels quels.
+Les PNG sont conserves tels quels. Positions, echelles et parallaxes : src/data/rooms/ruelle/manifest.json.
 
 Usage : python tools/preparer-ruelle.py
 """
