@@ -10,8 +10,9 @@ export const WORLD_WIDTH = manifest.world.width; // 2172
 export const WORLD_HEIGHT = manifest.world.height; // 724
 export const S = GAME_VIEW.height / WORLD_HEIGHT;
 export const roomWidth = WORLD_WIDTH * S;
-// Pieds du heros : sur les paves, juste sous la base des murs (Y = 549 dans le panorama).
-export const FEET_Y = manifest.world.feetY; // 558
+// Pieds du heros : sur les paves, en avant de la base des murs (Y = 548 dans le panorama) ; plus FEET_Y est grand,
+// plus il marche bas dans l'image.
+export const FEET_Y = manifest.world.feetY; // 590
 export const groundY = FEET_Y * S;
 
 // Heros a la meme taille que dans le musee (116 px de galerie sur 704 de haut).

@@ -2,14 +2,59 @@
   "world": {
     "width": 2172,
     "height": 724,
-    "feetY": 558,
+    "feetY": 590,
     "note": "Unite du monde = pixel du panorama (2172 x 724). Chaque couche a son propre pixel d'asset ; position ecran = x * scale * S, S = hauteur de la vue / 724."
   },
   "layers": [
-    { "file": "ciel.png", "layer": "ciel", "x": 0, "y": 0, "width": 2855, "height": 1448, "scale": 0.5, "parallax": 0.15 },
-    { "file": "batiments-01.png", "layer": "batiments", "x": 0, "y": -180, "width": 1448, "height": 1448, "scale": 0.5, "parallax": 0.65 },
-    { "file": "batiments-02.png", "layer": "batiments", "x": 1408, "y": -180, "width": 1447, "height": 1448, "scale": 0.5, "parallax": 0.65 },
-    { "file": "batiments-03.png", "layer": "batiments", "x": 2815, "y": -180, "width": 1448, "height": 1448, "scale": 0.5, "parallax": 0.65 },
-    { "file": "panorama.png", "layer": "panorama", "x": 0, "y": 0, "width": 2172, "height": 724, "scale": 1, "parallax": 1 }
+    {
+      "file": "ciel.png",
+      "layer": "ciel",
+      "x": 0,
+      "y": 0,
+      "width": 2855,
+      "height": 1448,
+      "scale": 0.5,
+      "parallax": 0.15
+    },
+    {
+      "file": "batiments-01.png",
+      "layer": "batiments",
+      "x": 0,
+      "y": -180,
+      "width": 1448,
+      "height": 1448,
+      "scale": 0.5,
+      "parallax": 0.65
+    },
+    {
+      "file": "batiments-02.png",
+      "layer": "batiments",
+      "x": 1408,
+      "y": -180,
+      "width": 1447,
+      "height": 1448,
+      "scale": 0.5,
+      "parallax": 0.65
+    },
+    {
+      "file": "batiments-03.png",
+      "layer": "batiments",
+      "x": 2815,
+      "y": -180,
+      "width": 1448,
+      "height": 1448,
+      "scale": 0.5,
+      "parallax": 0.65
+    },
+    {
+      "file": "panorama.png",
+      "layer": "panorama",
+      "x": 0,
+      "y": 0,
+      "width": 2172,
+      "height": 724,
+      "scale": 1,
+      "parallax": 1
+    }
   ]
 }
