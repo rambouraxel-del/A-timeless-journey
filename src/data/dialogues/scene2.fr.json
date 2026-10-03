@@ -1,0 +1,92 @@
+{
+  "_aide": "Scene 2 du prologue : evacuation du musee, ruelle, porte impossible, arrivee dans le vaisseau. Modifier librement les \"texte\" (et ajouter/supprimer des lignes). Ne pas renommer les identifiants (cles de \"dialogues\" et \"indications\") : le code s'en sert pour declencher les evenements. Les interlocuteurs (\"qui\") sont definis dans dialogues.fr.json ou ci-dessous. Une ligne sans \"qui\" est une narration. \"pensee\": true = pensee du heros. Voir docs/DIALOGUES.md.",
+  "interlocuteurs": {
+    "garde": "Agent de sécurité"
+  },
+  "dialogues": {
+    "musee.evacuation.garde": [
+      { "qui": "garde", "texte": "Hé, toi ! Pas par là !" },
+      { "qui": "garde", "texte": "Le musée est en cours d’évacuation. Prends la sortie de secours la plus proche : tout au fond, à droite." },
+      { "qui": "heros", "pensee": true, "texte": "C’est par là qu’il est parti… Je dois le rattraper." }
+    ],
+    "musee.evacuation.rappel": [
+      { "qui": "garde", "texte": "La sortie de secours, au fond à droite. Allez, vite !" }
+    ],
+    "musee.porte_entree": [
+      { "qui": "heros", "pensee": true, "texte": "Pas question de filer en pleine visite." }
+    ],
+
+    "ruelle.arrivee": [
+      { "qui": "heros", "pensee": true, "texte": "Personne… La ruelle est complètement vide." },
+      { "qui": "heros", "pensee": true, "texte": "Où est-il passé ?" }
+    ],
+    "ruelle.coup_de_feu": [
+      { "texte": "Un coup de feu claque au fond de la ruelle. Puis le bruit sourd d’une chute." },
+      { "qui": "heros", "pensee": true, "texte": "Ça venait de là-bas… Il faut que j’aille voir." }
+    ],
+    "ruelle.sortie_secours": [
+      { "qui": "heros", "pensee": true, "texte": "Elle s’est refermée derrière moi. Ça ne s’ouvre que de l’intérieur." }
+    ],
+
+    "ruelle.homme.agonie": [
+      { "qui": "heros", "texte": "Monsieur ! Vous êtes blessé… Je vais appeler les secours !" },
+      { "qui": "mysterieux", "texte": "Non… Pas le temps. Écoute-moi bien." },
+      { "qui": "mysterieux", "texte": "Joséphine… Tu avais raison. Elle devrait être sur ce tableau." },
+      { "qui": "heros", "texte": "Alors qu’est-ce qui lui est arrivé ? Et qui vous a tiré dessus ?" },
+      { "qui": "mysterieux", "texte": "Le temps est en danger. Quelqu’un est en train de le défaire… morceau par morceau." },
+      { "qui": "mysterieux", "texte": "Les autres ont déjà oublié. Toi, tu te souviens. Alors maintenant… tout repose sur toi." },
+      { "texte": "Il glisse une vieille clé dans ta main. Le métal est étrangement tiède." },
+      { "qui": "mysterieux", "texte": "La porte… au fond de la ruelle. Va." },
+      { "qui": "heros", "texte": "Quelle porte ? Attendez, je ne comprends pas !" }
+    ],
+    "ruelle.homme.mort": [
+      { "texte": "Sa main retombe sur les pavés. Il ne respire plus." },
+      { "qui": "heros", "pensee": true, "texte": "Il est mort… Et il m’a confié cette clé." }
+    ],
+    "ruelle.homme.corps": [
+      { "qui": "heros", "pensee": true, "texte": "Je ne connais même pas son nom…" }
+    ],
+
+    "ruelle.cle.brule": [
+      { "qui": "heros", "pensee": true, "texte": "Aïe ! La clé… elle me brûle la main !" },
+      { "qui": "heros", "pensee": true, "texte": "Plus je m’approche du fond de la ruelle, plus elle chauffe." }
+    ],
+    "ruelle.porte.attraction": [
+      { "qui": "heros", "pensee": true, "texte": "Cette porte… Elle m’attire. Comme si elle m’attendait." }
+    ],
+    "ruelle.porte.verrouillee": [
+      { "qui": "heros", "pensee": true, "texte": "Une porte, plantée toute seule au milieu de la rue ? Et fermée à clé." }
+    ],
+    "ruelle.porte.derriere": [
+      { "qui": "heros", "pensee": true, "texte": "Derrière… rien. Juste les pavés. Cette porte ne mène nulle part." }
+    ],
+    "ruelle.porte.cle": [
+      { "texte": "La clé glisse d’elle-même dans la serrure. Un déclic. La brûlure disparaît d’un coup." }
+    ],
+    "ruelle.porte.ouverte": [
+      { "qui": "heros", "pensee": true, "texte": "Qu’est-ce que… Il y a une pièce, de l’autre côté !" },
+      { "qui": "heros", "pensee": true, "texte": "Mais derrière cette porte, il n’y a que la rue. C’est impossible." }
+    ],
+    "ruelle.porte.derriere_ouverte": [
+      { "qui": "heros", "pensee": true, "texte": "De ce côté, toujours rien. Juste la ruelle… Pourtant, de face, il y a cette lumière." }
+    ],
+
+    "vaisseau.arrivee": [
+      { "qui": "heros", "pensee": true, "texte": "Où est-ce que je suis… ?" },
+      { "qui": "heros", "pensee": true, "texte": "On dirait l’intérieur d’un vaisseau. Et tout s’allume, comme si on m’attendait." }
+    ],
+    "vaisseau.porte": [
+      { "qui": "heros", "pensee": true, "texte": "Elle s’est refermée. De toute façon, je dois d’abord comprendre où je suis." }
+    ]
+  },
+  "indications": {
+    "objectif_suivre": "Objectif : suis l’homme mystérieux par la sortie de secours.",
+    "evacuation": "Sortie de secours : au fond, à droite.",
+    "objectif_bruit": "Objectif : approche-toi du bruit.",
+    "cle_obtenue": "Tu as obtenu : une vieille clé.",
+    "objectif_porte": "Objectif : la porte au fond de la ruelle.",
+    "tour_porte": "Haut / bas : passer derrière ou devant la porte.",
+    "objectif_seuil": "Objectif : franchir la porte.",
+    "objectif_vaisseau": "Objectif : explore le vaisseau."
+  }
+}

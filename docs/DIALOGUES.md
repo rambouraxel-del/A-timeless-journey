@@ -1,8 +1,14 @@
 # Dialogues du jeu
 
-Tous les textes de la scène 1 du prologue (musée) sont dans un seul fichier :
+Les textes sont rangés par scène dans `src/data/dialogues/` :
 
-**`src/data/dialogues/dialogues.fr.json`**
+- **`src/data/dialogues/dialogues.fr.json`** : scène 1 du prologue (musée), répliques d'ambiance, liste des
+  interlocuteurs (`heros`, `mysterieux`, `professeur`…) ;
+- **`src/data/dialogues/scene2.fr.json`** : scène 2 (évacuation du musée, ruelle, porte impossible, arrivée dans
+  le vaisseau).
+
+Les deux fichiers ont la même structure ; un interlocuteur défini dans l'un est utilisable dans l'autre.
+Une réplique sans `qui` est une narration (pas de nom affiché).
 
 Le code ne contient que les conditions, les déplacements et les conséquences. Modifier une réplique ne change pas
 le déroulement de la scène.
@@ -62,8 +68,33 @@ Ne pas renommer ni supprimer ces identifiants (le texte à l'intérieur peut cha
 
 `<oeuvre>` vaut `liberte`, `radeau`, `sabines` ou `sacre` (ordre de la visite).
 
+Scène 2 (`scene2.fr.json`) :
+
+| Identifiant | Moment |
+| --- | --- |
+| `musee.evacuation.garde` | Le joueur veut revenir vers la visite : le garde bloque le passage (une fois) |
+| `musee.evacuation.rappel` | INTERAGIR avec le garde pendant l'évacuation |
+| `musee.porte_entree` | INTERAGIR avec la porte d'entrée du musée |
+| `ruelle.arrivee` | Arrivée dans la ruelle vide |
+| `ruelle.coup_de_feu` | Coup de feu et chute, intention du héros |
+| `ruelle.sortie_secours` | La sortie de secours vue de l'extérieur (fermée) |
+| `ruelle.homme.agonie` | Dernières paroles de l'homme mystérieux, remise de la clé |
+| `ruelle.homme.mort` | Mort de l'homme |
+| `ruelle.homme.corps` | INTERAGIR de nouveau avec le corps |
+| `ruelle.cle.brule` | La clé commence à brûler (approche de la porte) |
+| `ruelle.porte.attraction` | Attraction ressentie tout près de la porte |
+| `ruelle.porte.verrouillee` | Porte sans la clé |
+| `ruelle.porte.derriere` | Le héros passe derrière la porte fermée |
+| `ruelle.porte.cle` | La clé tourne dans la serrure |
+| `ruelle.porte.ouverte` | La porte ouverte montre le vaisseau |
+| `ruelle.porte.derriere_ouverte` | Le héros passe derrière la porte ouverte |
+| `vaisseau.arrivee` | Arrivée dans le vaisseau (porte refermée, consoles allumées) |
+| `vaisseau.porte` | INTERAGIR avec la porte du vaisseau après l'arrivée |
+| `indications.objectif_suivre`, `evacuation`, `objectif_bruit`, `cle_obtenue`, `objectif_porte`, `tour_porte`, `objectif_seuil`, `objectif_vaisseau` | Messages courts et objectifs |
+
 ## Progression enregistrée
 
 La sauvegarde garde l'étape de visite, les présentations terminées et les drapeaux `introDone`, `anomalyFound`,
-`groupLeft`, `encounterDone`, `alarmTriggered` et `scene1Done` (`src/systems/SaveGame.ts`). Un événement déjà
-vécu ne se rejoue pas.
+`groupLeft`, `encounterDone`, `alarmTriggered` et `scene1Done`, puis pour la scène 2 `guardWarned`, `shotHeard`,
+`keyObtained`, `keyBurnFelt`, `doorPullFelt`, `doorBehindSeen`, `doorBehindOpenSeen`, `doorOpened` et
+`vaisseauReached` (`src/systems/SaveGame.ts`). Un événement déjà vécu ne se rejoue pas.

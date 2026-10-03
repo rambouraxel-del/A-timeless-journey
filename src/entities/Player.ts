@@ -85,6 +85,16 @@ export class Player {
     return true;
   }
 
+  // Empeche le heros d'aller a gauche de x = min (un personnage bloque le passage). Vrai s'il a ete retenu.
+  limitMinX(min: number): boolean {
+    const p = this.position;
+    const e = this.graph.edges[this.edge];
+    if (p.x >= min || Math.abs(e.dir.x) < 1e-6) return false;
+    this.s = Math.min(e.length, Math.max(0, this.s + (min - p.x) / e.dir.x));
+    this.syncSprite();
+    return true;
+  }
+
   get position(): Vec2 {
     return this.graph.pointOn(this.edge, this.s);
   }

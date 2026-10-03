@@ -76,7 +76,16 @@ Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack
 
 - Une nouvelle partie commence à l'entrée du musée : conversation, consigne du professeur, puis visite guidée en 4 étapes (Liberté → Radeau → Sabines → Sacre) avec limite de progression. Devant le Sacre : anomalie de Joséphine, départ du groupe, homme mystérieux, alarme, fuite ; l'issue de secours mène alors à la ruelle.
 - Logique : `src/scenes/rooms/MuseeScene.ts` ; état : `gameState.story` (sauvegardé). Textes : **`src/data/dialogues/dialogues.fr.json`** — voir [docs/DIALOGUES.md](docs/DIALOGUES.md).
-- Homme mystérieux : `public/assets/characters/gardien/gardien.png` (remplaçable, mis à l'échelle automatiquement). Alarme : déposer `public/assets/audio/alarme.mp3` pour le son.
+- Homme mystérieux : sprites `assets-source/gardien/debout.png` et `blesse.png`, préparés par `python tools/preparer-gardien.py` (réduits ×1/4, même taille de pixel pour les deux) ; mis à l'échelle du héros au chargement. Alarme : déposer `public/assets/audio/alarme.mp3` pour le son.
+
+## Scène 2 du prologue (évacuation, ruelle, vaisseau)
+
+- Musée après l'alarme : visiteurs et groupe évacués, un agent de sécurité (`agent_1`) bloque physiquement le retour vers la visite (X ≈ 5140, juste avant le Sacre) et rappelle la sortie de secours (`EVACUATION` dans `MuseeScene.ts`).
+- Ruelle (`RuelleScene.ts`, données dans `ruelle.ts`) : arrivée dans la ruelle vide, coup de feu et chute au fond (tireur invisible), homme blessé (`homme_blesse`) qui remet la clé puis meurt ; porte impossible (`porte_temps`, porte du vaisseau posée seule au milieu de la rue) dont on fait le tour par une allée devant et une allée derrière (haut / bas), la clé brûle et la porte attire à son approche (lueur, braises, aura, bourdonnement, proportionnels à la distance, sans déplacer le héros) ; ouverte, elle montre l'intérieur du vaisseau (`porte_ouverte_vaisseau.png`, composé par `tools/preparer-portes.py`) ; une seconde interaction franchit le seuil. La sortie de secours ne se rouvre pas depuis la ruelle.
+- Vaisseau (`VaisseauScene.ts`) : à la première arrivée, la porte se referme doucement, l'écran mural puis la console s'allument (écrans éteints puis clignotement ; la caméra glisse jusqu'à la console puis revient au héros), courte réaction et objectif « explorer le vaisseau ». La porte du vaisseau reste ensuite close.
+- Liaisons (`connections.ts`) : issue de secours du musée → ruelle ; porte impossible de la ruelle → porte du vaisseau. L'ancienne liaison provisoire musée ↔ vaisseau est supprimée.
+- Sons : coup de feu, chute, clé, porte, consoles et bourdonnement synthétisés en Web Audio (`src/systems/Sfx.ts`), aucun fichier audio.
+- Textes : **`src/data/dialogues/scene2.fr.json`** ; progression : drapeaux de `gameState.story` (sauvegardés), voir [docs/DIALOGUES.md](docs/DIALOGUES.md).
 
 ## La ruelle du Louvre
 
@@ -85,7 +94,7 @@ Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack
 - Parallaxe : ciel 0,15 · bâtiments lointains 0,65 · panorama 1 (collisions, porte et interactions dans le repère du monde). Facade et sol sont un seul plan : aucun glissement possible. La caméra s'arrête aux deux extrémités du panorama ; la couverture des fonds est vérifiée au chargement (avertissement en console).
 - Les images sont chargées à l'entrée de la scène et libérées à sa sortie (mémoire).
 - Netteté : le panorama (2172 × 724) est moins détaillé que les anciennes images (1448 px de haut réduites à l'écran) : sur un iPhone il est agrandi ×2,4, sur un écran de bureau 1x réduit à ×0,76. Filtrage choisi par image selon sa taille réelle à l'écran (`RuelleScene`) : NEAREST quand elle est agrandie (contours nets), LINEAR quand elle est réduite (évite le crénelage). Le flou résiduel vient du fichier source (détails déjà lissés) ; aucun outil d'upscaling n'est installé.
-- Sortie de secours dessinée dans le panorama (X ≈ 207), statique : interaction `sortie_secours` → musée (`connections.ts`). Limites de marche : X 85 à 1975 (devant l'angle du mur de retour à droite).
+- Sortie de secours dessinée dans le panorama (X ≈ 207), statique, fermée de l'extérieur. Limites de marche : X 85 à 1975 (devant l'angle du mur de retour à droite) ; autour de la porte impossible (X = 1640), allée devant à Y = 640 et allée derrière à Y = 560 (`AROUND`).
 
 ## Construire une autre salle
 

@@ -71,6 +71,7 @@ class Npc {
 export class MuseeCrowd {
   private readonly npcs: Npc[];
   private readonly byId = new Map<string, Npc>();
+  private evacuating = false;
 
   constructor(
     scene: Phaser.Scene,
@@ -177,7 +178,21 @@ export class MuseeCrowd {
     return false;
   }
 
+  // Evacuation du musee : tout le monde est sorti sauf un garde, poste en x et tourne vers la droite (vers le heros).
+  evacuate(guardId: string, x: number): void {
+    this.evacuating = true;
+    for (const n of this.npcs) {
+      if (n.spec.id === guardId) {
+        n.sprite.setVisible(true).setAlpha(1);
+        n.place(x, groundY);
+        n.face(1);
+      } else n.remove();
+      this.onMoved(n.spec.id);
+    }
+  }
+
   update(time: number, cameraX: number): void {
+    if (this.evacuating) return;
     for (const n of this.npcs) {
       if (time < n.nextAt) continue;
       n.nextAt = time + 4500 + Math.random() * 7500;

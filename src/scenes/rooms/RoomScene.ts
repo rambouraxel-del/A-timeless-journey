@@ -7,6 +7,7 @@ import { InteractionSystem } from '@/systems/InteractionSystem';
 import type { Door } from '@/entities/Door';
 import { destinationOf } from '@/data/rooms/connections';
 import { roomSceneKey } from '@/data/rooms/registry';
+import { dialogue } from '@/systems/Dialogues';
 import { gameState } from '@/systems/GameState';
 import { getActiveSlot, loadSlot, saveSlot } from '@/systems/SaveGame';
 import { LAYERS, type LayerId, layerWidth } from '@/world/Layers';
@@ -31,8 +32,12 @@ export abstract class RoomScene extends Phaser.Scene {
   protected player!: Player;
   protected interactions!: InteractionSystem;
   private resume = false;
-  private arrivalDoor: string | null = null;
+  protected arrivalDoor: string | null = null;
   private travelling = false;
+  // Sequence scenarisee en cours : les interactions sont ignorees.
+  protected inCutscene = false;
+  // Cinematique : point (x monde) que la camera suit a la place du heros (null : le heros).
+  private cameraFocusX: number | null = null;
   // Portes animees de la salle (par id d'objet) : elles s'ouvrent avant le changement de salle.
   protected readonly doors = new Map<string, Door>();
 
@@ -40,8 +45,10 @@ export abstract class RoomScene extends Phaser.Scene {
   // d'une autre salle ; sinon nouvelle partie.
   init(data?: { resume?: boolean; arrivalDoor?: string }): void {
     this.resume = data?.resume === true;
+    this.cameraFocusX = null;
     this.arrivalDoor = data?.arrivalDoor ?? null;
     this.travelling = false;
+    this.inCutscene = false;
   }
 
   create(): void {
@@ -61,7 +68,7 @@ export abstract class RoomScene extends Phaser.Scene {
     const door = this.arrivalDoor ? this.room.interactables.find((d) => d.id === this.arrivalDoor) : undefined;
     const doorSide: -1 | 1 = door && door.x > this.room.width / 2 ? -1 : 1;
     let spawn = this.room.spawn;
-    if (save) spawn = { x: save.x * this.room.width, y: this.room.spawn.y };
+    if (save) spawn = { x: save.x * this.room.width, y: save.y !== undefined ? save.y * this.room.height : this.room.spawn.y };
     else if (door) spawn = { x: door.x + doorSide * ((door.reachX ?? door.width / 2 + 28) + ARRIVAL_GAP - 24), y: door.standY ?? this.room.spawn.y };
     controls.health = save ? Math.min(controls.maxHealth, save.health) : controls.maxHealth;
     controls.stamina = save ? save.stamina : 1;
@@ -100,6 +107,7 @@ export abstract class RoomScene extends Phaser.Scene {
       visit: { step: gameState.visit.step, examined: [...gameState.visit.examined] },
       story: { ...gameState.story, presentations: [...gameState.story.presentations] },
       x: this.player.position.x / this.room.width,
+      y: this.player.position.y / this.room.height,
       facing: this.player.facingDirection,
       health: controls.health,
       stamina: controls.stamina,
@@ -128,7 +136,8 @@ export abstract class RoomScene extends Phaser.Scene {
   }
 
   private followTarget(): number {
-    return Phaser.Math.Clamp(this.player.position.x - LOGICAL_WIDTH / 2, 0, this.room.width - LOGICAL_WIDTH);
+    const x = this.cameraFocusX ?? this.player.position.x;
+    return Phaser.Math.Clamp(x - LOGICAL_WIDTH / 2, 0, this.room.width - LOGICAL_WIDTH);
   }
 
   // Construit le decor. Par defaut : les couches generiques (LAYERS), une image ou un dessin par
@@ -171,6 +180,83 @@ export abstract class RoomScene extends Phaser.Scene {
       return;
     }
     EventBus.emit(GameEvents.DialogueOpen, [{ speaker: def.label, text: 'Interaction à définir.' }]);
+  }
+
+  // --- Mise en scene -----------------------------------------------------------------
+
+  // Sequence scenarisee : commandes bloquees du debut a la fin, une seule a la fois.
+  protected runCutscene(fn: () => Promise<void>, delay = 0): void {
+    if (this.inCutscene) return;
+    this.inCutscene = true;
+    controls.cutscene = true;
+    controls.locked = true;
+    this.time.delayedCall(delay, () => {
+      void fn().finally(() => {
+        this.inCutscene = false;
+        controls.cutscene = false;
+        controls.locked = false;
+        controls.dirty = true;
+      });
+    });
+  }
+
+  // Affiche un dialogue de dialogues*.json et attend sa fermeture.
+  protected say(id: string): Promise<void> {
+    return this.showLines(() => EventBus.emit(GameEvents.DialogueOpen, dialogue(id)));
+  }
+
+  protected showLines(open: () => void): Promise<void> {
+    return new Promise((resolve) => {
+      EventBus.once(GameEvents.DialogueClosed, () => resolve());
+      open();
+    });
+  }
+
+  protected wait(ms: number): Promise<void> {
+    return new Promise((resolve) => this.time.delayedCall(ms, resolve));
+  }
+
+  protected fade(out: boolean, ms = 300): Promise<void> {
+    const cam = this.cameras.main;
+    return new Promise((resolve) => {
+      if (out) {
+        cam.fadeOut(ms, 0, 0, 0);
+        cam.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => resolve());
+      } else {
+        cam.fadeIn(ms, 0, 0, 0);
+        cam.once(Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE, () => resolve());
+      }
+    });
+  }
+
+  // Message court en bas de la scene (objectif : affiche plus longtemps).
+  protected hint(text: string, holdMs?: number): void {
+    EventBus.emit(GameEvents.Hint, text, holdMs);
+  }
+
+  // La camera glisse vers x (monde) et y reste ; null la ramene sur le heros.
+  protected panCamera(x: number | null, duration = 1200): Promise<void> {
+    const cam = this.cameras.main;
+    const to = x ?? this.player.position.x;
+    return new Promise((resolve) => {
+      this.tweens.addCounter({
+        from: cam.scrollX + LOGICAL_WIDTH / 2,
+        to,
+        duration,
+        ease: 'Sine.easeInOut',
+        onUpdate: (tw) => (this.cameraFocusX = tw.getValue() ?? to),
+        onComplete: () => {
+          this.cameraFocusX = x;
+          resolve();
+        },
+      });
+    });
+  }
+
+  // Le heros se tourne vers un objet et joue son geste d'interaction.
+  protected gestureToward(x: number): void {
+    const toward = Math.sign(x - this.player.position.x);
+    this.player.interact(toward === 0 ? this.player.facingDirection : (toward as -1 | 1));
   }
 
   // Changement de salle, declenche uniquement par une interaction explicite : fondu puis arrivee

@@ -140,12 +140,11 @@ function npcInteractable(spec: NpcSpec): InteractableDef {
 // sa taille et ses pieds sont mesures sur l'image au chargement (n'importe quelle taille d'image convient).
 export const MYSTERIOUS = {
   key: 'musee:mysterieux',
-  url: 'assets/characters/gardien/gardien.png',
+  url: 'assets/characters/gardien/debout.png',
   size: 1.06,
-  // Image provisoire = celle du visiteur age : ce visiteur est retire du musee pour eviter un sosie.
-  // Mettre null une fois le vrai sprite du gardien depose.
-  placeholderOf: 'visiteur_3' as string | null,
-};
+  // Sprite provisoire tire d'un PNJ (null : le vrai sprite du gardien est en place).
+  placeholderOf: null as string | null,
+}
 
 export const npcDefs = new Map<string, InteractableDef>(NPCS.filter((n) => (n.dialogue || n.role === 'professeur') && n.id !== MYSTERIOUS.placeholderOf).map((n) => [n.id, npcInteractable(n)]));
 

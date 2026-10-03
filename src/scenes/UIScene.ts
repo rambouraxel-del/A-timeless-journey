@@ -233,9 +233,10 @@ export class UIScene extends Phaser.Scene {
     else EventBus.emit(GameEvents.InteractRequest);
   }
 
-  private showHint(text: string): void {
+  // holdMs : duree d'affichage (objectifs : plus longue).
+  private showHint(text: string, holdMs = 1400): void {
     this.tweens.killTweensOf(this.hint);
     this.hint.setText(text).setAlpha(1);
-    this.tweens.add({ targets: this.hint, alpha: 0, delay: 1400, duration: 400 });
+    this.tweens.add({ targets: this.hint, alpha: 0, delay: holdMs, duration: 400 });
   }
 }

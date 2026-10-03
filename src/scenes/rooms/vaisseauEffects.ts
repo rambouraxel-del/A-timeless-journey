@@ -22,6 +22,8 @@ interface Light {
   low: number; // opacite mini
   high: number; // opacite maxi
   phase?: number; // 0..1 : decale les lumieres entre elles
+  // Ecran d'un equipement (id du decor) : eteint tant que le vaisseau n'est pas « reveille » (arrivee du heros).
+  screen?: ScreenId;
 }
 
 // Voyants et lumieres reperes sur les images du pack (positions mesurees sur scene_complete.png).
@@ -36,15 +38,15 @@ const LIGHTS: Light[] = [
   { x: 1964, y: 962, w: 60, h: 60, color: WARM, kind: 'pulse', period: 3200, low: 0.3, high: 0.75, phase: 0.7 },
 
   // Console : ecrans, boutons rouges, barres chaudes.
-  { x: 2104, y: 814, w: 90, h: 90, color: CYAN, kind: 'pulse', period: 2200, low: 0.3, high: 0.8 },
-  { x: 2315, y: 806, w: 120, h: 120, color: CYAN, kind: 'pulse', period: 4200, low: 0.15, high: 0.5, phase: 0.3 },
+  { x: 2104, y: 814, w: 90, h: 90, color: CYAN, kind: 'pulse', period: 2200, low: 0.3, high: 0.8, screen: 'console' },
+  { x: 2315, y: 806, w: 120, h: 120, color: CYAN, kind: 'pulse', period: 4200, low: 0.15, high: 0.5, phase: 0.3, screen: 'console' },
   { x: 2199, y: 855, w: 30, h: 30, color: RED, kind: 'blink', period: 1700, low: 0.1, high: 0.9 },
   { x: 2489, y: 854, w: 30, h: 30, color: RED, kind: 'blink', period: 2300, low: 0.1, high: 0.9, phase: 0.5 },
   { x: 2122, y: 893, w: 62, h: 20, color: WARM, kind: 'pulse', period: 3800, low: 0.3, high: 0.6 },
   { x: 2575, y: 893, w: 62, h: 20, color: WARM, kind: 'pulse', period: 3800, low: 0.3, high: 0.6, phase: 0.5 },
 
   // Ecran mural et voyant chaud a cote.
-  { x: 640, y: 570, w: 90, h: 190, color: CYAN, kind: 'pulse', period: 3000, low: 0.15, high: 0.45, phase: 0.4 },
+  { x: 640, y: 570, w: 90, h: 190, color: CYAN, kind: 'pulse', period: 3000, low: 0.15, high: 0.45, phase: 0.4, screen: 'ecran_mural' },
   { x: 717, y: 662, w: 30, h: 110, color: WARM, kind: 'pulse', period: 4400, low: 0.25, high: 0.55, phase: 0.1 },
 ];
 
@@ -73,10 +75,20 @@ export function makeMoteTexture(scene: Phaser.Scene, key: string): void {
   texture.refresh();
 }
 
-export function addVaisseauEffects(scene: Phaser.Scene): void {
+// Halos des ecrans, regroupes par equipement (console, ecran mural) pour pouvoir les eteindre et les rallumer.
+export type ScreenId = 'console' | 'ecran_mural';
+export interface VaisseauEffects {
+  screens: Record<ScreenId, Phaser.GameObjects.Container>;
+}
+
+export function addVaisseauEffects(scene: Phaser.Scene): VaisseauEffects {
   makeGlowTexture(scene, 'fx-glow', 128);
   makeMoteTexture(scene, 'fx-mote');
   const depth = DEPTH.interactables + 1; // juste au-dessus des equipements, sous le heros
+  const screens = {
+    console: scene.add.container(0, 0).setDepth(depth),
+    ecran_mural: scene.add.container(0, 0).setDepth(depth),
+  };
 
   // --- Voyants et lumieres -----------------------------------------------------
   for (const light of LIGHTS) {
@@ -87,6 +99,7 @@ export function addVaisseauEffects(scene: Phaser.Scene): void {
       .setBlendMode(Phaser.BlendModes.ADD)
       .setDepth(depth)
       .setAlpha(light.low);
+    if (light.screen) screens[light.screen].add(glow);
     const period = light.period;
     const phase = light.phase ?? 0;
     if (light.kind === 'pulse') {
@@ -150,4 +163,5 @@ export function addVaisseauEffects(scene: Phaser.Scene): void {
       })
       .setDepth(depth + 1);
   }
+  return { screens };
 }

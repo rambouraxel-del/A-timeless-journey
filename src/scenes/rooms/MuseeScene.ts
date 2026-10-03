@@ -36,11 +36,15 @@ import { gameState } from '@/systems/GameState';
 import { Music, playSound } from '@/systems/Music';
 import { DEPTH } from '@/world/Layers';
 import type { InteractableDef } from '@/world/RoomDefinition';
+import { spriteBox } from '@/world/spriteBox';
 import { RoomScene } from './RoomScene';
 
 // Limite de progression : le heros peut aller un peu au-dela du professeur, pas plus (pixels d'origine
 // apres le centre du tableau de l'etape).
 const PROGRESS_MARGIN = 300;
+// Evacuation (apres l'alarme) : garde poste avant le Sacre ; le heros ne peut pas aller a moins de `gap` de lui
+// (pixels d'origine de la galerie).
+const EVACUATION = { guard: 'agent_1', guardX: 5140, gap: 70 };
 // Intervalle minimal entre deux rappels courts quand le joueur insiste contre la limite (ms).
 const NUDGE_COOLDOWN = 7000;
 
@@ -50,7 +54,8 @@ const NUDGE_COOLDOWN = 7000;
 export class MuseeScene extends RoomScene {
   protected readonly room = musee;
   private crowd!: MuseeCrowd;
-  private inCutscene = false;
+  private evacuating = false;
+  private guardWarnedAt = -1;
   private remindedStep = -1;
   private lastNudge = 0;
   private alarmOverlay: Phaser.GameObjects.Rectangle | null = null;
@@ -60,7 +65,8 @@ export class MuseeScene extends RoomScene {
   }
 
   create(): void {
-    this.inCutscene = false;
+    this.evacuating = false;
+    this.guardWarnedAt = -1;
     this.remindedStep = -1;
     this.alarmOverlay = null;
     super.create();
@@ -71,6 +77,11 @@ export class MuseeScene extends RoomScene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => Music.play(null));
 
     if (story.alarmTriggered && !story.scene1Done) this.startAlarm(false);
+    // Apres l'alarme : evacuation, un garde barre le retour vers la visite.
+    if (story.alarmTriggered) {
+      this.startEvacuation();
+      this.time.delayedCall(900, () => this.hint(indication('objectif_suivre'), 3000));
+    }
 
     if (!story.introDone) {
       // Nouvelle partie : le heros est a l'entree, au milieu de ses camarades.
@@ -122,6 +133,8 @@ export class MuseeScene extends RoomScene {
   update(time: number, delta: number): void {
     super.update(time, delta);
     if (!controls.locked) this.crowd.update(time, this.cameras.main.scrollX);
+    // Evacuation : le garde bloque physiquement le passage vers la gauche.
+    if (this.evacuating && this.player.limitMinX(EVACUATION.guardX * S + EVACUATION.gap * S) && controls.move.x < -0.3 && !controls.locked) this.onGuardBlock(time);
 
     // Limite de progression : on ne depasse pas l'etape en cours de la visite.
     const limit = this.progressLimit();
@@ -181,6 +194,19 @@ export class MuseeScene extends RoomScene {
       return;
     }
 
+    // Porte d'entree : on ne quitte pas le musee par la (la liaison vers le vaisseau etait provisoire).
+    if (def.id === DOOR.id) {
+      this.runCutscene(() => this.say('musee.porte_entree'));
+      return;
+    }
+
+    // Garde pendant l'evacuation : il rappelle la sortie.
+    if (this.evacuating && def.id === EVACUATION.guard) {
+      this.crowd.npc(def.id)?.face(this.player.position.x < def.x ? -1 : 1);
+      this.runCutscene(() => this.say('musee.evacuation.rappel'));
+      return;
+    }
+
     // Professeur : il demande d'observer le tableau, sans lancer la presentation.
     if (def.id === 'professeur') {
       const step = gameState.visit.step;
@@ -215,50 +241,6 @@ export class MuseeScene extends RoomScene {
   }
 
   // --- Sequences ----------------------------------------------------------------------
-
-  // Sequence scenarisee : commandes bloquees du debut a la fin, une seule a la fois.
-  private runCutscene(fn: () => Promise<void>, delay = 0): void {
-    if (this.inCutscene) return;
-    this.inCutscene = true;
-    controls.cutscene = true;
-    controls.locked = true;
-    this.time.delayedCall(delay, () => {
-      void fn().finally(() => {
-        this.inCutscene = false;
-        controls.cutscene = false;
-        controls.locked = false;
-        controls.dirty = true;
-      });
-    });
-  }
-
-  private say(id: string): Promise<void> {
-    return this.showLines(() => EventBus.emit(GameEvents.DialogueOpen, dialogue(id)));
-  }
-
-  private showLines(open: () => void): Promise<void> {
-    return new Promise((resolve) => {
-      EventBus.once(GameEvents.DialogueClosed, () => resolve());
-      open();
-    });
-  }
-
-  private wait(ms: number): Promise<void> {
-    return new Promise((resolve) => this.time.delayedCall(ms, resolve));
-  }
-
-  private fade(out: boolean, ms = 300): Promise<void> {
-    const cam = this.cameras.main;
-    return new Promise((resolve) => {
-      if (out) {
-        cam.fadeOut(ms, 0, 0, 0);
-        cam.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => resolve());
-      } else {
-        cam.fadeIn(ms, 0, 0, 0);
-        cam.once(Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE, () => resolve());
-      }
-    });
-  }
 
   // 1. Arrivee : conversation avec une camarade, consigne du professeur, puis le groupe rejoint le premier tableau.
   private async intro(): Promise<void> {
@@ -310,7 +292,10 @@ export class MuseeScene extends RoomScene {
       await this.wait(700);
       await this.say('prologue.alarme');
       if (man) await this.mysteriousFlees(man);
+      this.startEvacuation();
       EventBus.emit(GameEvents.Hint, indication('fuite'));
+      await this.wait(1800);
+      this.hint(indication('objectif_suivre'), 3000);
     }
   }
 
@@ -340,6 +325,28 @@ export class MuseeScene extends RoomScene {
     await this.fade(false, 300);
   }
 
+  // Evacuation : visiteurs et groupe sortis, le garde se poste entre le heros et le reste du musee.
+  private startEvacuation(): void {
+    if (this.evacuating) return;
+    this.evacuating = true;
+    this.crowd.evacuate(EVACUATION.guard, EVACUATION.guardX * S);
+    const min = (EVACUATION.guardX + EVACUATION.gap) * S;
+    if (this.player.position.x < min) this.player.placeAt({ x: min + 10 * S, y: this.room.spawn.y });
+  }
+
+  // Le joueur pousse vers le garde : une fois son explication, ensuite un rappel court et espace.
+  private onGuardBlock(time: number): void {
+    this.crowd.npc(EVACUATION.guard)?.face(1);
+    if (!gameState.story.guardWarned) {
+      gameState.story.guardWarned = true;
+      this.guardWarnedAt = time;
+      this.runCutscene(() => this.say('musee.evacuation.garde'));
+    } else if (time - this.guardWarnedAt > NUDGE_COOLDOWN) {
+      this.guardWarnedAt = time;
+      this.hint(indication('evacuation'));
+    }
+  }
+
   // Alarme : bruitage (si le fichier existe), secousse, voile rouge clignotant sur la scene et indication.
   private startAlarm(withEffects: boolean): void {
     if (!this.alarmOverlay) {
@@ -359,29 +366,4 @@ export class MuseeScene extends RoomScene {
     this.alarmOverlay.destroy();
     this.alarmOverlay = null;
   }
-}
-
-// Partie visible d'une image (pixels opaques) : hauteur visible et ligne des pieds, pour ancrer et
-// mettre a l'echelle un personnage quelle que soit la taille de son image.
-function spriteBox(scene: Phaser.Scene, key: string): { height: number; feetY: number; visibleHeight: number } {
-  const img = scene.textures.get(key).getSourceImage() as HTMLImageElement;
-  const canvas = document.createElement('canvas');
-  canvas.width = img.width;
-  canvas.height = img.height;
-  const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
-  ctx.drawImage(img, 0, 0);
-  const data = ctx.getImageData(0, 0, img.width, img.height).data;
-  let top = img.height;
-  let bottom = -1;
-  for (let y = 0; y < img.height; y++) {
-    for (let x = 0; x < img.width; x++) {
-      if (data[(y * img.width + x) * 4 + 3] > 40) {
-        if (y < top) top = y;
-        bottom = y;
-        break;
-      }
-    }
-  }
-  if (bottom < 0) return { height: img.height, feetY: img.height, visibleHeight: img.height };
-  return { height: img.height, feetY: bottom + 1, visibleHeight: bottom + 1 - top };
 }

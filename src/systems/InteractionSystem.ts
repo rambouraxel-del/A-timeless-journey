@@ -163,7 +163,8 @@ export class InteractionSystem {
   // Cree (une fois par objet) l'image du contour a la resolution de l'ecran : masque de la silhouette
   // (transparence du sprite), dilate d'un trait, puis lueur douce ; l'interieur est evide.
   private outlineFor(def: InteractableDef): { key: string; width: number; height: number; originX: number; originY: number } {
-    const key = this.outlineKeys.get(def.id) ?? `outline:${def.id}`;
+    // Cle propre a la salle : deux salles peuvent avoir un objet du meme nom (ex. sortie_secours).
+    const key = this.outlineKeys.get(def.id) ?? `outline:${this.scene.scene.key}:${def.id}`;
     const line = Math.max(1, Math.round(LINE * RENDER_SCALE));
     const pad = (GLOW + LINE + 1) * RENDER_SCALE;
     const mw = Math.max(1, Math.round(def.width * RENDER_SCALE));
@@ -209,6 +210,8 @@ export class InteractionSystem {
     ctx.globalCompositeOperation = 'destination-out';
     ctx.drawImage(mask, pad, pad);
 
+    // Contour d'une visite precedente de la salle : recalcule (les images de la salle ont pu etre rechargees).
+    if (this.scene.textures.exists(key)) this.scene.textures.remove(key);
     const texture = this.scene.textures.addCanvas(key, out);
     texture?.setFilter(Phaser.Textures.FilterMode.NEAREST);
     this.outlineKeys.set(def.id, key);

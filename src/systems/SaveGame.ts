@@ -22,6 +22,16 @@ export interface StoryData {
   encounterDone: boolean; // conversation avec l'homme mysterieux terminee
   alarmTriggered: boolean; // alarme declenchee, homme enfui : l'issue de secours est utilisable
   scene1Done: boolean; // le heros a rejoint la ruelle
+  // Scene 2 (evacuation, ruelle, porte impossible, arrivee dans le vaisseau).
+  guardWarned: boolean; // le garde a bloque le retour dans le musee
+  shotHeard: boolean; // coup de feu entendu en arrivant dans la ruelle
+  keyObtained: boolean; // l'homme mysterieux a remis la cle, puis il est mort
+  keyBurnFelt: boolean; // premiere sensation de brulure de la cle
+  doorPullFelt: boolean; // attraction ressentie pres de la porte
+  doorBehindSeen: boolean; // le heros est passe derriere la porte fermee
+  doorBehindOpenSeen: boolean; // ... et derriere la porte ouverte
+  doorOpened: boolean; // porte ouverte avec la cle
+  vaisseauReached: boolean; // arrivee dans le vaisseau (fin de la scene 2)
 }
 
 export const newStory = (): StoryData => ({
@@ -32,6 +42,15 @@ export const newStory = (): StoryData => ({
   encounterDone: false,
   alarmTriggered: false,
   scene1Done: false,
+  guardWarned: false,
+  shotHeard: false,
+  keyObtained: false,
+  keyBurnFelt: false,
+  doorPullFelt: false,
+  doorBehindSeen: false,
+  doorBehindOpenSeen: false,
+  doorOpened: false,
+  vaisseauReached: false,
 });
 
 export interface SaveData {
@@ -41,6 +60,8 @@ export interface SaveData {
   place: string;
   // Position horizontale dans la salle, de 0 a 1 (independante de la taille de l'ecran).
   x: number;
+  // Position verticale (0 a 1 de la hauteur de la salle) : salles a plusieurs niveaux de sol.
+  y?: number;
   facing: -1 | 1;
   health: number;
   stamina: number;
@@ -97,6 +118,15 @@ function validStory(raw: unknown, visit: VisitData): StoryData {
     encounterDone: flag(s.encounterDone),
     alarmTriggered: flag(s.alarmTriggered),
     scene1Done: flag(s.scene1Done),
+    guardWarned: flag(s.guardWarned),
+    shotHeard: flag(s.shotHeard),
+    keyObtained: flag(s.keyObtained),
+    keyBurnFelt: flag(s.keyBurnFelt),
+    doorPullFelt: flag(s.doorPullFelt),
+    doorBehindSeen: flag(s.doorBehindSeen),
+    doorBehindOpenSeen: flag(s.doorBehindOpenSeen),
+    doorOpened: flag(s.doorOpened),
+    vaisseauReached: flag(s.vaisseauReached),
   };
 }
 
@@ -109,6 +139,7 @@ function validate(raw: unknown): SaveData | null {
     room: data.room,
     place: typeof data.place === 'string' ? data.place : 'Vaisseau',
     x: Math.min(1, Math.max(0, data.x)),
+    y: isNumber(data.y) ? Math.min(1, Math.max(0, data.y)) : undefined,
     facing: data.facing,
     health: data.health,
     stamina: data.stamina,
