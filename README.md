@@ -84,6 +84,7 @@ Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack
 - Échelle unique S = hauteur de la vue / 724 : le panorama n'est ni étiré, ni recadré, ni agrandi artificiellement (ses deux couches de fond ont leur pixel propre, réglé par `scale` dans `src/data/rooms/ruelle/manifest.json`). Pieds du héros à Y = 590 (pavés, en avant de la base des murs à Y = 548 ; réglable via `world.feetY` du manifeste), taille du héros identique au musée.
 - Parallaxe : ciel 0,15 · bâtiments lointains 0,65 · panorama 1 (collisions, porte et interactions dans le repère du monde). Facade et sol sont un seul plan : aucun glissement possible. La caméra s'arrête aux deux extrémités du panorama ; la couverture des fonds est vérifiée au chargement (avertissement en console).
 - Les images sont chargées à l'entrée de la scène et libérées à sa sortie (mémoire).
+- Netteté : le panorama (2172 × 724) est moins détaillé que les anciennes images (1448 px de haut réduites à l'écran) : sur un iPhone il est agrandi ×2,4, sur un écran de bureau 1x réduit à ×0,76. Filtrage choisi par image selon sa taille réelle à l'écran (`RuelleScene`) : NEAREST quand elle est agrandie (contours nets), LINEAR quand elle est réduite (évite le crénelage). Le flou résiduel vient du fichier source (détails déjà lissés) ; aucun outil d'upscaling n'est installé.
 - Sortie de secours dessinée dans le panorama (X ≈ 207), statique : interaction `sortie_secours` → musée (`connections.ts`). Limites de marche : X 85 à 1975 (devant l'angle du mur de retour à droite).
 
 ## Construire une autre salle
