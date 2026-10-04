@@ -18,6 +18,11 @@ export const DOOR_LINKS: [DoorRef, DoorRef][] = [
     { room: 'ruelle', door: 'porte_temps' },
     { room: 'vaisseau', door: 'porte_gauche' },
   ],
+  // Scene 3 : apres la panne, la porte du vaisseau donne sur la foret (VaisseauScene decide ; retour possible).
+  [
+    { room: 'foret', door: 'porte_temps' },
+    { room: 'vaisseau', door: 'porte_gauche' },
+  ],
 ];
 
 // Destination de l'autre cote d'une porte (null si la porte n'est reliee a rien).

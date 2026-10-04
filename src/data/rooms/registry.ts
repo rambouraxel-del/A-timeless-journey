@@ -5,6 +5,7 @@ export const ROOM_SCENES = {
   vaisseau: SceneKeys.Vaisseau,
   musee: SceneKeys.Musee,
   ruelle: SceneKeys.Ruelle,
+  foret: SceneKeys.Foret,
 } as const;
 
 export type RoomId = keyof typeof ROOM_SCENES;

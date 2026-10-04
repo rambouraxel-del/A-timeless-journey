@@ -5,4 +5,5 @@ export const SceneKeys = {
   Vaisseau: 'Vaisseau',
   Musee: 'Musee',
   Ruelle: 'Ruelle',
+  Foret: 'Foret',
 } as const;

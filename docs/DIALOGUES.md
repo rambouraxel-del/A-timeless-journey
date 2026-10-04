@@ -5,9 +5,11 @@ Les textes sont rangés par scène dans `src/data/dialogues/` :
 - **`src/data/dialogues/scene01.fr.json`** : scène 1 du prologue (musée), répliques d'ambiance, liste des
   interlocuteurs (`heros`, `mysterieux`, `professeur`…) ;
 - **`src/data/dialogues/scene02.fr.json`** : scène 2 (évacuation du musée, ruelle, porte impossible, arrivée dans
-  le vaisseau).
+  le vaisseau) ;
+- **`src/data/dialogues/scene03.fr.json`** : scène 3 (vaisseau : exploration, console, sablier temporel, panne ;
+  forêt) et les **écrans de la console** (section `console`).
 
-Les deux fichiers ont la même structure ; un interlocuteur défini dans l'un est utilisable dans l'autre.
+Les fichiers ont la même structure ; un interlocuteur défini dans l'un est utilisable dans l'autre.
 Une réplique sans `qui` est une narration (pas de nom affiché).
 
 Le code ne contient que les conditions, les déplacements et les conséquences. Modifier une réplique ne change pas
@@ -29,7 +31,11 @@ le déroulement de la scène.
 
 - `interlocuteurs` : nom affiché pour chaque personnage. Changer « Inès » ici la renomme partout.
 - Une réplique = `qui` (un identifiant d'`interlocuteurs`, facultatif), `texte`, et `"pensee": true` pour une
-  pensée du héros (affichée en bleu clair, avec « (pensée) » après le nom).
+  pensée du héros (affichée en bleu clair, avec « (pensée) » après le nom), ou `"systeme": true` pour un message
+  du vaisseau (affiché en cyan).
+- `console` (scène 3) : écrans de la console du vaisseau. Chaque écran a un `titre`, des `lignes`
+  (`texte` + `ton` : `normal`, `code`, `date`, `alerte`, `attenue` — la couleur d'affichage), un bouton `action`
+  facultatif et un bouton `fermer`. Écrans utilisés : `signal`, `confirmation`, `attente`, `panne`.
 - `indications` : courts messages en bas de l'écran. `{n}` et `{oeuvre}` sont remplacés par le jeu.
 
 ## Modifier ou ajouter une réplique
@@ -97,5 +103,7 @@ Scène 2 (`scene02.fr.json`) :
 La sauvegarde garde l'étape de visite et la progression narrative rangée par scène dans `gameState.story`
 (`src/systems/SaveGame.ts`) : `story.scene01` (`introDone`, `presentations`, `anomalyFound`, `groupLeft`,
 `encounterDone`, `alarmTriggered`, `done`) et `story.scene02` (`guardWarned`, `shotHeard`, `keyObtained`,
-`keyBurnFelt`, `doorPullFelt`, `doorBehindSeen`, `doorBehindOpenSeen`, `doorOpened`, `vaisseauReached`).
+`keyBurnFelt`, `doorPullFelt`, `doorBehindSeen`, `doorBehindOpenSeen`, `doorOpened`, `vaisseauReached`) et
+`story.scene03` (`step` : `explore` → `signal` → `breakdown` → `forest`, et `seen`, la liste des pensées uniques
+déjà vécues).
 Un événement déjà vécu ne se rejoue pas. Détail par scène : [SCENES.md](SCENES.md).

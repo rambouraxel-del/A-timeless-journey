@@ -6,4 +6,6 @@ export interface DialogueLine {
   portrait?: string;
   // Pensee du heros : affichee dans une autre couleur.
   thought?: boolean;
+  // Message du vaisseau (systeme) : affiche en cyan.
+  system?: boolean;
 }

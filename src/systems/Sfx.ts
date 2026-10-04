@@ -101,6 +101,37 @@ export const Sfx = {
     tone(c, { at: 0.5, duration: 0.18, from: 880, gain: 0.06, type: 'square' });
     tone(c, { at: 0.7, duration: 0.18, from: 1320, gain: 0.05, type: 'square' });
   },
+  // Declic de relais (lumieres qui s'allument une a une).
+  click(): void {
+    const c = audio();
+    if (!c) return;
+    burst(c, { duration: 0.05, freq: 1800, q: 3, type: 'bandpass', gain: 0.18 });
+  },
+  // Mise en route d'une grosse machine : montee lente du grave vers l'aigu (duree en secondes).
+  spinUp(seconds: number): void {
+    const c = audio();
+    if (!c) return;
+    tone(c, { duration: seconds, from: 60, to: 420, gain: 0.12, type: 'sawtooth' });
+    tone(c, { duration: seconds, from: 120, to: 840, gain: 0.05, type: 'triangle' });
+    burst(c, { duration: seconds, freq: 500, gain: 0.05 });
+  },
+  // Defaillance brutale : craquement, chute de la tonalite, choc sourd.
+  failure(): void {
+    const c = audio();
+    if (!c) return;
+    burst(c, { duration: 0.25, freq: 3000, gain: 0.35 });
+    burst(c, { at: 0.08, duration: 0.6, freq: 900, gain: 0.25 });
+    tone(c, { duration: 1.6, from: 420, to: 40, gain: 0.14, type: 'sawtooth' });
+    tone(c, { at: 0.05, duration: 0.6, from: 90, to: 35, gain: 0.4 });
+    for (let i = 0; i < 6; i++) burst(c, { at: 0.5 + i * 0.17 + Math.random() * 0.08, duration: 0.05, freq: 2500, q: 2, type: 'bandpass', gain: 0.12 });
+  },
+  // Gresillement electrique ponctuel (systemes en panne).
+  crackle(): void {
+    const c = audio();
+    if (!c) return;
+    burst(c, { duration: 0.08, freq: 2600, q: 2, type: 'bandpass', gain: 0.07 });
+    burst(c, { at: 0.1, duration: 0.05, freq: 3200, q: 2, type: 'bandpass', gain: 0.05 });
+  },
 };
 
 // Bourdonnement continu (attraction de la porte) : intensite 0 a 1, lissee.
@@ -127,6 +158,14 @@ export class Hum {
       }
     }
     this.gain.gain.setTargetAtTime(Math.max(0, Math.min(1, level)) * 0.07, c.currentTime, 0.15);
+  }
+
+  // Hauteur relative du bourdonnement (1 = normale) : monte quand une machine s'emballe.
+  setPitch(mult: number): void {
+    const c = audio();
+    if (!c) return;
+    const base = [55, 110.5, 166];
+    this.osc.forEach((o, i) => o.frequency.setTargetAtTime(base[i] * mult, c.currentTime, 0.3));
   }
 
   stop(): void {

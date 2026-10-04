@@ -79,6 +79,9 @@ export function makeMoteTexture(scene: Phaser.Scene, key: string): void {
 export type ScreenId = 'console' | 'ecran_mural';
 export interface VaisseauEffects {
   screens: Record<ScreenId, Phaser.GameObjects.Container>;
+  lights: Phaser.GameObjects.Container; // voyants et lumieres hors ecrans
+  reactor: Phaser.GameObjects.Container; // halo du sablier temporel (reacteur)
+  motes: Phaser.GameObjects.Particles.ParticleEmitter | null; // particules du sablier
 }
 
 export function addVaisseauEffects(scene: Phaser.Scene): VaisseauEffects {
@@ -89,6 +92,9 @@ export function addVaisseauEffects(scene: Phaser.Scene): VaisseauEffects {
     console: scene.add.container(0, 0).setDepth(depth),
     ecran_mural: scene.add.container(0, 0).setDepth(depth),
   };
+  const lights = scene.add.container(0, 0).setDepth(depth);
+  const reactor = scene.add.container(0, 0).setDepth(depth);
+  let motesEmitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
 
   // --- Voyants et lumieres -----------------------------------------------------
   for (const light of LIGHTS) {
@@ -100,6 +106,7 @@ export function addVaisseauEffects(scene: Phaser.Scene): VaisseauEffects {
       .setDepth(depth)
       .setAlpha(light.low);
     if (light.screen) screens[light.screen].add(glow);
+    else lights.add(glow);
     const period = light.period;
     const phase = light.phase ?? 0;
     if (light.kind === 'pulse') {
@@ -140,6 +147,7 @@ export function addVaisseauEffects(scene: Phaser.Scene): VaisseauEffects {
       .setAlpha(0.22);
     // Pulsation lente, deux rythmes legerement decales.
     scene.tweens.add({ targets: halo, alpha: 0.3, scale: halo.scale * 1.06, duration: 2400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    reactor.add([halo, core]);
     scene.tweens.add({ targets: core, alpha: 0.42, duration: 1700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut', delay: 400 });
   }
 
@@ -147,7 +155,7 @@ export function addVaisseauEffects(scene: Phaser.Scene): VaisseauEffects {
   if (motes?.bounds && motes.maxParticles) {
     const [x0, y0, x1, y1] = motes.bounds;
     const zone = new Phaser.Geom.Rectangle(x0 * sx, y0 * sy, (x1 - x0) * sx, (y1 - y0) * sy);
-    scene.add
+    motesEmitter = scene.add
       .particles(0, 0, 'fx-mote', {
         emitZone: { type: 'random', source: zone } as unknown as Phaser.Types.GameObjects.Particles.EmitZoneData,
         lifespan: { min: 2600, max: 4200 },
@@ -163,5 +171,5 @@ export function addVaisseauEffects(scene: Phaser.Scene): VaisseauEffects {
       })
       .setDepth(depth + 1);
   }
-  return { screens };
+  return { screens, lights, reactor, motes: motesEmitter };
 }

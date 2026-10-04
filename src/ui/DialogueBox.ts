@@ -11,6 +11,7 @@ const BODY = { size: 16, lineSpacing: 1 };
 const BUTTON = { height: 28, padX: 14, size: 15 };
 const MOTIF_HEIGHT = 50;
 const THOUGHT_COLOR = '#a9cdf5'; // pensees du heros
+const SYSTEM_COLOR = '#6fe6ff'; // messages du vaisseau
 
 // Boite de dialogue affichee dans le panneau bas, a la place des commandes.
 // Nom et texte s'adaptent au contenu ; un texte trop long est decoupe en pages.
@@ -144,8 +145,8 @@ export class DialogueBox {
     }
 
     // Corps : retour a la ligne, le motif celeste garde sa place en bas a droite.
-    this.body.setColor(line.thought ? THOUGHT_COLOR : UiColors.text);
-    this.speaker.setColor(line.thought ? THOUGHT_COLOR : UiColors.gold);
+    this.body.setColor(line.system ? SYSTEM_COLOR : line.thought ? THOUGHT_COLOR : UiColors.text);
+    this.speaker.setColor(line.system ? SYSTEM_COLOR : line.thought ? THOUGHT_COLOR : UiColors.gold);
     const wrapWidth = textWidth - this.motif.displayWidth * 0.75;
     this.body.setPosition(textLeft, nameBottom).setWordWrapWidth(wrapWidth, true);
     const wrapped = this.body.getWrappedText(line.text);

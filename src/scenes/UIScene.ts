@@ -7,6 +7,8 @@ import { type ArtworkView, EventBus, GameEvents } from '@/systems/EventBus';
 import { gameState } from '@/systems/GameState';
 import { Music } from '@/systems/Music';
 import { ArtworkViewer } from '@/ui/ArtworkViewer';
+import { type ConsoleResult, ConsoleView } from '@/ui/ConsoleView';
+import type { ConsoleScreen } from '@/systems/Dialogues';
 import { Modal } from '@/ui/Modal';
 import { openConfirm, openSettings } from '@/ui/SaveMenus';
 import { DialogueBox } from '@/ui/DialogueBox';
@@ -26,6 +28,7 @@ export class UIScene extends Phaser.Scene {
   private controlsGroup: Phaser.GameObjects.GameObject[] = [];
   private hud!: Hud;
   private viewer!: ArtworkViewer;
+  private console!: ConsoleView;
   private hint!: Phaser.GameObjects.Text;
   private runHeld = false;
   private keys!: Record<'left' | 'right' | 'up' | 'down' | 'run' | 'interact', Phaser.Input.Keyboard.Key[]>;
@@ -68,6 +71,7 @@ export class UIScene extends Phaser.Scene {
       EventBus.emit(GameEvents.DialogueClosed);
     });
     this.viewer = new ArtworkViewer(this, () => this.dialogue.close());
+    this.console = new ConsoleView(this);
 
     this.hint = this.add
       .text(W / 2, GAME_VIEW.height - 8, '', { ...textStyle(14, UiColors.gold), backgroundColor: '#10121cdd', padding: { x: 6, y: 2 } })
@@ -86,10 +90,21 @@ export class UIScene extends Phaser.Scene {
       this.viewer.show(view);
       onDialogue(view.lines);
     };
+    // Console du vaisseau : plein ecran, commandes masquees ; la salle attend ConsoleClosed.
+    const onConsole = (screen: ConsoleScreen, broken: boolean) => {
+      this.setDialogueMode(true);
+      this.console.show(screen, broken, (result: ConsoleResult) => {
+        this.setDialogueMode(false);
+        EventBus.emit(GameEvents.ConsoleClosed, result);
+      });
+    };
+    EventBus.on(GameEvents.ConsoleOpen, onConsole);
     EventBus.on(GameEvents.DialogueOpen, onDialogue);
     EventBus.on(GameEvents.ArtworkOpen, onArtwork);
     EventBus.on(GameEvents.Hint, this.showHint, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      EventBus.off(GameEvents.ConsoleOpen, onConsole);
+      this.console.hide();
       EventBus.off(GameEvents.DialogueOpen, onDialogue);
       EventBus.off(GameEvents.ArtworkOpen, onArtwork);
       this.viewer.hide();
@@ -229,6 +244,7 @@ export class UIScene extends Phaser.Scene {
   }
 
   private interact(): void {
+    if (this.console.isOpen) return;
     if (this.dialogue.isOpen) this.dialogue.advance();
     else EventBus.emit(GameEvents.InteractRequest);
   }

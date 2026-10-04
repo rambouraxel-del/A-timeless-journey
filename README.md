@@ -70,7 +70,7 @@ Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack
 
 - Le pack est calé sur 2880 × 1080 px de texture. Il est adapté à chaque téléphone : `sx = largeur de vue / 720`, `sy = hauteur de vue / 1080`, largeur de salle = 4 × la vue. Les panneaux remplissent la vue, les équipements gardent leurs proportions (`min(sx, sy)`) et posent leurs pieds au sol.
 - Profondeurs : fond 10, structure 30, équipements 40, héros 50, repères 55, rebord 60, angles proches 70 (léger décalage de parallaxe, recalé aux deux extrémités de la salle).
-- Déplacement : un seul segment de sol. Interactions : 2 portes, réacteur, console, écran mural, 2 armoires, banquette (réponse générique pour l'instant, aucune destination ni scénario).
+- Déplacement : un seul segment de sol. Interactions (scène 3) : la porte, l'armoire haute, la console et le réacteur (« sablier temporel ») ; les autres équipements sont du décor.
 - Ambiance (`vaisseauEffects.ts`) : halo cyan pulsant et particules autour du réacteur, voyants et lumières qui pulsent ou clignotent. Les images restent statiques.
 - Le héros est affiché ×1,3 dans cette salle (`heroScale` dans `vaisseau.ts`) pour rester proportionné aux équipements.
 
@@ -97,6 +97,18 @@ Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack
 - Liaisons (`connections.ts`) : issue de secours du musée → ruelle ; porte impossible de la ruelle → porte du vaisseau. L'ancienne liaison provisoire musée ↔ vaisseau est supprimée.
 - Sons : coup de feu, chute, clé, porte, consoles et bourdonnement synthétisés en Web Audio (`src/systems/Sfx.ts`), aucun fichier audio.
 - Textes : **`src/data/dialogues/scene02.fr.json`** ; progression : drapeaux de `gameState.story.scene02` (sauvegardés), voir [docs/DIALOGUES.md](docs/DIALOGUES.md).
+
+## Scène 3 (vaisseau, sablier temporel, forêt)
+
+- Arrivée dans le vaisseau plongé dans le noir, allumage progressif ; seuls l'armoire, la console, le sablier
+  temporel (réacteur central) et la porte sont interactifs. La console (interface plein écran, `ConsoleView.ts`)
+  affiche des données fragmentaires et un signal de détresse ; le suivre demande d'activer le sablier, qui monte
+  en puissance puis tombe en panne. La porte mène alors à une forêt (décor provisoire, `ForetScene.ts`), fin du
+  prototype.
+- Textes : **`src/data/dialogues/scene03.fr.json`** ; étapes : `gameState.story.scene03.step` ; détail des fichiers
+  dans [docs/SCENES.md](docs/SCENES.md).
+- Décor provisoire de la forêt : dessiné par le code (`drawPlaceholder()` dans `ForetScene.ts`) ; pour le vrai fond,
+  renseigner `FOREST_IMAGE` dans `src/data/rooms/foret.ts`.
 
 ## La ruelle du Louvre
 

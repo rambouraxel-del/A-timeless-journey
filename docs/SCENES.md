@@ -88,7 +88,8 @@ Logique :
 - `src/entities/MuseeCrowd.ts` : `evacuate()`
 - `src/scenes/rooms/RuelleScene.ts` : `arrival()` (coup de feu), `lastWords()` (clé, mort), `unlockDoor()`,
   `enterDoor()`, `updateKeyEffects()` (clé brûlante, attraction), `checkTriggers()` (pensées selon la position)
-- `src/scenes/rooms/VaisseauScene.ts` : `arrival()` (porte qui se referme, `powerUp()` des écrans, panoramique)
+- `src/scenes/rooms/VaisseauScene.ts` : `arrival()` (vaisseau dans le noir, porte qui se referme, allumage
+  progressif, `powerUp()` des écrans, panoramique)
 - `src/entities/Door.ts` (ouverture / fermeture des portes), `src/systems/Sfx.ts` (sons synthétisés)
 
 Données :
@@ -116,4 +117,54 @@ Progression narrative (`story.scene02`) :
 Transitions :
 - Musée `sortie_secours` → ruelle `sortie_secours`
 - Ruelle `porte_temps` (après ouverture, interaction) → vaisseau `porte_gauche`
-- Fin : exploration libre du vaisseau → scène 03 (à écrire)
+- Fin : lumières allumées, exploration libre du vaisseau → scène 03
+
+---
+
+## Scène 03 — Le vaisseau et le sablier temporel
+
+Exploration du vaisseau, console (données fragmentaires, dates, signal de détresse), activation du sablier
+temporel (le gros réacteur central), montée en puissance puis panne, sortie par la porte : une forêt a remplacé
+la ruelle. Fin du prototype. Direction : le héros comprend qu'il a activé une machine et qu'il s'est déplacé, rien
+de plus (ni voyage dans le temps, ni gardiens, ni cause de la panne).
+
+Lieux :
+- Vaisseau (`vaisseau`)
+- Forêt (`foret`) — **décor provisoire**
+
+Logique :
+- `src/scenes/rooms/VaisseauScene.ts` : `onInteract()` (4 éléments selon l'étape), `checkExploration()`
+  (pensées selon la position), `readConsole()`, `activateHourglass()` (montée en puissance, défaillance),
+  `applyBreakdown()` (état en panne : obscurité, éclairage de secours, fumée, porte mise en valeur),
+  `exitToForest()`, `screenOverlay()` (écrans éteints sans masquer la plante voisine)
+- `src/scenes/rooms/ForetScene.ts` : arrivée (porte qui se referme), découverte après quelques pas,
+  `drawPlaceholder()` (décor provisoire)
+- `src/ui/ConsoleView.ts` (interface de la console, plein écran), affichée par `src/scenes/UIScene.ts`
+  (événements `ConsoleOpen` / `ConsoleClosed`)
+- `src/systems/Sfx.ts` : `click()`, `spinUp()`, `failure()`, `crackle()`, `Hum.setPitch()`
+
+Données :
+- `src/data/rooms/vaisseau.ts` : seuls interactifs `CABINET_ID` (armoire), `HOURGLASS_ID` (sablier temporel),
+  `CONSOLE_ID` (console) et la porte
+- `src/scenes/rooms/vaisseauEffects.ts` : halos groupés (`screens`, `lights`, `reactor`, `motes`)
+- `src/data/rooms/foret.ts` : salle, porte, `FOREST_IMAGE` (vrai fond à brancher), `DISCOVERY_STEPS`
+- `src/data/rooms/connections.ts` : forêt `porte_temps` ↔ vaisseau `porte_gauche`
+
+Dialogues :
+- `src/data/dialogues/scene03.fr.json` : `vaisseau.*`, `foret.*`, indications, écrans de la console (`console`)
+
+Assets :
+- `public/assets/rooms/vaisseau/` (inchangé)
+- Forêt : aucun asset pour l'instant. Vrai fond à déposer dans `public/assets/rooms/foret/` puis à déclarer dans
+  `FOREST_IMAGE` (`src/data/rooms/foret.ts`) ; le dessin provisoire n'est alors plus utilisé.
+
+Progression narrative (`story.scene03`) :
+- `step` : `explore` (console pas encore validée) → `signal` (signal suivi, sablier à activer) → `breakdown`
+  (panne, la porte mène à la forêt) → `forest` (forêt découverte). Fonction `reached(story, step)`.
+- `seen` : pensées et observations uniques déjà vécues (identifiants de `scene03.fr.json`)
+- Prérequis : `story.scene02.vaisseauReached` (arrivée et allumage terminés)
+
+Transitions :
+- Avant la panne, la porte du vaisseau reste fermée (pensée)
+- Après la panne : vaisseau `porte_gauche` → forêt `porte_temps` ; retour possible au vaisseau en panne
+- Fin du prototype dans la forêt (« À suivre… ») → scène 04 (à écrire)

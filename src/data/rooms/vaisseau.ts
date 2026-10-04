@@ -35,15 +35,15 @@ export const propById = (id: string): SceneProp => {
   return prop;
 };
 
-// Zones d'interaction, calees sur les objets du decor. Aucune destination ni scenario :
-// chaque objet declenche pour l'instant la reponse generique du moteur.
+// Zones d'interaction (scene 3) : seulement l'armoire, le sablier temporel (gros reacteur central), la console
+// et la porte. Les autres equipements sont du decor. Reactions : VaisseauScene.ts.
+export const CABINET_ID = 'armoire_haute';
+export const HOURGLASS_ID = 'reacteur';
+export const CONSOLE_ID = 'console';
 const INTERACTABLES: { id: string; kind: InteractableDef['kind']; label: string }[] = [
-  { id: 'armoire_basse', kind: 'chest', label: 'Armoire basse' },
-  { id: 'ecran_mural', kind: 'computer', label: 'Écran mural' },
-  { id: 'banquette', kind: 'object', label: 'Banquette' },
-  { id: 'armoire_haute', kind: 'chest', label: 'Armoire haute' },
-  { id: 'reacteur', kind: 'object', label: 'Réacteur' },
-  { id: 'console', kind: 'computer', label: 'Console' },
+  { id: CABINET_ID, kind: 'chest', label: 'Armoire' },
+  { id: HOURGLASS_ID, kind: 'object', label: 'Sablier temporel' },
+  { id: CONSOLE_ID, kind: 'computer', label: 'Console' },
 ];
 
 // Porte a gauche (ancienne porte gauche) : en miroir selon sa position, le battant s'ouvre vers l'interieur de la salle.

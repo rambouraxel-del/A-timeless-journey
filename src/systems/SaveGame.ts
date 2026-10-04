@@ -16,7 +16,7 @@ export interface VisitData {
 }
 
 // Progression narrative, rangee par scene (voir docs/SCENES.md). Chaque evenement unique a son drapeau.
-// Nouvelle scene : ajouter son interface SceneNNStory, son entree dans StoryData, newStory() et validStory().
+// Nouvelle scene : ajouter son interface SceneNNStory, son entree dans StoryData, newStory(), cloneStory() et validStory().
 
 // Scene 01 : visite du musee, anomalie Josephine, homme mysterieux, alarme.
 export interface Scene01Story {
@@ -42,9 +42,24 @@ export interface Scene02Story {
   vaisseauReached: boolean; // arrivee dans le vaisseau (fin de la scene 2)
 }
 
+// Scene 03 : vaisseau (exploration, console, sablier temporel, panne) puis foret.
+// Etapes dans l'ordre : chacune n'est atteinte qu'apres la precedente (voir SCENE03_STEPS).
+export const SCENE03_STEPS = ['explore', 'signal', 'breakdown', 'forest'] as const;
+export type Scene03Step = (typeof SCENE03_STEPS)[number];
+export interface Scene03Story {
+  // explore : vaisseau allume, console pas encore validee ; signal : signal de detresse suivi, sablier a activer ;
+  // breakdown : sablier active puis panne, la porte mene dehors ; forest : le heros a decouvert la foret.
+  step: Scene03Step;
+  seen: string[]; // pensees ou observations uniques deja vecues (identifiants de scene03.fr.json)
+}
+
+// Vrai si l'etape de la scene 3 est atteinte ou depassee.
+export const reached = (story: Scene03Story, step: Scene03Step): boolean => SCENE03_STEPS.indexOf(story.step) >= SCENE03_STEPS.indexOf(step);
+
 export interface StoryData {
   scene01: Scene01Story;
   scene02: Scene02Story;
+  scene03: Scene03Story;
 }
 
 export const newStory = (): StoryData => ({
@@ -68,12 +83,14 @@ export const newStory = (): StoryData => ({
     doorOpened: false,
     vaisseauReached: false,
   },
+  scene03: { step: 'explore', seen: [] },
 });
 
 // Copie independante (la sauvegarde ne doit pas partager ses tableaux avec la partie en cours).
 export const cloneStory = (story: StoryData): StoryData => ({
   scene01: { ...story.scene01, presentations: [...story.scene01.presentations] },
   scene02: { ...story.scene02 },
+  scene03: { step: story.scene03.step, seen: [...story.scene03.seen] },
 });
 
 export interface SaveData {
@@ -137,6 +154,7 @@ function validStory(raw: unknown, visit: VisitData): StoryData {
   const scene = (key: string) => (flat[key] && typeof flat[key] === 'object' ? (flat[key] as Raw) : flat);
   const s1 = scene('scene01');
   const s2 = scene('scene02');
+  const s3 = flat.scene03 && typeof flat.scene03 === 'object' ? (flat.scene03 as Raw) : {};
   const flag = (v: unknown) => v === true;
   return {
     scene01: {
@@ -159,6 +177,10 @@ function validStory(raw: unknown, visit: VisitData): StoryData {
       doorBehindOpenSeen: flag(s2.doorBehindOpenSeen),
       doorOpened: flag(s2.doorOpened),
       vaisseauReached: flag(s2.vaisseauReached),
+    },
+    scene03: {
+      step: SCENE03_STEPS.includes(s3.step as Scene03Step) ? (s3.step as Scene03Step) : 'explore',
+      seen: Array.isArray(s3.seen) ? s3.seen.filter((e): e is string => typeof e === 'string') : [],
     },
   };
 }

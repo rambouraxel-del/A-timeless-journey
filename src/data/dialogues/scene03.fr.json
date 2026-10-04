@@ -1,0 +1,125 @@
+{
+  "_aide": "Scene 3 : vaisseau (exploration, console, sablier temporel, panne) puis foret. Modifier librement les \"texte\" (et ajouter/supprimer des lignes). Ne pas renommer les identifiants (cles de \"dialogues\", \"indications\" et \"console\") : le code s'en sert. \"pensee\": true = pensee du heros (bleu clair). \"systeme\": true = message du vaisseau (cyan). Une ligne sans \"qui\" est une narration. Console : chaque ecran a un titre, des lignes (\"ton\" : normal, code, date, alerte, attenue) et ses boutons (\"action\" facultatif, \"fermer\"). Voir docs/DIALOGUES.md.",
+  "interlocuteurs": {
+    "systeme": "Système de bord"
+  },
+  "dialogues": {
+    "vaisseau.explore.couloir": [
+      { "qui": "heros", "pensee": true, "texte": "Personne… Pourtant, tout fonctionne." },
+      { "qui": "heros", "pensee": true, "texte": "Ces écrans, tout au fond… ils clignotent comme s’ils attendaient quelqu’un." }
+    ],
+    "vaisseau.explore.sablier": [
+      { "qui": "heros", "pensee": true, "texte": "Qu’est-ce que c’est que cette machine… ?" },
+      { "qui": "heros", "pensee": true, "texte": "On dirait un sablier. Un sablier gigantesque." }
+    ],
+    "vaisseau.armoire": [
+      { "qui": "heros", "pensee": true, "texte": "Fermée. Impossible de l’ouvrir." },
+      { "texte": "Sur la porte, des centaines de petits traits sont gravés, alignés par groupes de cinq." },
+      { "qui": "heros", "pensee": true, "texte": "Quelqu’un comptait quelque chose. Des jours ? Mais lesquels…" }
+    ],
+    "vaisseau.armoire.encore": [
+      { "qui": "heros", "pensee": true, "texte": "Tous ces traits… Je me demande qui les a gravés." }
+    ],
+    "vaisseau.sablier.avant": [
+      { "qui": "heros", "pensee": true, "texte": "Il vibre doucement. Je ne vais pas toucher à ça sans savoir ce que c’est." },
+      { "qui": "heros", "pensee": true, "texte": "La console, là-bas, pourra peut-être m’en dire plus." }
+    ],
+    "vaisseau.sablier.avant.encore": [
+      { "qui": "heros", "pensee": true, "texte": "Mieux vaut d’abord regarder la console." }
+    ],
+    "vaisseau.console.premiere": [
+      { "qui": "heros", "pensee": true, "texte": "Des dates, des symboles… Je n’y comprends presque rien." }
+    ],
+    "vaisseau.console.hesitation": [
+      { "qui": "heros", "pensee": true, "texte": "Un signal de détresse… Quelqu’un appelle à l’aide, quelque part." }
+    ],
+    "vaisseau.console.signal_suivi": [
+      { "qui": "heros", "pensee": true, "texte": "Le sablier temporel… Ça doit être la grande machine, au centre." }
+    ],
+    "vaisseau.porte.signal": [
+      { "qui": "heros", "pensee": true, "texte": "Toujours fermée. Et ce signal… quelqu’un attend." }
+    ],
+    "vaisseau.sablier.activation": [
+      { "qui": "heros", "pensee": true, "texte": "Bon… Allons-y." }
+    ],
+    "vaisseau.panne.alerte": [
+      { "qui": "systeme", "systeme": true, "texte": "ALERTE. Défaillance du ▒▒▒▒▒▒. Systèmes principaux hors ligne." },
+      { "qui": "systeme", "systeme": true, "texte": "Destinat… ▒▒… non attein… ▒▒▒" }
+    ],
+    "vaisseau.panne.reaction": [
+      { "qui": "heros", "pensee": true, "texte": "…Qu’est-ce que j’ai fait ?" },
+      { "qui": "heros", "pensee": true, "texte": "Tout s’est mis à trembler. Comme si le vaisseau entier avait bougé." },
+      { "qui": "heros", "pensee": true, "texte": "Il faut que je sorte d’ici." }
+    ],
+    "vaisseau.sablier.panne": [
+      { "qui": "heros", "pensee": true, "texte": "Éteint. Il ne réagit plus du tout." },
+      { "qui": "heros", "pensee": true, "texte": "Et cette odeur de brûlé…" }
+    ],
+    "vaisseau.console.panne": [
+      { "qui": "heros", "pensee": true, "texte": "Plus rien ne répond. Je ne peux rien faire de plus ici." }
+    ],
+    "foret.arrivee": [
+      { "qui": "heros", "pensee": true, "texte": "De l’air frais… et de la lumière ?" }
+    ],
+    "foret.decouverte": [
+      { "qui": "heros", "pensee": true, "texte": "Une forêt… ? Où est passée la ruelle ?" },
+      { "qui": "heros", "pensee": true, "texte": "Il n’y a plus rien. Ni le Louvre, ni la ville. Seulement des arbres." },
+      { "qui": "heros", "pensee": true, "texte": "Cette machine m’a emmené ailleurs. Mais où… ?" }
+    ],
+    "foret.porte": [
+      { "qui": "heros", "pensee": true, "texte": "La porte du vaisseau… plantée au milieu des arbres. Comme dans la ruelle." }
+    ]
+  },
+  "indications": {
+    "objectif_sablier": "Objectif : active le sablier temporel.",
+    "objectif_sortir": "Objectif : sors du vaisseau.",
+    "fin_prototype": "À suivre…"
+  },
+  "console": {
+    "signal": {
+      "titre": "◈ SYSTÈME DE BORD ◈",
+      "lignes": [
+        { "ton": "attenue", "texte": "Reprise après veille… ▒▒▒▒ cycles" },
+        { "ton": "code", "texte": "⟟⌖ 7·3·∞ ⟟ ∆Ω-04 ⌁ ▒▒▒ ⟟ 1·1·0" },
+        { "ton": "normal", "texte": "JOURNAL DES ANCRAGES" },
+        { "ton": "date", "texte": "  ∆ 1503 ……… stable" },
+        { "ton": "date", "texte": "  ∆ 1804 ……… ALTÉRÉ ▒▒" },
+        { "ton": "date", "texte": "  ∆ ▒▒▒▒ ……… perdu" },
+        { "ton": "date", "texte": "  ∆ 2024 ……… ▒▒▒▒▒" },
+        { "ton": "code", "texte": "⌖ appel ▒▒ ▒ ▒▒▒ ⟟ aucune réponse" },
+        { "ton": "alerte", "texte": "◉ SIGNAL DE DÉTRESSE DÉTECTÉ" },
+        { "ton": "alerte", "texte": "  Origine : ▒▒▒▒▒▒ · Émis : ? ? ?" }
+      ],
+      "action": "Suivre le signal",
+      "fermer": "Fermer"
+    },
+    "confirmation": {
+      "titre": "◈ SYSTÈME DE BORD ◈",
+      "lignes": [
+        { "ton": "normal", "texte": "Signal verrouillé." },
+        { "ton": "code", "texte": "⟟ trajectoire ▒▒▒ calculée ⟟ 98,▒ %" },
+        { "ton": "alerte", "texte": "▸ ACTIVER LE SABLIER TEMPOREL" }
+      ],
+      "fermer": "Fermer"
+    },
+    "attente": {
+      "titre": "◈ SYSTÈME DE BORD ◈",
+      "lignes": [
+        { "ton": "normal", "texte": "Signal verrouillé." },
+        { "ton": "attenue", "texte": "En attente…" },
+        { "ton": "alerte", "texte": "▸ ACTIVER LE SABLIER TEMPOREL" }
+      ],
+      "fermer": "Fermer"
+    },
+    "panne": {
+      "titre": "◈ ▒▒STÈME DE B▒▒D ◈",
+      "lignes": [
+        { "ton": "alerte", "texte": "ERREUR ▒▒ ‑ 0x0000" },
+        { "ton": "code", "texte": "⟟ ancrage : ? ? ?" },
+        { "ton": "code", "texte": "⟟ sablier : ▒▒▒▒▒▒▒" },
+        { "ton": "attenue", "texte": "Systèmes hors ligne." }
+      ],
+      "fermer": "Fermer"
+    }
+  }
+}
