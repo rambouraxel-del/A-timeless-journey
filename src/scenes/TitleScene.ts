@@ -42,7 +42,7 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create(): void {
-    Music.play('theme'); // theme principal (demarre au premier toucher : le navigateur bloque l'audio avant)
+    Music.play('theme'); // theme principal : tente des l'ouverture, sinon au premier toucher (audio bloque par le navigateur)
     useLogicalCamera(this, RENDER_SCALE);
     const heroFeet = this.createBackground();
     this.createTitle();
