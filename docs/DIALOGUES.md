@@ -2,9 +2,9 @@
 
 Les textes sont rangés par scène dans `src/data/dialogues/` :
 
-- **`src/data/dialogues/dialogues.fr.json`** : scène 1 du prologue (musée), répliques d'ambiance, liste des
+- **`src/data/dialogues/scene01.fr.json`** : scène 1 du prologue (musée), répliques d'ambiance, liste des
   interlocuteurs (`heros`, `mysterieux`, `professeur`…) ;
-- **`src/data/dialogues/scene2.fr.json`** : scène 2 (évacuation du musée, ruelle, porte impossible, arrivée dans
+- **`src/data/dialogues/scene02.fr.json`** : scène 2 (évacuation du musée, ruelle, porte impossible, arrivée dans
   le vaisseau).
 
 Les deux fichiers ont la même structure ; un interlocuteur défini dans l'un est utilisable dans l'autre.
@@ -34,7 +34,7 @@ le déroulement de la scène.
 
 ## Modifier ou ajouter une réplique
 
-1. Ouvrir `src/data/dialogues/dialogues.fr.json`.
+1. Ouvrir `src/data/dialogues/scene01.fr.json`.
 2. Modifier le `texte` voulu, ou ajouter une ligne `{ "qui": "...", "texte": "..." },` à l'endroit souhaité
    dans la liste. Attention aux virgules entre les lignes et aux guillemets (`"`). Pour une apostrophe,
    utiliser `’` ou `'` librement.
@@ -68,7 +68,7 @@ Ne pas renommer ni supprimer ces identifiants (le texte à l'intérieur peut cha
 
 `<oeuvre>` vaut `liberte`, `radeau`, `sabines` ou `sacre` (ordre de la visite).
 
-Scène 2 (`scene2.fr.json`) :
+Scène 2 (`scene02.fr.json`) :
 
 | Identifiant | Moment |
 | --- | --- |
@@ -94,7 +94,8 @@ Scène 2 (`scene2.fr.json`) :
 
 ## Progression enregistrée
 
-La sauvegarde garde l'étape de visite, les présentations terminées et les drapeaux `introDone`, `anomalyFound`,
-`groupLeft`, `encounterDone`, `alarmTriggered` et `scene1Done`, puis pour la scène 2 `guardWarned`, `shotHeard`,
-`keyObtained`, `keyBurnFelt`, `doorPullFelt`, `doorBehindSeen`, `doorBehindOpenSeen`, `doorOpened` et
-`vaisseauReached` (`src/systems/SaveGame.ts`). Un événement déjà vécu ne se rejoue pas.
+La sauvegarde garde l'étape de visite et la progression narrative rangée par scène dans `gameState.story`
+(`src/systems/SaveGame.ts`) : `story.scene01` (`introDone`, `presentations`, `anomalyFound`, `groupLeft`,
+`encounterDone`, `alarmTriggered`, `done`) et `story.scene02` (`guardWarned`, `shotHeard`, `keyObtained`,
+`keyBurnFelt`, `doorPullFelt`, `doorBehindSeen`, `doorBehindOpenSeen`, `doorOpened`, `vaisseauReached`).
+Un événement déjà vécu ne se rejoue pas. Détail par scène : [SCENES.md](SCENES.md).

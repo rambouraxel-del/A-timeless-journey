@@ -91,8 +91,8 @@ export class MuseeCrowd {
   // Centre de la zone occupee par le groupe (null : le groupe est parti).
   private groupCenter(): number | null {
     const story = gameState.story;
-    if (story.groupLeft) return null;
-    if (!story.introDone) return musee.spawn.x;
+    if (story.scene01.groupLeft) return null;
+    if (!story.scene01.introDone) return musee.spawn.x;
     return artworkCenterX(GUIDED_STEPS[Math.min(gameState.visit.step, GUIDED_STEPS.length - 1)]);
   }
 
@@ -143,7 +143,7 @@ export class MuseeCrowd {
       for (const n of this.npcs) if (n.inGroup) n.remove();
       return;
     }
-    const atEntrance = !gameState.story.introDone;
+    const atEntrance = !gameState.story.scene01.introDone;
     for (const n of this.npcs) {
       const g = atEntrance ? n.spec.entrance : n.spec.group;
       if (!g) continue;

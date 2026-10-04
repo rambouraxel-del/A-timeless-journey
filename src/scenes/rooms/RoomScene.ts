@@ -9,7 +9,7 @@ import { destinationOf } from '@/data/rooms/connections';
 import { roomSceneKey } from '@/data/rooms/registry';
 import { dialogue } from '@/systems/Dialogues';
 import { gameState } from '@/systems/GameState';
-import { getActiveSlot, loadSlot, saveSlot } from '@/systems/SaveGame';
+import { cloneStory, getActiveSlot, loadSlot, saveSlot } from '@/systems/SaveGame';
 import { LAYERS, type LayerId, layerWidth } from '@/world/Layers';
 import type { InteractableDef, RoomDefinition } from '@/world/RoomDefinition';
 import { WalkGraph } from '@/world/WalkGraph';
@@ -105,7 +105,7 @@ export abstract class RoomScene extends Phaser.Scene {
       place: this.room.name,
       playTime: Math.floor(gameState.playTime),
       visit: { step: gameState.visit.step, examined: [...gameState.visit.examined] },
-      story: { ...gameState.story, presentations: [...gameState.story.presentations] },
+      story: cloneStory(gameState.story),
       x: this.player.position.x / this.room.width,
       y: this.player.position.y / this.room.height,
       facing: this.player.facingDirection,

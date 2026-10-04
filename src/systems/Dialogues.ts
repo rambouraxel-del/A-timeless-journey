@@ -1,10 +1,10 @@
-import scene1 from '@/data/dialogues/dialogues.fr.json';
-import scene2 from '@/data/dialogues/scene2.fr.json';
+import scene01 from '@/data/dialogues/scene01.fr.json';
+import scene02 from '@/data/dialogues/scene02.fr.json';
 import type { DialogueLine } from './Dialogue';
 
 // Textes du jeu, lus dans les fichiers de src/data/dialogues/ (voir docs/DIALOGUES.md) :
-//   dialogues.fr.json : scene 1 du prologue (musee) et repliques d'ambiance ;
-//   scene2.fr.json    : scene 2 (evacuation, ruelle, porte, arrivee dans le vaisseau).
+//   scene01.fr.json : scene 1 du prologue (musee) et repliques d'ambiance ;
+//   scene02.fr.json : scene 2 (evacuation, ruelle, porte, arrivee dans le vaisseau).
 // Le code ne connait que les identifiants : modifier une replique ne change pas la logique.
 
 interface RawLine {
@@ -19,11 +19,11 @@ interface DialogueFile {
   dialogues?: Record<string, RawLine[]>;
   indications?: Record<string, string>;
 }
-const files = [scene1, scene2] as unknown as DialogueFile[];
+const files = [scene01, scene02] as unknown as DialogueFile[];
 const speakers: Record<string, string> = Object.assign({}, ...files.map((f) => f.interlocuteurs ?? {}));
 const dialogues: Record<string, RawLine[]> = Object.assign({}, ...files.map((f) => f.dialogues ?? {}));
 const hints: Record<string, string> = Object.assign({}, ...files.map((f) => f.indications ?? {}));
-const thoughtSuffix = scene1.suffixe_pensee;
+const thoughtSuffix = scene01.suffixe_pensee;
 
 type Vars = Record<string, string | number>;
 

@@ -10,7 +10,7 @@ export interface NpcSpec {
   // Taille de la partie visible, relative au heros (adultes un peu plus grands, etudiants plus petits).
   size: number;
   label: string;
-  // Identifiant du dialogue d'ambiance (dialogues.fr.json) ; absent : personnage non interactif.
+  // Identifiant du dialogue d'ambiance (scene01.fr.json) ; absent : personnage non interactif.
   dialogue?: string;
   // Groupe du cours : decalage (x, y) par rapport au centre du tableau presente, et regard (1 : vers la droite).
   group?: { dx: number; dy: number; face: -1 | 1 };
