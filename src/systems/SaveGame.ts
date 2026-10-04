@@ -1,6 +1,8 @@
 // Sauvegarde locale (localStorage) : progression du joueur et reglages.
 // Toutes les lectures/ecritures sont protegees : navigation privee ou stockage bloque = pas de sauvegarde.
 
+// Cles de stockage : volontairement conservees sous l'ancien nom du jeu (A Timeless Journey, renomme Chronica)
+// pour ne perdre aucune sauvegarde ni reglage. Ne pas les renommer sans migration.
 const LEGACY_KEY = 'a-timeless-journey:save'; // ancienne sauvegarde unique, migree vers l'emplacement 1
 const SLOTS_KEY = 'a-timeless-journey:slots';
 const SETTINGS_KEY = 'a-timeless-journey:settings';

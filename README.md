@@ -1,4 +1,9 @@
-# A Timeless Journey
+# Chronica
+
+> **Chronica** est le nouveau nom du jeu, anciennement **A Timeless Journey**. Les deux noms désignent le même
+> projet : l'ancien nom reste volontairement dans le nom du dépôt GitHub (`a-timeless-journey`), l'URL GitHub Pages
+> (`/A-timeless-journey/`, voir `vite.config.ts`), l'identifiant d'application Capacitor (`com.atimelessjourney.game`)
+> et les clés de sauvegarde du navigateur (`a-timeless-journey:*`, voir `SaveGame.ts`), pour ne rien casser.
 
 Jeu narratif 2D en pixel art, vue latérale, pour téléphone (portrait).
 Le joueur traverse des mondes, résout des énigmes et parle aux personnages. Pas de saut : on marche, on monte des escaliers et des échelles, on touche les objets pour interagir.

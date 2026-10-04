@@ -1,5 +1,7 @@
 # Carte des scènes narratives
 
+(Le jeu s'appelle **Chronica**, anciennement *A Timeless Journey* : les deux noms désignent le même projet.)
+
 Référence pour reprendre une scène : quels fichiers ouvrir, où sont ses textes, ses données, ses assets et son état
 sauvegardé. Une **scène narrative** est une étape de l'histoire ; un **lieu** (salle) est une `RoomScene` jouable.
 Une scène peut traverser plusieurs lieux, et un lieu peut servir à plusieurs scènes.

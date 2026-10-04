@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite';
 import { fileURLToPath, URL } from 'node:url';
 
-// Sur GitHub Pages le jeu est servi depuis /A-timeless-journey/ et non depuis la racine.
+// Sur GitHub Pages le jeu est servi depuis /A-timeless-journey/ et non depuis la racine : c'est le nom du depot
+// (le jeu s'appelle Chronica, le depot garde son ancien nom). Si le depot est renomme, changer cette valeur en
+// meme temps (l'URL Pages devient /<nouveau-nom>/).
 const REPO_BASE = '/A-timeless-journey/';
 
 export default defineConfig(({ command, isPreview }) => ({

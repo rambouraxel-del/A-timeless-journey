@@ -1,8 +1,8 @@
 {
-  "name": "a-timeless-journey",
+  "name": "chronica",
   "version": "0.2.0",
   "private": true,
-  "description": "A Timeless Journey - jeu narratif 2D pixel art en vue laterale pour telephone",
+  "description": "Chronica (ex A Timeless Journey) - jeu narratif 2D pixel art en vue laterale pour telephone",
   "type": "module",
   "scripts": {
     "dev": "vite",

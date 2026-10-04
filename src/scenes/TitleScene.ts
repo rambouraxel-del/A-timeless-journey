@@ -16,7 +16,7 @@ import { useLogicalCamera } from '@/ui/UiImage';
 
 // Fond commun (852 x 1846) : le heros est en bas a droite, ses pieds a 76 % de la hauteur.
 const BG = { width: 852, height: 1846, heroFeetY: 1405 };
-const TITLE_ASPECT = 678 / 1100;
+const TITLE_ASPECT = 483 / 1100; // logo CHRONICA (assets/menu/titre.png)
 const BUTTON_RATIOS = { continuer: 198 / 1000, nouvelle: 185 / 1000, parametres: 221 / 1000 };
 const GOLD = 0xf2c46b;
 
