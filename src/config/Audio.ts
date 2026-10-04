@@ -1,6 +1,8 @@
-// Pistes d'ambiance (chemins relatifs a public/). Aucun fichier audio n'est encore fourni :
+// Pistes d'ambiance (chemins relatifs a public/). Le theme principal est fourni ; pour les autres,
 // deposer les fichiers ci-dessous pour activer la musique, sans autre modification.
 export const MusicTracks = {
+  // Theme principal (The Chronos Motif) : menu d'accueil.
+  theme: { url: 'assets/audio/theme-principal.mp3', volume: 0.6 },
   galerie: { url: 'assets/audio/musee-galerie.mp3', volume: 0.5 },
   sacre: { url: 'assets/audio/musee-sacre.mp3', volume: 0.55 },
 } as const;

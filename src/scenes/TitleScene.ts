@@ -8,6 +8,7 @@ import { NPCS } from '@/data/rooms/musee-pnj';
 import { ARTWORKS, MYSTERIOUS, npcKey, npcUrl, partKey, partUrl, PARTS, thumbKey, thumbUrl } from '@/data/rooms/musee';
 import { DOOR_TEXTURES } from '@/data/rooms/portes';
 import { gameState, startGameState } from '@/systems/GameState';
+import { Music } from '@/systems/Music';
 import { hasAnySave, loadSlot, setActiveSlot } from '@/systems/SaveGame';
 import { Modal } from '@/ui/Modal';
 import { openSettings, openSlotPicker } from '@/ui/SaveMenus';
@@ -41,6 +42,7 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create(): void {
+    Music.play('theme'); // theme principal (demarre au premier toucher : le navigateur bloque l'audio avant)
     useLogicalCamera(this, RENDER_SCALE);
     const heroFeet = this.createBackground();
     this.createTitle();
@@ -203,6 +205,10 @@ export class TitleScene extends Phaser.Scene {
     openSlotPicker(this, 'new', (slot) => this.startGame(slot, false));
   }
 
+  update(_time: number, delta: number): void {
+    Music.update(delta / 1000);
+  }
+
   private openSettings(): void {
     openSettings(this, { allowErase: true, onBack: () => this.refreshContinue(), onErased: () => this.refreshContinue() });
   }
@@ -212,6 +218,7 @@ export class TitleScene extends Phaser.Scene {
     this.starting = true;
     setActiveSlot(slot);
     startGameState(resume ? loadSlot(slot) : null);
+    Music.play(null); // fondu du theme (la mise a jour continue dans UIScene)
     this.cameras.main.fadeOut(250, 0, 0, 0);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       this.scene.start(roomSceneKey(gameState.room), { resume });

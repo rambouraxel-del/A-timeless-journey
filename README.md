@@ -71,6 +71,7 @@ Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack
 - Ambiance : 19 personnages immobiles (`assets-source/pnj/`, `python tools/preparer-pnj.py`) : cours (professeur + 10 étudiants) devant l'étape active, visiteurs, agents (`musee-pnj.ts`, `MuseeCrowd.ts`). Ils ne changent de place que hors de la vue ; quelques-uns répondent à INTERAGIR.
 - Portes : `src/data/rooms/connections.ts` (vaisseau ↔ musée provisoire ; sortie de secours du musée ↔ ruelle). La porte du vaisseau (`portes.ts`, `Door.ts`) est en miroir selon sa place dans la salle ; la sortie de secours est une image séparée (`tools/preparer-portes.py`).
 - Musique : déposer `public/assets/audio/musee-galerie.mp3` et `musee-sacre.mp3` (`src/config/Audio.ts`) ; sans fichiers, silence.
+- Menu d'accueil : thème principal « The Chronos Motif » (`public/assets/audio/theme-principal.mp3`, piste `theme` de `Audio.ts`), lancé au premier toucher (le navigateur bloque l'audio avant) et estompé au lancement d'une partie.
 
 ## Scène 1 du prologue (musée)
 
