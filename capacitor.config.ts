@@ -4,7 +4,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 // L'identifiant est provisoire : a fixer avant toute publication (il ne peut plus changer ensuite).
 const config: CapacitorConfig = {
   appId: 'com.atimelessjourney.game',
-  appName: 'A Timeless Journey',
+  appName: 'Chronica',
   webDir: 'dist',
   backgroundColor: '#101014',
 };

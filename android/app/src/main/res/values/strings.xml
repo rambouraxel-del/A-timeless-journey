@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">A Timeless Journey</string>
-    <string name="title_activity_main">A Timeless Journey</string>
+    <string name="app_name">Chronica</string>
+    <string name="title_activity_main">Chronica</string>
     <string name="package_name">com.atimelessjourney.game</string>
     <string name="custom_url_scheme">com.atimelessjourney.game</string>
 </resources>
