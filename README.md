@@ -34,6 +34,10 @@ Sur ordinateur : flèches ou ZQSD pour bouger, Maj pour courir, Espace ou E pour
 
 ## Architecture
 
+Scènes narratives (quels fichiers pour quelle scène) : voir **[docs/SCENES.md](docs/SCENES.md)**. Progression
+narrative sauvegardée par scène : `gameState.story.scene01`, `story.scene02`… (`src/systems/SaveGame.ts`) ; textes
+dans `src/data/dialogues/scene01.fr.json`, `scene02.fr.json`…
+
 ```
 public/assets/            Graphismes (fournis par toi ou libres de droits, jamais générés)
   characters/hero/        Héros (planche assemblée depuis assets-source/characters/hero/)
@@ -45,12 +49,13 @@ assets-source/characters/ Animations d'origine du héros (GIF/PNG)
 src/
   config/                 Dimensions (Layout), liste des assets (Assets), scènes (SceneKeys)
   data/rooms/             Définition des salles : chemins, objets, point d'arrivée
-  data/dialogues/         (vide) futurs dialogues
+  data/dialogues/         Textes du jeu, un fichier par scène narrative (sceneNN.fr.json)
   world/                  Couches de profondeur, graphe de déplacement
   entities/               Joueur
   systems/                Commandes, interactions, bus d'événements, type de dialogue
   scenes/                 Chargement, interface (UIScene), salles (rooms/)
   ui/                     Joystick, boutons, boîte de dialogue
+docs/SCENES.md            Carte des scènes narratives : fichiers, dialogues, assets, progression de chaque scène
 tools/                    Assemblage du héros, découpe de l'UI, préparation du menu (preparer-menu.py)
 ```
 
@@ -75,7 +80,7 @@ Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack
 ## Scène 1 du prologue (musée)
 
 - Une nouvelle partie commence à l'entrée du musée : conversation, consigne du professeur, puis visite guidée en 4 étapes (Liberté → Radeau → Sabines → Sacre) avec limite de progression. Devant le Sacre : anomalie de Joséphine, départ du groupe, homme mystérieux, alarme, fuite ; l'issue de secours mène alors à la ruelle.
-- Logique : `src/scenes/rooms/MuseeScene.ts` ; état : `gameState.story` (sauvegardé). Textes : **`src/data/dialogues/dialogues.fr.json`** — voir [docs/DIALOGUES.md](docs/DIALOGUES.md).
+- Logique : `src/scenes/rooms/MuseeScene.ts` ; état : `gameState.story.scene01` (sauvegardé). Textes : **`src/data/dialogues/scene01.fr.json`** — voir [docs/DIALOGUES.md](docs/DIALOGUES.md).
 - Homme mystérieux : sprites `assets-source/gardien/debout.png` et `blesse.png`, préparés par `python tools/preparer-gardien.py` (réduits ×1/4, même taille de pixel pour les deux) ; mis à l'échelle du héros au chargement. Alarme : déposer `public/assets/audio/alarme.mp3` pour le son.
 
 ## Scène 2 du prologue (évacuation, ruelle, vaisseau)
@@ -85,7 +90,7 @@ Salle unique de **4 écrans de long**, un seul niveau, construite depuis le pack
 - Vaisseau (`VaisseauScene.ts`) : à la première arrivée, la porte se referme doucement, l'écran mural puis la console s'allument (écrans éteints puis clignotement ; la caméra glisse jusqu'à la console puis revient au héros), courte réaction et objectif « explorer le vaisseau ». La porte du vaisseau reste ensuite close.
 - Liaisons (`connections.ts`) : issue de secours du musée → ruelle ; porte impossible de la ruelle → porte du vaisseau. L'ancienne liaison provisoire musée ↔ vaisseau est supprimée.
 - Sons : coup de feu, chute, clé, porte, consoles et bourdonnement synthétisés en Web Audio (`src/systems/Sfx.ts`), aucun fichier audio.
-- Textes : **`src/data/dialogues/scene2.fr.json`** ; progression : drapeaux de `gameState.story` (sauvegardés), voir [docs/DIALOGUES.md](docs/DIALOGUES.md).
+- Textes : **`src/data/dialogues/scene02.fr.json`** ; progression : drapeaux de `gameState.story.scene02` (sauvegardés), voir [docs/DIALOGUES.md](docs/DIALOGUES.md).
 
 ## La ruelle du Louvre
 

@@ -4,7 +4,7 @@
 const LEGACY_KEY = 'a-timeless-journey:save'; // ancienne sauvegarde unique, migree vers l'emplacement 1
 const SLOTS_KEY = 'a-timeless-journey:slots';
 const SETTINGS_KEY = 'a-timeless-journey:settings';
-const SAVE_VERSION = 2;
+const SAVE_VERSION = 3; // 3 : progression narrative rangee par scene (story.scene01, story.scene02)
 export const SLOT_COUNT = 3;
 
 // Progression de la visite du musee : etape guidee en cours et oeuvres deja examinees.
@@ -13,16 +13,22 @@ export interface VisitData {
   examined: string[];
 }
 
-// Progression narrative du prologue (scene 1 : musee). Chaque evenement unique a son drapeau.
-export interface StoryData {
+// Progression narrative, rangee par scene (voir docs/SCENES.md). Chaque evenement unique a son drapeau.
+// Nouvelle scene : ajouter son interface SceneNNStory, son entree dans StoryData, newStory() et validStory().
+
+// Scene 01 : visite du musee, anomalie Josephine, homme mysterieux, alarme.
+export interface Scene01Story {
   introDone: boolean; // conversation d'arrivee et consigne du professeur
   presentations: string[]; // oeuvres deja presentees par le professeur (la visite avance avec visit.step)
   anomalyFound: boolean; // question sur Josephine posee devant le Sacre
   groupLeft: boolean; // le groupe a quitte la salle
   encounterDone: boolean; // conversation avec l'homme mysterieux terminee
   alarmTriggered: boolean; // alarme declenchee, homme enfui : l'issue de secours est utilisable
-  scene1Done: boolean; // le heros a rejoint la ruelle
-  // Scene 2 (evacuation, ruelle, porte impossible, arrivee dans le vaisseau).
+  done: boolean; // le heros a rejoint la ruelle (ancien drapeau scene1Done)
+}
+
+// Scene 02 : evacuation du musee, ruelle, porte impossible, arrivee dans le vaisseau.
+export interface Scene02Story {
   guardWarned: boolean; // le garde a bloque le retour dans le musee
   shotHeard: boolean; // coup de feu entendu en arrivant dans la ruelle
   keyObtained: boolean; // l'homme mysterieux a remis la cle, puis il est mort
@@ -34,23 +40,38 @@ export interface StoryData {
   vaisseauReached: boolean; // arrivee dans le vaisseau (fin de la scene 2)
 }
 
+export interface StoryData {
+  scene01: Scene01Story;
+  scene02: Scene02Story;
+}
+
 export const newStory = (): StoryData => ({
-  introDone: false,
-  presentations: [],
-  anomalyFound: false,
-  groupLeft: false,
-  encounterDone: false,
-  alarmTriggered: false,
-  scene1Done: false,
-  guardWarned: false,
-  shotHeard: false,
-  keyObtained: false,
-  keyBurnFelt: false,
-  doorPullFelt: false,
-  doorBehindSeen: false,
-  doorBehindOpenSeen: false,
-  doorOpened: false,
-  vaisseauReached: false,
+  scene01: {
+    introDone: false,
+    presentations: [],
+    anomalyFound: false,
+    groupLeft: false,
+    encounterDone: false,
+    alarmTriggered: false,
+    done: false,
+  },
+  scene02: {
+    guardWarned: false,
+    shotHeard: false,
+    keyObtained: false,
+    keyBurnFelt: false,
+    doorPullFelt: false,
+    doorBehindSeen: false,
+    doorBehindOpenSeen: false,
+    doorOpened: false,
+    vaisseauReached: false,
+  },
+});
+
+// Copie independante (la sauvegarde ne doit pas partager ses tableaux avec la partie en cours).
+export const cloneStory = (story: StoryData): StoryData => ({
+  scene01: { ...story.scene01, presentations: [...story.scene01.presentations] },
+  scene02: { ...story.scene02 },
 });
 
 export interface SaveData {
@@ -106,27 +127,37 @@ function validVisit(raw: unknown): VisitData {
   return { step, examined };
 }
 
+// Accepte le format par scene ({ scene01: {...}, scene02: {...} }) et l'ancien format a plat (sauvegardes
+// d'avant la reorganisation : tous les drapeaux au meme niveau). Drapeau absent = faux.
 function validStory(raw: unknown, visit: VisitData): StoryData {
-  const s = (raw ?? {}) as Partial<StoryData>;
+  type Raw = Record<string, unknown>;
+  const flat = (raw ?? {}) as Raw;
+  const scene = (key: string) => (flat[key] && typeof flat[key] === 'object' ? (flat[key] as Raw) : flat);
+  const s1 = scene('scene01');
+  const s2 = scene('scene02');
   const flag = (v: unknown) => v === true;
   return {
-    // Ancienne sauvegarde sans recit : une visite deja commencee vaut introduction faite.
-    introDone: flag(s.introDone) || (raw == null && visit.step > 0),
-    presentations: Array.isArray(s.presentations) ? s.presentations.filter((e): e is string => typeof e === 'string') : [],
-    anomalyFound: flag(s.anomalyFound),
-    groupLeft: flag(s.groupLeft),
-    encounterDone: flag(s.encounterDone),
-    alarmTriggered: flag(s.alarmTriggered),
-    scene1Done: flag(s.scene1Done),
-    guardWarned: flag(s.guardWarned),
-    shotHeard: flag(s.shotHeard),
-    keyObtained: flag(s.keyObtained),
-    keyBurnFelt: flag(s.keyBurnFelt),
-    doorPullFelt: flag(s.doorPullFelt),
-    doorBehindSeen: flag(s.doorBehindSeen),
-    doorBehindOpenSeen: flag(s.doorBehindOpenSeen),
-    doorOpened: flag(s.doorOpened),
-    vaisseauReached: flag(s.vaisseauReached),
+    scene01: {
+      // Ancienne sauvegarde sans recit : une visite deja commencee vaut introduction faite.
+      introDone: flag(s1.introDone) || (raw == null && visit.step > 0),
+      presentations: Array.isArray(s1.presentations) ? s1.presentations.filter((e): e is string => typeof e === 'string') : [],
+      anomalyFound: flag(s1.anomalyFound),
+      groupLeft: flag(s1.groupLeft),
+      encounterDone: flag(s1.encounterDone),
+      alarmTriggered: flag(s1.alarmTriggered),
+      done: flag(s1.done) || flag(s1.scene1Done),
+    },
+    scene02: {
+      guardWarned: flag(s2.guardWarned),
+      shotHeard: flag(s2.shotHeard),
+      keyObtained: flag(s2.keyObtained),
+      keyBurnFelt: flag(s2.keyBurnFelt),
+      doorPullFelt: flag(s2.doorPullFelt),
+      doorBehindSeen: flag(s2.doorBehindSeen),
+      doorBehindOpenSeen: flag(s2.doorBehindOpenSeen),
+      doorOpened: flag(s2.doorOpened),
+      vaisseauReached: flag(s2.vaisseauReached),
+    },
   };
 }
 

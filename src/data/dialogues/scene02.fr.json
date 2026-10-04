@@ -1,5 +1,5 @@
 {
-  "_aide": "Scene 2 du prologue : evacuation du musee, ruelle, porte impossible, arrivee dans le vaisseau. Modifier librement les \"texte\" (et ajouter/supprimer des lignes). Ne pas renommer les identifiants (cles de \"dialogues\" et \"indications\") : le code s'en sert pour declencher les evenements. Les interlocuteurs (\"qui\") sont definis dans dialogues.fr.json ou ci-dessous. Une ligne sans \"qui\" est une narration. \"pensee\": true = pensee du heros. Voir docs/DIALOGUES.md.",
+  "_aide": "Scene 2 du prologue : evacuation du musee, ruelle, porte impossible, arrivee dans le vaisseau. Modifier librement les \"texte\" (et ajouter/supprimer des lignes). Ne pas renommer les identifiants (cles de \"dialogues\" et \"indications\") : le code s'en sert pour declencher les evenements. Les interlocuteurs (\"qui\") sont definis dans scene01.fr.json ou ci-dessous. Une ligne sans \"qui\" est une narration. \"pensee\": true = pensee du heros. Voir docs/DIALOGUES.md.",
   "interlocuteurs": {
     "garde": "Agent de sécurité"
   },

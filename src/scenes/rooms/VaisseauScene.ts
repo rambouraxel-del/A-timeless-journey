@@ -40,7 +40,7 @@ export class VaisseauScene extends RoomScene {
   create(): void {
     const story = gameState.story;
     // Premiere arrivee par la porte de la ruelle : le vaisseau est encore eteint.
-    this.awakening = this.arrivalDoor === DOOR_ID && story.doorOpened && !story.vaisseauReached;
+    this.awakening = this.arrivalDoor === DOOR_ID && story.scene02.doorOpened && !story.scene02.vaisseauReached;
     this.screensOff = new Map();
     this.effects = null;
     super.create();
@@ -83,7 +83,7 @@ export class VaisseauScene extends RoomScene {
   protected onInteract(def: InteractableDef): void {
     if (this.inCutscene) return;
     // Apres l'arrivee, la porte reste close : l'objectif est d'explorer le vaisseau.
-    if (def.id === DOOR_ID && gameState.story.vaisseauReached) {
+    if (def.id === DOOR_ID && gameState.story.scene02.vaisseauReached) {
       this.runCutscene(() => this.say('vaisseau.porte'));
       return;
     }
@@ -108,7 +108,7 @@ export class VaisseauScene extends RoomScene {
     }
     await this.wait(200);
     await this.say('vaisseau.arrivee');
-    gameState.story.vaisseauReached = true;
+    gameState.story.scene02.vaisseauReached = true;
     this.hint(indication('objectif_vaisseau'), 3500);
   }
 

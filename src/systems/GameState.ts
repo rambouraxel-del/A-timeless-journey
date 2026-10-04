@@ -1,5 +1,5 @@
 import { DEFAULT_ROOM } from '@/data/rooms/registry';
-import { newStory, type SaveData, type StoryData, type VisitData } from './SaveGame';
+import { cloneStory, newStory, type SaveData, type StoryData, type VisitData } from './SaveGame';
 
 // Etat de la partie en cours, conserve quand on change de salle : salle courante, temps de jeu,
 // visite du musee et progression narrative. Ecrit dans la sauvegarde manuelle.
@@ -17,5 +17,5 @@ export function startGameState(save: SaveData | null): void {
   gameState.room = save?.room ?? DEFAULT_ROOM;
   gameState.playTime = save?.playTime ?? 0;
   gameState.visit = save ? { step: save.visit.step, examined: [...save.visit.examined] } : { step: 0, examined: [] };
-  gameState.story = save ? { ...save.story, presentations: [...save.story.presentations] } : newStory();
+  gameState.story = save ? cloneStory(save.story) : newStory();
 }

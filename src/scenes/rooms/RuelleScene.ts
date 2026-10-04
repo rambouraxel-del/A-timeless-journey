@@ -74,12 +74,12 @@ export class RuelleScene extends RoomScene {
       this.hum.stop();
       this.events.off(Phaser.Scenes.Events.PAUSE, onPause);
     });
-    if (story.shotHeard) this.showWounded();
-    if (story.doorOpened) this.door.setOpen();
+    if (story.scene02.shotHeard) this.showWounded();
+    if (story.scene02.doorOpened) this.door.setOpen();
 
-    if (!story.shotHeard) this.runCutscene(() => this.arrival(), 800);
-    else if (!story.keyObtained) this.hint(indication('objectif_bruit'), 3000);
-    else if (!story.doorOpened) this.hint(indication('objectif_porte'), 3000);
+    if (!story.scene02.shotHeard) this.runCutscene(() => this.arrival(), 800);
+    else if (!story.scene02.keyObtained) this.hint(indication('objectif_bruit'), 3000);
+    else if (!story.scene02.doorOpened) this.hint(indication('objectif_porte'), 3000);
     else this.hint(indication('objectif_seuil'), 3000);
   }
 
@@ -175,14 +175,14 @@ export class RuelleScene extends RoomScene {
 
     if (def.id === WOUNDED.id) {
       this.player.setFacing(def.x < this.player.position.x ? -1 : 1);
-      if (!story.keyObtained) this.runCutscene(() => this.lastWords());
+      if (!story.scene02.keyObtained) this.runCutscene(() => this.lastWords());
       else this.runCutscene(() => this.say('ruelle.homme.corps'));
       return;
     }
 
     if (def.id === IMPOSSIBLE_DOOR.id) {
-      if (!story.keyObtained) this.runCutscene(() => this.say('ruelle.porte.verrouillee'));
-      else if (!story.doorOpened) this.runCutscene(() => this.unlockDoor());
+      if (!story.scene02.keyObtained) this.runCutscene(() => this.say('ruelle.porte.verrouillee'));
+      else if (!story.scene02.doorOpened) this.runCutscene(() => this.unlockDoor());
       else this.enterDoor(def);
       return;
     }
@@ -202,7 +202,7 @@ export class RuelleScene extends RoomScene {
     this.muzzleFlash();
     await this.wait(450);
     Sfx.thud();
-    gameState.story.shotHeard = true;
+    gameState.story.scene02.shotHeard = true;
     this.showWounded();
     await this.wait(500);
     await this.say('ruelle.coup_de_feu');
@@ -212,7 +212,7 @@ export class RuelleScene extends RoomScene {
   // Dernieres paroles : la cle est remise, puis l'homme meurt.
   private async lastWords(): Promise<void> {
     await this.say('ruelle.homme.agonie');
-    gameState.story.keyObtained = true;
+    gameState.story.scene02.keyObtained = true;
     this.hint(indication('cle_obtenue'), 2200);
     await this.wait(700);
     this.markDead(true);
@@ -227,7 +227,7 @@ export class RuelleScene extends RoomScene {
     await this.wait(350);
     Sfx.unlock();
     await this.say('ruelle.porte.cle');
-    gameState.story.doorOpened = true;
+    gameState.story.scene02.doorOpened = true;
     await this.door.openAsync();
     await this.wait(300);
     await this.say('ruelle.porte.ouverte');
@@ -251,7 +251,7 @@ export class RuelleScene extends RoomScene {
       .setDepth(depthAtFeet(WOUNDED.feet * S));
     woundedDef.x = WOUNDED.x * S;
     this.interactions?.relocate(woundedDef);
-    if (gameState.story.keyObtained) this.markDead(false);
+    if (gameState.story.scene02.keyObtained) this.markDead(false);
   }
 
   // Mort : le corps s'assombrit legerement (le sprite reste immobile).
@@ -301,8 +301,8 @@ export class RuelleScene extends RoomScene {
     const story = gameState.story;
     const d = this.doorDistance();
     const near = Phaser.Math.Clamp(1 - d / BURN_RADIUS, 0, 1);
-    const burn = story.keyObtained && !story.doorOpened ? near : 0;
-    const aura = story.keyObtained ? near * (story.doorOpened ? 0.6 : 1) : 0;
+    const burn = story.scene02.keyObtained && !story.scene02.doorOpened ? near : 0;
+    const aura = story.scene02.keyObtained ? near * (story.scene02.doorOpened ? 0.6 : 1) : 0;
     const pulse = 0.8 + 0.2 * Math.sin(time * 0.009);
 
     // Lueur dans la main (cote du regard, a mi-hauteur du heros).
@@ -329,13 +329,13 @@ export class RuelleScene extends RoomScene {
     const p = this.player.position;
     const near = 1 - d / BURN_RADIUS;
 
-    if (story.keyObtained && !story.doorOpened && !story.keyBurnFelt && near > 0.3) {
-      story.keyBurnFelt = true;
+    if (story.scene02.keyObtained && !story.scene02.doorOpened && !story.scene02.keyBurnFelt && near > 0.3) {
+      story.scene02.keyBurnFelt = true;
       this.runCutscene(() => this.say('ruelle.cle.brule'));
       return;
     }
-    if (story.keyObtained && !story.doorOpened && story.keyBurnFelt && !story.doorPullFelt && d < PULL_DISTANCE) {
-      story.doorPullFelt = true;
+    if (story.scene02.keyObtained && !story.scene02.doorOpened && story.scene02.keyBurnFelt && !story.scene02.doorPullFelt && d < PULL_DISTANCE) {
+      story.scene02.doorPullFelt = true;
       this.runCutscene(async () => {
         await this.say('ruelle.porte.attraction');
         this.aroundHintShown = true;
@@ -343,17 +343,17 @@ export class RuelleScene extends RoomScene {
       });
       return;
     }
-    if (!this.aroundHintShown && story.shotHeard && d < 330) {
+    if (!this.aroundHintShown && story.scene02.shotHeard && d < 330) {
       this.aroundHintShown = true;
       this.hint(indication('tour_porte'), 3000);
     }
     // Derriere la porte (allee du fond, a son aplomb) : elle ne mene nulle part.
     const behind = p.y < (AROUND.back.y + 8) * S && Math.abs(p.x - IMPOSSIBLE_DOOR.x * S) < 45 * S;
-    if (behind && !story.doorOpened && !story.doorBehindSeen) {
-      story.doorBehindSeen = true;
+    if (behind && !story.scene02.doorOpened && !story.scene02.doorBehindSeen) {
+      story.scene02.doorBehindSeen = true;
       this.runCutscene(() => this.say('ruelle.porte.derriere'));
-    } else if (behind && story.doorOpened && !story.doorBehindOpenSeen) {
-      story.doorBehindOpenSeen = true;
+    } else if (behind && story.scene02.doorOpened && !story.scene02.doorBehindOpenSeen) {
+      story.scene02.doorBehindOpenSeen = true;
       this.runCutscene(() => this.say('ruelle.porte.derriere_ouverte'));
     }
   }

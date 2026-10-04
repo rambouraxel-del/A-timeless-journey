@@ -49,7 +49,7 @@ const EVACUATION = { guard: 'agent_1', guardX: 5140, gap: 70 };
 const NUDGE_COOLDOWN = 7000;
 
 // Salle du musee et scene 1 du prologue : arrivee, visite guidee, anomalie du Sacre, rencontre de l'homme
-// mysterieux, alarme. Tous les textes viennent de dialogues.fr.json ; ici ne se trouvent que les conditions,
+// mysterieux, alarme. Tous les textes viennent de scene01.fr.json ; ici ne se trouvent que les conditions,
 // la mise en scene et leurs consequences (etat dans gameState.story, ecrit dans la sauvegarde).
 export class MuseeScene extends RoomScene {
   protected readonly room = musee;
@@ -73,23 +73,23 @@ export class MuseeScene extends RoomScene {
     const story = gameState.story;
     // Sauvegarde d'une version precedente (visite finie sans presentation du Sacre) : la derniere etape
     // reste a faire, sinon l'alarme ne pourrait jamais se declencher.
-    if (story.introDone && !story.anomalyFound && gameState.visit.step >= GUIDED_STEPS.length) gameState.visit.step = GUIDED_STEPS.length - 1;
+    if (story.scene01.introDone && !story.scene01.anomalyFound && gameState.visit.step >= GUIDED_STEPS.length) gameState.visit.step = GUIDED_STEPS.length - 1;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => Music.play(null));
 
-    if (story.alarmTriggered && !story.scene1Done) this.startAlarm(false);
+    if (story.scene01.alarmTriggered && !story.scene01.done) this.startAlarm(false);
     // Apres l'alarme : evacuation, un garde barre le retour vers la visite.
-    if (story.alarmTriggered) {
+    if (story.scene01.alarmTriggered) {
       this.startEvacuation();
       this.time.delayedCall(900, () => this.hint(indication('objectif_suivre'), 3000));
     }
 
-    if (!story.introDone) {
+    if (!story.scene01.introDone) {
       // Nouvelle partie : le heros est a l'entree, au milieu de ses camarades.
       this.player.placeAt(this.room.spawn);
       this.player.setFacing(1);
       this.cameras.main.scrollX = Phaser.Math.Clamp(this.player.position.x - LOGICAL_WIDTH / 2, 0, this.room.width - LOGICAL_WIDTH);
       this.runCutscene(() => this.intro(), 700);
-    } else if (story.anomalyFound && !story.alarmTriggered) {
+    } else if (story.scene01.anomalyFound && !story.scene01.alarmTriggered) {
       // Reprise au milieu du final (securite) : on rejoue la suite a partir du premier evenement non termine.
       this.runCutscene(() => this.finale(), 600);
     } else if (gameState.visit.step < GUIDED_STEPS.length) {
@@ -150,7 +150,7 @@ export class MuseeScene extends RoomScene {
 
   private progressLimit(): number | null {
     const step = gameState.visit.step;
-    if (!gameState.story.introDone || step >= GUIDED_STEPS.length) return null;
+    if (!gameState.story.scene01.introDone || step >= GUIDED_STEPS.length) return null;
     return artworkCenterX(GUIDED_STEPS[step]) + PROGRESS_MARGIN * S;
   }
 
@@ -184,11 +184,11 @@ export class MuseeScene extends RoomScene {
 
     // Issue de secours : verrouillee jusqu'a l'alarme, puis passage vers la ruelle (fin de la scene 1).
     if (def.id === EXIT.id) {
-      if (!story.alarmTriggered) {
+      if (!story.scene01.alarmTriggered) {
         EventBus.emit(GameEvents.DialogueOpen, dialogue('issue_secours.fermee'));
         return;
       }
-      story.scene1Done = true;
+      story.scene01.done = true;
       this.stopAlarm();
       super.onInteract(def);
       return;
@@ -232,7 +232,7 @@ export class MuseeScene extends RoomScene {
     if (!gameState.visit.examined.includes(art.id)) gameState.visit.examined.push(art.id);
     // Tableau de l'etape en cours : presentation du professeur (une seule fois).
     const step = gameState.visit.step;
-    if (story.introDone && !story.groupLeft && GUIDED_STEPS[step] === art.id && !story.presentations.includes(art.id)) {
+    if (story.scene01.introDone && !story.scene01.groupLeft && GUIDED_STEPS[step] === art.id && !story.scene01.presentations.includes(art.id)) {
       this.runCutscene(() => this.present(art));
       return;
     }
@@ -249,7 +249,7 @@ export class MuseeScene extends RoomScene {
     this.crowd.npc('professeur')?.face(-1);
     await this.say('prologue.intro.professeur');
     await this.fade(true, 350);
-    gameState.story.introDone = true;
+    gameState.story.scene01.introDone = true;
     this.crowd.placeGroup();
     await this.fade(false, 350);
     this.hintStep('suivre');
@@ -259,9 +259,9 @@ export class MuseeScene extends RoomScene {
   private async present(art: Artwork): Promise<void> {
     const story = gameState.story;
     const last = gameState.visit.step === GUIDED_STEPS.length - 1;
-    story.presentations.push(art.id);
+    story.scene01.presentations.push(art.id);
     gameState.visit.step++;
-    if (last) story.anomalyFound = true;
+    if (last) story.scene01.anomalyFound = true;
     else this.crowd.placeGroup();
     await this.showLines(() =>
       EventBus.emit(GameEvents.ArtworkOpen, { key: largeKey(art.id), url: largeUrl(art.id), lines: dialogue(`visite.${art.id}.presentation`) }),
@@ -274,20 +274,20 @@ export class MuseeScene extends RoomScene {
   // (drapeau de gameState.story) est saute.
   private async finale(): Promise<void> {
     const story = gameState.story;
-    if (!story.groupLeft) {
+    if (!story.scene01.groupLeft) {
       await this.crowd.leave(this);
-      story.groupLeft = true;
+      story.scene01.groupLeft = true;
       await this.wait(400);
       await this.say('prologue.depart.pensee');
     }
     let man: Phaser.GameObjects.Image | null = null;
-    if (!story.encounterDone) {
+    if (!story.scene01.encounterDone) {
       man = await this.mysteriousArrives();
       await this.say('prologue.rencontre');
-      story.encounterDone = true;
+      story.scene01.encounterDone = true;
     }
-    if (!story.alarmTriggered) {
-      story.alarmTriggered = true;
+    if (!story.scene01.alarmTriggered) {
+      story.scene01.alarmTriggered = true;
       this.startAlarm(true);
       await this.wait(700);
       await this.say('prologue.alarme');
@@ -337,8 +337,8 @@ export class MuseeScene extends RoomScene {
   // Le joueur pousse vers le garde : une fois son explication, ensuite un rappel court et espace.
   private onGuardBlock(time: number): void {
     this.crowd.npc(EVACUATION.guard)?.face(1);
-    if (!gameState.story.guardWarned) {
-      gameState.story.guardWarned = true;
+    if (!gameState.story.scene02.guardWarned) {
+      gameState.story.scene02.guardWarned = true;
       this.guardWarnedAt = time;
       this.runCutscene(() => this.say('musee.evacuation.garde'));
     } else if (time - this.guardWarnedAt > NUDGE_COOLDOWN) {
