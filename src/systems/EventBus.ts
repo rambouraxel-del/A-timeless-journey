@@ -11,6 +11,8 @@ export const GameEvents = {
   DialogueOpen: 'dialogue:open', // (lines: DialogueLine[])
   ArtworkOpen: 'artwork:open', // (artwork: ArtworkView) : oeuvre en grand + dialogue
   DialogueClosed: 'dialogue:closed',
+  ItemPickup: 'item:pickup', // (id: ItemId) : animation « objet obtenu »
+  ItemPickupClosed: 'item:pickup:closed',
   ConsoleOpen: 'console:open', // (screen: ConsoleScreen, broken: boolean) : console du vaisseau en plein ecran
   ConsoleClosed: 'console:closed', // (result: 'action' | 'close')
 } as const;

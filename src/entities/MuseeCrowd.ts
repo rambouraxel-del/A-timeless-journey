@@ -9,6 +9,9 @@ import { gameState } from '@/systems/GameState';
 const OFFSCREEN_MARGIN = 80;
 // Le groupe est centre sur le tableau presente (les decalages du fichier de donnees sont relatifs a ce centre + GROUP_SHIFT).
 const GROUP_SHIFT = 110;
+// Pas du garde qui marche (pixels du monde) et hauteur du rebond a chaque pas.
+const STEP_LENGTH = 22;
+const STEP_BOUNCE = 1.6;
 
 // Profondeur d'affichage selon la position des pieds : plus bas a l'ecran = plus devant. Le heros
 // (pieds sur la ligne de sol) sert de repere.
@@ -189,6 +192,61 @@ export class MuseeCrowd {
       } else n.remove();
       this.onMoved(n.spec.id);
     }
+  }
+
+  // Evacuation en scene (alarme) : les personnages visibles s'effacent doucement, le garde est pose hors de la vue
+  // (x = fromX, a gauche de l'ecran) et tourne vers la droite : il n'est visible qu'en entrant (voir walkGuard).
+  evacuateOffscreen(scene: Phaser.Scene, guardId: string, fromX: number): void {
+    this.evacuating = true;
+    for (const n of this.npcs) {
+      if (n.spec.id === guardId) {
+        n.sprite.setVisible(true).setAlpha(1);
+        n.place(fromX, groundY);
+        n.face(1);
+      } else if (n.sprite.visible) {
+        scene.tweens.add({
+          targets: n.sprite,
+          alpha: 0,
+          duration: 450,
+          onComplete: () => {
+            n.remove();
+            this.onMoved(n.spec.id);
+          },
+        });
+      } else {
+        n.remove();
+        this.onMoved(n.spec.id);
+      }
+    }
+  }
+
+  // Le garde marche jusqu'a x (pas legers, sans glissement : le sprite est immobile, il rebondit a chaque pas).
+  // onStep(x) est appele a chaque image avec sa position.
+  walkGuard(scene: Phaser.Scene, id: string, x: number, speed: number, onStep: (x: number) => void): Promise<void> {
+    const n = this.byId.get(id);
+    if (!n) return Promise.resolve();
+    const from = n.x;
+    return new Promise((resolve) => {
+      scene.tweens.addCounter({
+        from,
+        to: x,
+        duration: (Math.abs(x - from) / speed) * 1000,
+        onUpdate: (tween) => {
+          const cx = tween.getValue() ?? x;
+          n.place(cx, groundY);
+          n.sprite.y = groundY - Math.abs(Math.sin((cx / STEP_LENGTH) * Math.PI)) * STEP_BOUNCE;
+          this.onMoved(id);
+          onStep(cx);
+        },
+        onComplete: () => {
+          n.place(x, groundY);
+          n.face(1);
+          this.onMoved(id);
+          onStep(x);
+          resolve();
+        },
+      });
+    });
   }
 
   update(time: number, cameraX: number): void {

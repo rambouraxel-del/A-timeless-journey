@@ -83,10 +83,10 @@ Lieux :
 3. Arrivée dans le vaisseau (`vaisseau`)
 
 Logique :
-- `src/scenes/rooms/MuseeScene.ts` : `startEvacuation()`, `onGuardBlock()` (constante `EVACUATION` : agent qui
+- `src/scenes/rooms/MuseeScene.ts` : `startEvacuation()` (l'agent est posé hors écran à gauche puis entre en marchant et repousse le héros vers la sortie de droite), `onGuardBlock()` (constante `EVACUATION` : agent qui
   bloque le retour)
 - `src/entities/MuseeCrowd.ts` : `evacuate()`
-- `src/scenes/rooms/RuelleScene.ts` : `arrival()` (coup de feu), `lastWords()` (clé, mort), `unlockDoor()`,
+- `src/scenes/rooms/RuelleScene.ts` : `arrival()` (coup de feu), `lastWords()` (clé + animation « objet obtenu », mort), `unlockDoor()`,
   `enterDoor()`, `updateKeyEffects()` (clé brûlante, attraction), `checkTriggers()` (pensées selon la position)
 - `src/scenes/rooms/VaisseauScene.ts` : `arrival()` (vaisseau dans le noir, porte qui se referme, allumage
   progressif, `powerUp()` des écrans, panoramique)
@@ -146,7 +146,7 @@ Logique :
 Données :
 - `src/data/rooms/vaisseau.ts` : seuls interactifs `CABINET_ID` (armoire), `HOURGLASS_ID` (sablier temporel),
   `CONSOLE_ID` (console) et la porte
-- `src/scenes/rooms/vaisseauEffects.ts` : halos groupés (`screens`, `lights`, `reactor`, `motes`)
+- `src/scenes/rooms/vaisseauEffects.ts` : halos groupés (`screens`, `lights`, `reactor`, `motes`) et lampes d'alarme rouges (`addAlarmLights`, clignotement de la panne dans `VaisseauScene.startAlarmLights`)
 - `src/data/rooms/foret.ts` : salle, porte, `FOREST_IMAGE` (vrai fond à brancher), `DISCOVERY_STEPS`
 - `src/data/rooms/connections.ts` : forêt `porte_temps` ↔ vaisseau `porte_gauche`
 

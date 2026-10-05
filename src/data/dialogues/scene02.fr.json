@@ -30,13 +30,15 @@
 
     "ruelle.homme.agonie": [
       { "qui": "heros", "texte": "Monsieur ! Vous êtes blessé… Je vais appeler les secours !" },
-      { "qui": "mysterieux", "texte": "Non… Pas le temps. Écoute-moi bien." },
-      { "qui": "mysterieux", "texte": "Joséphine… Tu avais raison. Elle devrait être sur ce tableau." },
+      { "qui": "mysterieux", "portrait": "blesse", "texte": "Non… Pas le temps. Écoute-moi bien." },
+      { "qui": "mysterieux", "portrait": "blesse", "texte": "Joséphine… Tu avais raison. Elle devrait être sur ce tableau." },
       { "qui": "heros", "texte": "Alors qu’est-ce qui lui est arrivé ? Et qui vous a tiré dessus ?" },
-      { "qui": "mysterieux", "texte": "Le temps est en danger. Quelqu’un est en train de le défaire… morceau par morceau." },
-      { "qui": "mysterieux", "texte": "Les autres ont déjà oublié. Toi, tu te souviens. Alors maintenant… tout repose sur toi." },
-      { "texte": "Il glisse une vieille clé dans ta main. Le métal est étrangement tiède." },
-      { "qui": "mysterieux", "texte": "La porte… au fond de la ruelle. Va." },
+      { "qui": "mysterieux", "portrait": "blesse", "texte": "Le temps est en danger. Quelqu’un est en train de le défaire… morceau par morceau." },
+      { "qui": "mysterieux", "portrait": "blesse", "texte": "Les autres ont déjà oublié. Toi, tu te souviens. Alors maintenant… tout repose sur toi." },
+      { "texte": "Il glisse une vieille clé dans ta main. Le métal est étrangement tiède." }
+    ],
+    "ruelle.homme.agonie.suite": [
+      { "qui": "mysterieux", "portrait": "blesse", "texte": "La porte… au fond de la ruelle. Va." },
       { "qui": "heros", "texte": "Quelle porte ? Attendez, je ne comprends pas !" }
     ],
     "ruelle.homme.mort": [

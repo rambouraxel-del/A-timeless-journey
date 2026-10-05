@@ -4,6 +4,7 @@ import type { Player } from '@/entities/Player';
 import { DEPTH } from '@/world/Layers';
 import type { InteractableDef } from '@/world/RoomDefinition';
 import { controls } from './Controls';
+import { PointerGuard } from './PointerGuard';
 import { EventBus, GameEvents } from './EventBus';
 
 // Distance max (en px, bord de l'objet -> pieds du joueur) pour pouvoir interagir.
@@ -80,7 +81,7 @@ export class InteractionSystem {
       const zone = scene.add
         .zone(b.x, (b.top + b.bottom) / 2, b.right - b.left + 12, b.bottom - b.top + 12)
         .setInteractive({ useHandCursor: true })
-        .on('pointerdown', () => this.tryInteract(def));
+        .on('pointerdown', (p: Phaser.Input.Pointer) => this.tryInteract(def, p));
       this.zones.set(def.id, zone);
       this.anchors.set(def.id, def.x);
     }
@@ -218,8 +219,9 @@ export class InteractionSystem {
     return info;
   }
 
-  private tryInteract(def: InteractableDef): void {
-    if (controls.locked) return;
+  private tryInteract(def: InteractableDef, pointer: Phaser.Input.Pointer): void {
+    // Un appui deja utilise par l'interface (dialogue qui se ferme) ne declenche rien dans la salle.
+    if (controls.locked || PointerGuard.isConsumed(pointer)) return;
     if (this.inReach(def)) EventBus.emit(GameEvents.Interact, def);
     else EventBus.emit(GameEvents.Hint, 'Trop loin : approche-toi.');
   }

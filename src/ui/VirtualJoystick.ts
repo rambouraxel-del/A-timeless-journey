@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { RENDER_SCALE } from '@/config/Layout';
+import { PointerGuard } from '@/systems/PointerGuard';
 import type { Vec2 } from '@/world/RoomDefinition';
 import { uiImage } from './UiImage';
 
@@ -24,7 +25,7 @@ export class VirtualJoystick {
 
     // Les pointeurs arrivent en pixels d'ecran ; le jeu raisonne en pixels logiques.
     scene.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
-      if (this.pointerId === null && this.base.visible && area.contains(p.x / RENDER_SCALE, p.y / RENDER_SCALE)) {
+      if (this.pointerId === null && this.base.visible && !PointerGuard.isConsumed(p) && area.contains(p.x / RENDER_SCALE, p.y / RENDER_SCALE)) {
         this.pointerId = p.id;
         this.follow(p);
       }

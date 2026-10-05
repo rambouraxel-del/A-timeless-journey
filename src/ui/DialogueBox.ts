@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
+import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from '@/config/Layout';
 import type { DialogueLine } from '@/systems/Dialogue';
+import { PointerGuard } from '@/systems/PointerGuard';
 import { FRAME_SLICES, PLATE_SLICES, resizeNineSlice as resize, uiNineSlice } from './NineSlice';
 import { uiImage } from './UiImage';
 import { textStyle, UiColors } from './UiStyle';
@@ -11,6 +13,12 @@ const BODY = { size: 16, lineSpacing: 1 };
 const BUTTON = { height: 28, padX: 14, size: 15 };
 const MOTIF_HEIGHT = 50;
 const THOUGHT_COLOR = '#a9cdf5'; // pensees du heros
+const THOUGHT_TINT = 0x8fb8f0; // cadre du portrait et cartouche du nom pour une pensee
+const THOUGHT_PORTRAIT_ALPHA = 0.78;
+// Texte progressif : delai par caractere (ms), pause supplementaire apres la ponctuation.
+const TYPE_MS = 26;
+const TYPE_PAUSE: Record<string, number> = { '.': 7, '!': 7, '?': 7, '…': 7, ',': 3, ';': 3, ':': 3 };
+const BLOCKER_DEPTH = 55; // sous la fenetre d'examen d'une oeuvre (60) et la boite (100), au-dessus du reste de l'interface
 const SYSTEM_COLOR = '#6fe6ff'; // messages du vaisseau
 
 // Boite de dialogue affichee dans le panneau bas, a la place des commandes.
@@ -28,12 +36,20 @@ export class DialogueBox {
   private readonly buttonPlate: Phaser.GameObjects.NineSlice;
   private readonly buttonLabel: Phaser.GameObjects.Text;
   private readonly lineHeight: number;
+  // Zone invisible plein ecran, active pendant un dialogue : un tap n'importe ou fait avancer le texte
+  // et n'atteint ni les commandes ni la salle en dessous.
+  private readonly blocker: Phaser.GameObjects.Zone;
 
   private lines: DialogueLine[] = [];
   private index = 0;
   private pages: string[] = [];
   private page = 0;
   private openedAt = 0;
+  // Affichage progressif de la page courante.
+  private typing = false;
+  private fullText = '';
+  private shown = 0;
+  private typer: Phaser.Time.TimerEvent | null = null;
 
   // area : zone disponible (le panneau bas, marges comprises).
   constructor(
@@ -42,7 +58,10 @@ export class DialogueBox {
     private readonly onClose: () => void,
   ) {
     this.frame = uiNineSlice(scene, 'dialogue_frame', FRAME_SLICES);
-    this.frame.setInteractive().on('pointerdown', () => this.advance());
+    this.blocker = scene.add.zone(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT).setOrigin(0).setDepth(BLOCKER_DEPTH).setInteractive();
+    this.blocker.input!.enabled = false;
+    this.blocker.on('pointerdown', (p: Phaser.Input.Pointer) => this.tap(p));
+    this.frame.setInteractive().on('pointerdown', (p: Phaser.Input.Pointer) => this.tap(p));
     this.motif = uiImage(scene, 'dialogue_motif', 0, 0).setOrigin(1, 1).setAlpha(0.85);
     this.motif.setScale((this.motif.scaleX * MOTIF_HEIGHT) / this.motif.displayHeight);
     this.portraitFrame = uiImage(scene, 'dialogue_portrait', 0, 0).setOrigin(0);
@@ -57,7 +76,7 @@ export class DialogueBox {
     this.buttonPlate = uiNineSlice(scene, 'dialogue_nameplate', PLATE_SLICES);
     this.buttonLabel = scene.add.text(0, 0, '', textStyle(BUTTON.size, UiColors.gold)).setOrigin(0.5);
     this.button = scene.add.container(0, 0, [this.buttonPlate, this.buttonLabel]);
-    this.buttonPlate.setInteractive().on('pointerdown', () => this.advance());
+    this.buttonPlate.setInteractive().on('pointerdown', (p: Phaser.Input.Pointer) => this.tap(p));
 
     this.root = scene.add
       .container(0, 0, [this.frame, this.motif, this.portraitFrame, this.portrait, this.plate, this.speaker, this.body, this.button])
@@ -75,19 +94,37 @@ export class DialogueBox {
     this.index = 0;
     this.openedAt = this.scene.time.now;
     this.root.setVisible(true);
+    this.blocker.input!.enabled = true;
     this.showLine();
+  }
+
+  // Tap ou clic sur l'ecran pendant un dialogue : il est consomme ici (ni deplacement ni interaction derriere).
+  tap(pointer: Phaser.Input.Pointer): void {
+    PointerGuard.consume(pointer);
+    this.advance();
   }
 
   // Ferme la boite d'un coup (bouton de fermeture de l'examen d'une oeuvre).
   close(): void {
     if (!this.isOpen) return;
-    this.root.setVisible(false);
+    this.hide();
     this.onClose();
   }
 
+  private hide(): void {
+    this.stopTyping();
+    this.root.setVisible(false);
+    this.blocker.input!.enabled = false;
+  }
+
+  // Premier appui : affiche toute la page d'un coup si elle defile encore ; appui suivant : page ou replique suivante.
   advance(): void {
     // Ignore le tap qui vient d'ouvrir la boite.
     if (!this.isOpen || this.scene.time.now - this.openedAt < 150) return;
+    if (this.typing) {
+      this.finishTyping();
+      return;
+    }
     if (this.page + 1 < this.pages.length) {
       this.page++;
       this.showPage();
@@ -95,7 +132,7 @@ export class DialogueBox {
       this.index++;
       this.showLine();
     } else {
-      this.root.setVisible(false);
+      this.hide();
       this.onClose();
     }
   }
@@ -117,7 +154,9 @@ export class DialogueBox {
     let textLeft = inner.left;
     if (hasPortrait) {
       this.portraitFrame.setPosition(inner.left, inner.top);
-      const tex = this.scene.textures.get(line.portrait!).getSourceImage();
+      const texture = this.scene.textures.get(line.portrait!);
+      texture.setFilter(Phaser.Textures.FilterMode.LINEAR); // reduction douce (les portraits sont plus grands que leur fenetre)
+      const tex = texture.getSourceImage();
       const room = PORTRAIT_SIZE - 12;
       this.portrait
         .setTexture(line.portrait!)
@@ -125,6 +164,16 @@ export class DialogueBox {
         .setPosition(inner.left + PORTRAIT_SIZE / 2, inner.top + this.portraitFrame.displayHeight / 2);
       textLeft = inner.left + PORTRAIT_SIZE + 10;
     }
+    // Pensee : cadre et cartouche teintes de bleu, portrait legerement estompe.
+    const thought = line.thought === true && !line.system;
+    if (thought) {
+      this.portraitFrame.setTint(THOUGHT_TINT);
+      this.plate.setTint(THOUGHT_TINT);
+    } else {
+      this.portraitFrame.clearTint();
+      this.plate.clearTint();
+    }
+    this.portrait.setAlpha(thought ? THOUGHT_PORTRAIT_ALPHA : 1);
     const textWidth = inner.right - textLeft;
 
     // Cartouche du nom : largeur ajustee au texte, bornee ; au-dela, le nom passe a la ligne.
@@ -169,7 +218,7 @@ export class DialogueBox {
   }
 
   private showPage(): void {
-    this.body.setText(this.pages[this.page]);
+    this.startTyping(this.pages[this.page]);
     const last = this.page + 1 >= this.pages.length && this.index + 1 >= this.lines.length;
     this.buttonLabel.setText(last ? 'Fermer' : 'Continuer');
     const w = this.buttonLabel.width + BUTTON.padX * 2;
@@ -177,5 +226,43 @@ export class DialogueBox {
     this.buttonPlate.setPosition(-w, -BUTTON.height);
     this.buttonLabel.setPosition(-w / 2, -BUTTON.height / 2);
     this.button.setPosition(this.area.right, this.area.bottom);
+  }
+
+  // --- Texte progressif ---------------------------------------------------------------
+
+  private startTyping(full: string): void {
+    this.stopTyping();
+    this.fullText = full;
+    this.shown = 0;
+    this.body.setText('');
+    this.typing = full.length > 0;
+    if (this.typing) this.typeNext();
+  }
+
+  // Affiche le caractere suivant (les espaces et retours a la ligne suivent sans delai), puis programme le suivant.
+  private typeNext(): void {
+    const text = this.fullText;
+    this.shown++;
+    while (this.shown < text.length && /\s/.test(text[this.shown - 1])) this.shown++;
+    this.body.setText(text.slice(0, this.shown));
+    if (this.shown >= text.length) {
+      this.typing = false;
+      this.typer = null;
+      return;
+    }
+    const delay = TYPE_MS * (1 + (TYPE_PAUSE[text[this.shown - 1]] ?? 0) * (/\s/.test(text[this.shown]) ? 1 : 0));
+    this.typer = this.scene.time.delayedCall(delay, () => this.typeNext());
+  }
+
+  // Affiche d'un coup toute la page en cours.
+  private finishTyping(): void {
+    this.stopTyping();
+    this.body.setText(this.fullText);
+  }
+
+  private stopTyping(): void {
+    this.typer?.remove(false);
+    this.typer = null;
+    this.typing = false;
   }
 }

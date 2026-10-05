@@ -54,6 +54,21 @@ le déroulement de la scène.
 
 Un identifiant manquant n'empêche pas le jeu de fonctionner : la boîte affiche « [Dialogue manquant : …] ».
 
+## Affichage des dialogues et portraits
+
+- Le texte s'affiche **progressivement**. Un tap (ou clic, E, Espace) pendant l'affichage montre toute la page d'un
+  coup ; le tap suivant passe à la suite. Pendant un dialogue, un tap **n'importe où** sur l'écran fait avancer le
+  texte et ne déclenche rien derrière (ni déplacement, ni interaction).
+- **Portraits** : la fenêtre à gauche de la boîte. Ils viennent du registre `src/config/Portraits.ts`, indexé par
+  l'identifiant d'interlocuteur (`qui`). Ajouter un personnage : déposer son PNG dans `assets-source/portraits/`,
+  lancer `python tools/preparer-portraits.py`, ajouter une ligne dans `Portraits`. Pas de portrait pour la narration
+  (réplique sans `qui`) ni pour les messages du vaisseau (`systeme`). Une réplique peut choisir une variante :
+  `{ "qui": "mysterieux", "portrait": "blesse", "texte": "…" }` (variantes déclarées dans le registre).
+- Les **pensées** du héros gardent leur style (texte et cartouche bleus, « (pensée) ») ; leur portrait est teinté de
+  bleu et légèrement estompé.
+- **Objets obtenus** : registre `src/config/Items.ts` (nom + image `assets-source/objets/`). Depuis une salle :
+  `await this.pickItem('cle')` affiche l'image, le nom et un halo pendant environ 2,3 s (un tap l'écourte).
+
 ## Identifiants à conserver
 
 Ne pas renommer ni supprimer ces identifiants (le texte à l'intérieur peut changer librement) :
@@ -84,7 +99,8 @@ Scène 2 (`scene02.fr.json`) :
 | `ruelle.arrivee` | Arrivée dans la ruelle vide |
 | `ruelle.coup_de_feu` | Coup de feu et chute, intention du héros |
 | `ruelle.sortie_secours` | La sortie de secours vue de l'extérieur (fermée) |
-| `ruelle.homme.agonie` | Dernières paroles de l'homme mystérieux, remise de la clé |
+| `ruelle.homme.agonie` | Dernières paroles de l'homme mystérieux, jusqu'à la remise de la clé (suivie de l'animation « objet obtenu ») |
+| `ruelle.homme.agonie.suite` | Fin de la conversation, après la clé |
 | `ruelle.homme.mort` | Mort de l'homme |
 | `ruelle.homme.corps` | INTERAGIR de nouveau avec le corps |
 | `ruelle.cle.brule` | La clé commence à brûler (approche de la porte) |
@@ -96,7 +112,7 @@ Scène 2 (`scene02.fr.json`) :
 | `ruelle.porte.derriere_ouverte` | Le héros passe derrière la porte ouverte |
 | `vaisseau.arrivee` | Arrivée dans le vaisseau (porte refermée, consoles allumées) |
 | `vaisseau.porte` | INTERAGIR avec la porte du vaisseau après l'arrivée |
-| `indications.objectif_suivre`, `evacuation`, `objectif_bruit`, `cle_obtenue`, `objectif_porte`, `tour_porte`, `objectif_seuil`, `objectif_vaisseau` | Messages courts et objectifs |
+| `indications.objectif_suivre`, `evacuation`, `objectif_bruit`, `cle_obtenue` (plus affiché : remplacé par l'animation « objet obtenu »), `objectif_porte`, `tour_porte`, `objectif_seuil`, `objectif_vaisseau` | Messages courts et objectifs |
 
 ## Progression enregistrée
 

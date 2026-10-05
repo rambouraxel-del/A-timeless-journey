@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import type { ItemId } from '@/config/Items';
 import { GAME_VIEW, LOGICAL_WIDTH, RENDER_SCALE } from '@/config/Layout';
 import { Player } from '@/entities/Player';
 import { controls } from '@/systems/Controls';
@@ -36,6 +37,8 @@ export abstract class RoomScene extends Phaser.Scene {
   private travelling = false;
   // Sequence scenarisee en cours : les interactions sont ignorees.
   protected inCutscene = false;
+  // Cinematique : le heros avance tout seul (null : immobile tant que les commandes sont bloquees).
+  protected scriptedMove: { x: number; y: number; run?: boolean } | null = null;
   // Cinematique : point (x monde) que la camera suit a la place du heros (null : le heros).
   private cameraFocusX: number | null = null;
   // Portes animees de la salle (par id d'objet) : elles s'ouvrent avant le changement de salle.
@@ -49,6 +52,7 @@ export abstract class RoomScene extends Phaser.Scene {
     this.arrivalDoor = data?.arrivalDoor ?? null;
     this.travelling = false;
     this.inCutscene = false;
+    this.scriptedMove = null;
   }
 
   create(): void {
@@ -119,8 +123,9 @@ export abstract class RoomScene extends Phaser.Scene {
     const dt = delta / 1000;
     gameState.playTime += dt;
     const breathless = controls.breathless > 0;
-    const canRun = controls.run && controls.stamina > 0 && !breathless;
-    this.player.update(dt, controls.locked ? { x: 0, y: 0 } : controls.move, canRun, breathless ? BREATHLESS_WALK_FACTOR : 1);
+    const scripted = controls.locked ? this.scriptedMove : null;
+    const canRun = (scripted ? scripted.run === true : controls.run) && controls.stamina > 0 && !breathless;
+    this.player.update(dt, scripted ?? (controls.locked ? { x: 0, y: 0 } : controls.move), canRun, breathless ? BREATHLESS_WALK_FACTOR : 1);
     let rate = this.player.running ? -STAMINA_DRAIN_RUN : this.player.moving ? STAMINA_REGEN_WALK : STAMINA_REGEN_IDLE;
     if (rate > 0 && breathless) rate *= BREATHLESS_REGEN_FACTOR;
     const before = controls.stamina;
@@ -203,6 +208,14 @@ export abstract class RoomScene extends Phaser.Scene {
   // Affiche un dialogue de dialogues*.json et attend sa fermeture.
   protected say(id: string): Promise<void> {
     return this.showLines(() => EventBus.emit(GameEvents.DialogueOpen, dialogue(id)));
+  }
+
+  // Animation « objet obtenu » (src/config/Items.ts) ; attend sa fin.
+  protected pickItem(id: ItemId): Promise<void> {
+    return new Promise((resolve) => {
+      EventBus.once(GameEvents.ItemPickupClosed, () => resolve());
+      EventBus.emit(GameEvents.ItemPickup, id);
+    });
   }
 
   protected showLines(open: () => void): Promise<void> {

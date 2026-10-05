@@ -13,6 +13,8 @@ import { Modal } from '@/ui/Modal';
 import { openConfirm, openSettings } from '@/ui/SaveMenus';
 import { DialogueBox } from '@/ui/DialogueBox';
 import { Hud } from '@/ui/Hud';
+import { ItemPickup } from '@/ui/ItemPickup';
+import type { ItemId } from '@/config/Items';
 import { ImageButton } from '@/ui/ImageButton';
 import { uiImage, useLogicalCamera } from '@/ui/UiImage';
 import { textStyle, UiColors } from '@/ui/UiStyle';
@@ -29,6 +31,7 @@ export class UIScene extends Phaser.Scene {
   private hud!: Hud;
   private viewer!: ArtworkViewer;
   private console!: ConsoleView;
+  private pickup!: ItemPickup;
   private hint!: Phaser.GameObjects.Text;
   private runHeld = false;
   private keys!: Record<'left' | 'right' | 'up' | 'down' | 'run' | 'interact', Phaser.Input.Keyboard.Key[]>;
@@ -70,8 +73,13 @@ export class UIScene extends Phaser.Scene {
       this.setDialogueMode(false);
       EventBus.emit(GameEvents.DialogueClosed);
     });
-    this.viewer = new ArtworkViewer(this, () => this.dialogue.close());
+    this.viewer = new ArtworkViewer(
+      this,
+      () => this.dialogue.close(),
+      (pointer) => this.dialogue.tap(pointer),
+    );
     this.console = new ConsoleView(this);
+    this.pickup = new ItemPickup(this);
 
     this.hint = this.add
       .text(W / 2, GAME_VIEW.height - 8, '', { ...textStyle(14, UiColors.gold), backgroundColor: '#10121cdd', padding: { x: 6, y: 2 } })
@@ -98,11 +106,14 @@ export class UIScene extends Phaser.Scene {
         EventBus.emit(GameEvents.ConsoleClosed, result);
       });
     };
+    const onItem = (id: ItemId) => this.pickup.show(id, () => EventBus.emit(GameEvents.ItemPickupClosed));
+    EventBus.on(GameEvents.ItemPickup, onItem);
     EventBus.on(GameEvents.ConsoleOpen, onConsole);
     EventBus.on(GameEvents.DialogueOpen, onDialogue);
     EventBus.on(GameEvents.ArtworkOpen, onArtwork);
     EventBus.on(GameEvents.Hint, this.showHint, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      EventBus.off(GameEvents.ItemPickup, onItem);
       EventBus.off(GameEvents.ConsoleOpen, onConsole);
       this.console.hide();
       EventBus.off(GameEvents.DialogueOpen, onDialogue);

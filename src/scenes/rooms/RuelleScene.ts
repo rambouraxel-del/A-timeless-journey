@@ -213,7 +213,8 @@ export class RuelleScene extends RoomScene {
   private async lastWords(): Promise<void> {
     await this.say('ruelle.homme.agonie');
     gameState.story.scene02.keyObtained = true;
-    this.hint(indication('cle_obtenue'), 2200);
+    await this.pickItem('cle');
+    await this.say('ruelle.homme.agonie.suite');
     await this.wait(700);
     this.markDead(true);
     await this.wait(600);
