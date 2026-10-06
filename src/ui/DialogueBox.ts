@@ -6,6 +6,8 @@ import { textStyle, UiColors } from './UiStyle';
 
 const PAD = { left: 18, right: 18, top: 14, bottom: 12 }; // marge interieure du cadre
 const PORTRAIT_SIZE = 76;
+// Ouverture interieure du cadre de portrait, en fraction de l'image (hors bordure doree et ornements).
+const PORTRAIT_HOLE = { left: 0.13, top: 0.13, right: 0.87, bottom: 0.88 };
 const NAME = { size: 14, padX: 8, padY: 3, maxWidthRatio: 0.6 };
 const BODY = { size: 16, lineSpacing: 1 };
 const BUTTON = { height: 28, padX: 14, size: 15 };
@@ -117,12 +119,23 @@ export class DialogueBox {
     let textLeft = inner.left;
     if (hasPortrait) {
       this.portraitFrame.setPosition(inner.left, inner.top);
+      // Le portrait remplit exactement l'ouverture interieure du cadre (sans deborder sur ses bordures) : il est
+      // recadre, ancre en haut (le visage), plutot que reduit.
       const tex = this.scene.textures.get(line.portrait!).getSourceImage();
-      const room = PORTRAIT_SIZE - 12;
+      const fw = this.portraitFrame.displayWidth;
+      const fh = this.portraitFrame.displayHeight;
+      const hole = { x: fw * PORTRAIT_HOLE.left, y: fh * PORTRAIT_HOLE.top, w: fw * (PORTRAIT_HOLE.right - PORTRAIT_HOLE.left), h: fh * (PORTRAIT_HOLE.bottom - PORTRAIT_HOLE.top) };
+      const scale = Math.max(hole.w / tex.width, hole.h / tex.height);
+      const cropW = hole.w / scale;
+      const cropH = hole.h / scale;
+      const cropX = (tex.width - cropW) / 2;
+      // Le recadrage garde l'image a sa place : on decale l'image pour que la partie visible tombe sur l'ouverture.
       this.portrait
         .setTexture(line.portrait!)
-        .setScale(Math.min(room / tex.width, room / tex.height))
-        .setPosition(inner.left + PORTRAIT_SIZE / 2, inner.top + this.portraitFrame.displayHeight / 2);
+        .setOrigin(0, 0)
+        .setCrop(cropX, 0, cropW, cropH)
+        .setScale(scale)
+        .setPosition(inner.left + hole.x - cropX * scale, inner.top + hole.y);
       textLeft = inner.left + PORTRAIT_SIZE + 10;
     }
     const textWidth = inner.right - textLeft;
