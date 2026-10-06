@@ -10,6 +10,8 @@ const CYAN = 0x38d8ff;
 const WARM = 0xffd9a0;
 const RED = 0xff4a55;
 
+const CEILING_X = [357, 1073, 1796, 2517];
+
 type LightKind = 'pulse' | 'blink';
 interface Light {
   x: number;
@@ -172,4 +174,22 @@ export function addVaisseauEffects(scene: Phaser.Scene): VaisseauEffects {
       .setDepth(depth + 1);
   }
   return { screens, lights, reactor, motes: motesEmitter };
+}
+
+// Eclairage d'alarme du vaisseau en panne : quatre lampes rouges au plafond (aux memes endroits que les bandeaux
+// cyan), allumees en rythme avec le voile rouge de la salle (voir VaisseauScene.startAlarmLights). Retourne le
+// groupe de lampes : son opacite est animee par la scene.
+export function addAlarmLights(scene: Phaser.Scene, depth: number): Phaser.GameObjects.Container {
+  makeGlowTexture(scene, 'fx-glow', 128);
+  const lamps = scene.add.container(0, 0).setDepth(depth).setAlpha(0);
+  for (const x of CEILING_X) {
+    lamps.add(
+      scene.add
+        .image(x * sx, 62 * sy, 'fx-glow')
+        .setDisplaySize(340 * propScale, 200 * propScale)
+        .setTint(RED)
+        .setBlendMode(Phaser.BlendModes.ADD),
+    );
+  }
+  return lamps;
 }

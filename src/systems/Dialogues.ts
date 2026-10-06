@@ -1,6 +1,7 @@
 import scene01 from '@/data/dialogues/scene01.fr.json';
 import scene02 from '@/data/dialogues/scene02.fr.json';
 import scene03 from '@/data/dialogues/scene03.fr.json';
+import { portraitFor } from '@/config/Portraits';
 import type { DialogueLine } from './Dialogue';
 
 // Textes du jeu, lus dans les fichiers de src/data/dialogues/ (voir docs/DIALOGUES.md) :
@@ -14,6 +15,8 @@ interface RawLine {
   texte: string;
   pensee?: boolean;
   systeme?: boolean;
+  // Variante du portrait de l'interlocuteur (ex. "blesse"), voir src/config/Portraits.ts.
+  portrait?: string;
 }
 
 interface DialogueFile {
@@ -60,6 +63,8 @@ export function dialogue(id: string, vars?: Vars): DialogueLine[] {
     text: fill(l.texte, vars),
     thought: l.pensee === true,
     system: l.systeme === true,
+    // Portrait selon l'interlocuteur ; aucun pour la narration ni pour les messages systeme.
+    portrait: l.systeme === true ? undefined : portraitFor(l.qui, l.portrait),
   }));
 }
 

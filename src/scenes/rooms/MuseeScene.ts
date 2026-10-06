@@ -45,6 +45,11 @@ const PROGRESS_MARGIN = 300;
 // Evacuation (apres l'alarme) : garde poste avant le Sacre ; le heros ne peut pas aller a moins de `gap` de lui
 // (pixels d'origine de la galerie).
 const EVACUATION = { guard: 'agent_1', guardX: 5140, gap: 70 };
+// Arrivee du garde : il part hors de l'ecran (a gauche) et marche a cette vitesse (pixels/s) ; marge hors ecran (pixels).
+const GUARD_SPEED = 125;
+const GUARD_ENTRY_MARGIN = 100;
+// Le heros repousse par le garde s'arrete a cette distance supplementaire au-dela de sa limite (pixels d'origine).
+const PUSH_EXTRA = 14;
 // Intervalle minimal entre deux rappels courts quand le joueur insiste contre la limite (ms).
 const NUDGE_COOLDOWN = 7000;
 
@@ -55,6 +60,8 @@ export class MuseeScene extends RoomScene {
   protected readonly room = musee;
   private crowd!: MuseeCrowd;
   private evacuating = false;
+  // Evacuation : x que le heros ne peut pas depasser vers la gauche (le garde avance, la limite avec lui).
+  private guardLimitX = -Infinity;
   private guardWarnedAt = -1;
   private remindedStep = -1;
   private lastNudge = 0;
@@ -79,7 +86,7 @@ export class MuseeScene extends RoomScene {
     if (story.scene01.alarmTriggered && !story.scene01.done) this.startAlarm(false);
     // Apres l'alarme : evacuation, un garde barre le retour vers la visite.
     if (story.scene01.alarmTriggered) {
-      this.startEvacuation();
+      void this.startEvacuation();
       this.time.delayedCall(900, () => this.hint(indication('objectif_suivre'), 3000));
     }
 
@@ -134,7 +141,7 @@ export class MuseeScene extends RoomScene {
     super.update(time, delta);
     if (!controls.locked) this.crowd.update(time, this.cameras.main.scrollX);
     // Evacuation : le garde bloque physiquement le passage vers la gauche.
-    if (this.evacuating && this.player.limitMinX(EVACUATION.guardX * S + EVACUATION.gap * S) && controls.move.x < -0.3 && !controls.locked) this.onGuardBlock(time);
+    if (this.evacuating && this.player.limitMinX(this.guardLimitX) && controls.move.x < -0.3 && !controls.locked) this.onGuardBlock(time);
 
     // Limite de progression : on ne depasse pas l'etape en cours de la visite.
     const limit = this.progressLimit();
@@ -292,7 +299,7 @@ export class MuseeScene extends RoomScene {
       await this.wait(700);
       await this.say('prologue.alarme');
       if (man) await this.mysteriousFlees(man);
-      this.startEvacuation();
+      await this.startEvacuation(true);
       EventBus.emit(GameEvents.Hint, indication('fuite'));
       await this.wait(1800);
       this.hint(indication('objectif_suivre'), 3000);
@@ -326,12 +333,31 @@ export class MuseeScene extends RoomScene {
   }
 
   // Evacuation : visiteurs et groupe sortis, le garde se poste entre le heros et le reste du musee.
-  private startEvacuation(): void {
+  // animated : en scene (alarme), le garde est place hors ecran a gauche puis entre en marchant, et repousse le heros
+  // vers la sortie de droite s'il est sur son chemin. Sinon (reprise de partie) il est deja en place.
+  private async startEvacuation(animated = false): Promise<void> {
     if (this.evacuating) return;
     this.evacuating = true;
-    this.crowd.evacuate(EVACUATION.guard, EVACUATION.guardX * S);
-    const min = (EVACUATION.guardX + EVACUATION.gap) * S;
-    if (this.player.position.x < min) this.player.placeAt({ x: min + 10 * S, y: this.room.spawn.y });
+    const guardX = EVACUATION.guardX * S;
+    const finalLimit = (EVACUATION.guardX + EVACUATION.gap) * S;
+    if (!animated) {
+      this.crowd.evacuate(EVACUATION.guard, guardX);
+      this.guardLimitX = finalLimit;
+      if (this.player.position.x < finalLimit) this.player.placeAt({ x: finalLimit + 10 * S, y: this.room.spawn.y });
+      return;
+    }
+    const from = this.cameras.main.scrollX - GUARD_ENTRY_MARGIN;
+    this.guardLimitX = from + EVACUATION.gap * S;
+    this.crowd.evacuateOffscreen(this, EVACUATION.guard, from);
+    await this.wait(500);
+    await this.crowd.walkGuard(this, EVACUATION.guard, guardX, GUARD_SPEED, (x) => {
+      this.guardLimitX = x + EVACUATION.gap * S;
+      // Le heros recule devant l'agent : il marche vers la droite tant qu'il est sur son chemin.
+      this.scriptedMove = this.player.position.x < this.guardLimitX + PUSH_EXTRA * S ? { x: 1, y: 0 } : null;
+    });
+    this.scriptedMove = null;
+    this.guardLimitX = finalLimit;
+    this.player.setFacing(1);
   }
 
   // Le joueur pousse vers le garde : une fois son explication, ensuite un rappel court et espace.

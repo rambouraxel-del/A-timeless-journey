@@ -35,7 +35,7 @@ Sur ordinateur : flèches ou ZQSD pour bouger, Maj pour courir, Espace ou E pour
 - Le format suit le téléphone (de 16:9 à 860/360). **Environ 69 % de la hauteur** pour la scène, le reste pour le panneau de contrôle.
 - **HUD** (haut) : emblème temporel, cœurs de vie, jauge d'énergie (= endurance), bouton menu.
 - **Panneau** (bas) : joystick, INTERAGIR (objet à portée le plus proche), COURIR (à maintenir). Les commandes grandissent (jusqu'à ×1,3) sur les écrans allongés.
-- **Dialogues** : ils remplacent les commandes dans le panneau bas, avec un bouton Continuer / Fermer (ou un tap sur la boîte, E, Espace). Déplacements bloqués pendant l'affichage, caméra immobile. Cartouche du nom ajusté au texte (sur plusieurs lignes au-delà de 60 % de la largeur), texte paginé selon la place, encadré du portrait masqué si aucun portrait n'est fourni.
+- **Dialogues** : ils remplacent les commandes dans le panneau bas, avec un bouton Continuer / Fermer (ou un tap n'importe où sur l'écran, E, Espace). Le texte s'affiche progressivement ; un tap l'affiche d'un coup, le suivant passe à la réplique suivante, sans jamais agir sur la salle derrière. Portraits (`src/config/Portraits.ts`) et objets obtenus (`src/config/Items.ts`) : voir [docs/DIALOGUES.md](docs/DIALOGUES.md). Déplacements bloqués pendant l'affichage, caméra immobile. Cartouche du nom ajusté au texte (sur plusieurs lignes au-delà de 60 % de la largeur), texte paginé selon la place, encadré du portrait masqué si aucun portrait n'est fourni.
 
 ## Architecture
 
@@ -61,7 +61,7 @@ src/
   scenes/                 Chargement, interface (UIScene), salles (rooms/)
   ui/                     Joystick, boutons, boîte de dialogue
 docs/SCENES.md            Carte des scènes narratives : fichiers, dialogues, assets, progression de chaque scène
-tools/                    Assemblage du héros, découpe de l'UI, préparation du menu (preparer-menu.py)
+tools/                    Assemblage du héros, découpe de l'UI, préparation du menu (preparer-menu.py), des portraits et objets (preparer-portraits.py)
 ```
 
 ## La salle du vaisseau

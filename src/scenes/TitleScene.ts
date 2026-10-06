@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { Assets, UiFont, UiTextureKeys } from '@/config/Assets';
+import { ItemIds, itemKey, itemUrl } from '@/config/Items';
+import { PortraitFiles, portraitKey, portraitUrl } from '@/config/Portraits';
 import { LOGICAL_HEIGHT, LOGICAL_WIDTH, RENDER_SCALE, UI_DENSITY } from '@/config/Layout';
 import { SceneKeys } from '@/config/SceneKeys';
 import { layers, props, textureKey, textureUrl } from '@/data/rooms/vaisseau';
@@ -111,6 +113,8 @@ export class TitleScene extends Phaser.Scene {
     for (const part of PARTS) this.load.image(partKey(part.file), partUrl(part.file));
     for (const npc of NPCS) this.load.image(npcKey(npc), npcUrl(npc));
     this.load.image(MYSTERIOUS.key, MYSTERIOUS.url);
+    for (const file of PortraitFiles) this.load.image(portraitKey(file), portraitUrl(file));
+    for (const id of ItemIds) this.load.image(itemKey(id), itemUrl(id));
     for (const art of ARTWORKS) this.load.image(thumbKey(art.id), thumbUrl(art.id));
     for (const item of [...layers, ...props]) this.load.image(textureKey(item.file), textureUrl(item.file));
     this.load.once('complete', () => {

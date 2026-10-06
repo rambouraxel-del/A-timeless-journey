@@ -18,8 +18,11 @@ export class ArtworkViewer {
   constructor(
     private readonly scene: Phaser.Scene,
     onClose: () => void,
+    // Appui sur le fond de l'oeuvre : il fait avancer le dialogue (un appui n'importe ou doit fonctionner).
+    onTap?: (pointer: Phaser.Input.Pointer) => void,
   ) {
     const backdrop = scene.add.rectangle(0, 0, LOGICAL_WIDTH, GAME_VIEW.height, BACKDROP, 1).setOrigin(0).setInteractive(); // bloque les touches dessous
+    if (onTap) backdrop.on('pointerdown', onTap);
     const close = new TextButton(scene, 'Fermer', 76, 26, () => onClose());
     close.container.setPosition(LOGICAL_WIDTH - MARGIN - 38, MARGIN + 13);
     const rule = scene.add.rectangle(MARGIN, TOP - 6, LOGICAL_WIDTH - MARGIN * 2, 1, 0xf2c46b, 0.35).setOrigin(0);

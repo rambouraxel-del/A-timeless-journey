@@ -26,7 +26,7 @@ import { getSettings, reached } from '@/systems/SaveGame';
 import { Hum, Sfx } from '@/systems/Sfx';
 import type { InteractableDef } from '@/world/RoomDefinition';
 import type { ConsoleResult } from '@/ui/ConsoleView';
-import { addVaisseauEffects, makeGlowTexture, makeMoteTexture, type ScreenId, type VaisseauEffects } from './vaisseauEffects';
+import { addAlarmLights, addVaisseauEffects, makeGlowTexture, makeMoteTexture, type ScreenId, type VaisseauEffects } from './vaisseauEffects';
 import { RoomScene } from './RoomScene';
 
 // Ecrans eteints : rectangles des ecrans dans les images des equipements (pixels de texture). Dans ces zones, les
@@ -44,6 +44,8 @@ const SCREENS: Record<ScreenId, [number, number, number, number][]> = {
 const DARK = { depth: 75, off: 0.9, broken: 0.58 };
 const CYAN = 0x38d8ff;
 const EMERGENCY = 0xff3b30;
+// Alarme de panne : opacite maximale du voile rouge de la salle et des lampes du plafond.
+const ALARM = { veil: 0.18, lamps: 0.95 };
 // Sablier temporel (reacteur) : centre de la lumiere, en pixels de texture (scene.json, effet reactor-pulse).
 const HOURGLASS_CORE = manifestEffects.find((e) => e.id === 'reactor-pulse')?.anchor ?? [1760, 615];
 // Pensees d'exploration declenchees par la position (pixels de texture) : une seule fois chacune.
@@ -180,12 +182,26 @@ export class VaisseauScene extends RoomScene {
       if (animated) this.tintTo(hourglass, 0x5c6672, 1500);
       else hourglass.setTint(0x5c6672);
     }
-    this.tweens.add({ targets: this.emergency, alpha: { from: 0.02, to: 0.07 }, duration: 2600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.startAlarmLights(animated);
     // La porte, seule issue : un liseré de lumiere l'entoure doucement.
     this.tweens.add({ targets: this.doorLight, alpha: { from: 0.12, to: 0.28 }, duration: 1800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut', delay: animated ? 2500 : 0 });
     this.startSmoke();
     // Gresillements de temps en temps.
     this.time.addEvent({ delay: 4200, loop: true, callback: () => Math.random() < 0.6 && Sfx.crackle() });
+  }
+
+  // Eclairage d'alarme : lampes rouges au plafond et voile rouge qui s'allument ensemble, environ toutes les 1,5 s
+  // (clignotement doux, moins de 1 Hz, opacite faible : l'ambiance reste lisible). Sans effets d'ambiance
+  // (Parametres), seule l'ancienne pulsation tres lente du voile est conservee.
+  private startAlarmLights(animated: boolean): void {
+    if (!getSettings().ambient) {
+      this.tweens.add({ targets: this.emergency, alpha: { from: 0.02, to: 0.07 }, duration: 2600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      return;
+    }
+    const blink = { duration: 420, hold: 160, yoyo: true, repeat: -1, repeatDelay: 520, ease: 'Sine.easeInOut', delay: animated ? 1200 : 0 };
+    const lamps = addAlarmLights(this, DARK.depth + 0.6);
+    this.tweens.add({ targets: this.emergency, alpha: { from: 0.02, to: ALARM.veil }, ...blink });
+    this.tweens.add({ targets: lamps, alpha: { from: 0, to: ALARM.lamps }, ...blink });
   }
 
   // Fumee localisee au pied du sablier, etincelles rares.
